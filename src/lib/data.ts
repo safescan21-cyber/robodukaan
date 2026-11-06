@@ -6,7 +6,7 @@ import type { Banner, Category, Product } from "./types";
 // when an admin saves something (see app/api/revalidate/route.ts).
 
 const PRODUCT_FIELDS =
-  "id, slug, sku, name, brand, category_id, short_description, description, price, mrp, stock, image_url, images, specs, faqs, documents, warranty_months, ready_to_dispatch, rating_avg, rating_count, sold_count, is_featured, is_active, created_at, category:categories(slug, name, icon)";
+  "id, slug, sku, name, brand, category_id, short_description, description, price, mrp, stock, image_url, images, videos, specs, faqs, documents, warranty_months, ready_to_dispatch, rating_avg, rating_count, sold_count, is_featured, is_active, created_at, category:categories(slug, name, icon)";
 const CARD_FIELDS =
   "id, slug, sku, name, brand, category_id, short_description, price, mrp, stock, image_url, images, rating_avg, rating_count, sold_count, is_featured, is_active, created_at, category:categories(slug, name, icon)";
 
@@ -17,6 +17,7 @@ function normalize(rows: unknown[] | null): Product[] {
     mrp: p.mrp == null ? null : Number(p.mrp),
     rating_avg: Number(p.rating_avg ?? 0),
     images: p.images ?? [],
+    videos: p.videos ?? [],
     specs: p.specs ?? {},
     faqs: p.faqs ?? [],
     documents: p.documents ?? [],

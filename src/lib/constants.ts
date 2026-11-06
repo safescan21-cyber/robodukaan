@@ -33,7 +33,8 @@ export const CATEGORY_ICONS = ["pcb", "power", "scale", "chip", "sensor", "motor
 
 export const STORE = {
   name: "PCBDukaan",
-  phone: "+91 97739 10846",
+  // Leave empty to hide the phone number everywhere on the site (e.g. "+91 97739 10846").
+  phone: "",
   email: "sonugiri@pcbdukaan.in",
 };
 

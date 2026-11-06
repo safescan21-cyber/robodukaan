@@ -25,6 +25,7 @@ export type Product = {
   stock: number;
   image_url: string | null;
   images: string[];
+  videos: string[];
   specs: Record<string, string>;
   faqs: Faq[];
   documents: ProductDocument[];
@@ -46,6 +47,7 @@ export type Banner = {
   cta_label: string | null;
   link: string;
   image_url: string | null;
+  video_url: string | null;
   theme: "blue" | "orange" | "dark" | "green";
   sort_order: number;
   is_active: boolean;

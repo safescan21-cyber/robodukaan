@@ -19,7 +19,7 @@ export async function Header() {
           </p>
           <div className="hidden items-center gap-4 sm:flex">
             <Link href="/track" className="hover:text-white">Track order</Link>
-            <a href={`tel:${STORE.phone.replace(/\s/g, "")}`} className="hover:text-white">📞 {STORE.phone}</a>
+            {STORE.phone && <a href={`tel:${STORE.phone.replace(/\s/g, "")}`} className="hover:text-white">📞 {STORE.phone}</a>}
           </div>
         </div>
       </div>

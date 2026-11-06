@@ -7,20 +7,29 @@ import { revalidateCatalog } from "@/lib/admin";
 import { Stars } from "@/components/Stars";
 import { formatDate } from "@/lib/format";
 import type { Review } from "@/lib/types";
+import { Pager } from "@/components/Pager";
+import { adminField } from "@/lib/admin";
 
 type Row = Review & { product: { name: string; slug: string } | null };
 
 export default function AdminReviewsPage() {
   const [reviews, setReviews] = useState<Row[] | null>(null);
   const [filter, setFilter] = useState<"all" | "visible" | "hidden">("all");
+  const [q, setQ] = useState("");
+  const [page, setPage] = useState(0);
+  const [total, setTotal] = useState(0);
+  const PAGE = 25;
 
   const load = useCallback(async () => {
-    let req = getSupabase().from("reviews").select("*, product:products(name, slug)").order("created_at", { ascending: false }).limit(200);
+    let req = getSupabase().from("reviews").select("*, product:products(name, slug)", { count: "exact" }).order("created_at", { ascending: false }).range(page * PAGE, page * PAGE + PAGE - 1);
+    const term = q.trim().replace(/[%,()*\\]/g, " ");
+    if (term) req = req.or(`comment.ilike.%${term}%,user_name.ilike.%${term}%`);
     if (filter === "visible") req = req.eq("is_hidden", false);
     if (filter === "hidden") req = req.eq("is_hidden", true);
-    const { data } = await req;
+    const { data, count } = await req;
     setReviews((data as Row[]) ?? []);
-  }, [filter]);
+    setTotal(count ?? 0);
+  }, [filter, q, page]);
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch on change
     load();
@@ -43,9 +52,10 @@ export default function AdminReviewsPage() {
       <h1 className="text-2xl font-bold">Reviews</h1>
       <div className="flex gap-2">
         {(["all", "visible", "hidden"] as const).map((f) => (
-          <button key={f} onClick={() => setFilter(f)} className={`rounded-full px-3 py-1 text-sm capitalize ring-1 ${filter === f ? "bg-brand-600 text-white ring-brand-600" : "bg-white ring-slate-300"}`}>{f}</button>
+          <button key={f} onClick={() => { setFilter(f); setPage(0); }} className={`rounded-full px-3 py-1 text-sm capitalize ring-1 ${filter === f ? "bg-brand-600 text-white ring-brand-600" : "bg-white ring-slate-300"}`}>{f}</button>
         ))}
       </div>
+      <input value={q} onChange={(e) => { setQ(e.target.value); setPage(0); }} placeholder="Search review text or name…" className={`${adminField} mt-0 max-w-md`} aria-label="Search reviews" />
       <ul className="divide-y divide-slate-100 rounded-md bg-white ring-1 ring-slate-200">
         {reviews === null && <li className="p-4 text-sm text-slate-500">Loading…</li>}
         {reviews?.length === 0 && <li className="p-4 text-sm text-slate-500">No reviews.</li>}
@@ -69,6 +79,7 @@ export default function AdminReviewsPage() {
           </li>
         ))}
       </ul>
+      <Pager page={page} pageSize={PAGE} total={total} onPage={setPage} />
     </div>
   );
 }

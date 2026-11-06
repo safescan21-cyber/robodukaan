@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase-browser";
-import { adminButton, adminField, revalidateCatalog, uploadImage } from "@/lib/admin";
+import { adminButton, adminField, revalidateCatalog, uploadImage, uploadVideo } from "@/lib/admin";
 import type { Banner } from "@/lib/types";
 
 const THEME_SWATCH: Record<Banner["theme"], string> = {
@@ -29,14 +29,18 @@ export default function AdminBannersPage() {
     const f = new FormData(e.currentTarget);
     setSaving(true);
     let image_url = editing && editing !== "new" ? editing.image_url : null;
+    let video_url = editing && editing !== "new" ? editing.video_url : null;
     try {
       const file = f.get("image") as File | null;
       if (file && file.size > 0) image_url = await uploadImage(file, "banners");
+      const video = f.get("video") as File | null;
+      if (video && video.size > 0) video_url = await uploadVideo(video, "banner-videos");
     } catch (err) {
       setSaving(false);
       return setError(err instanceof Error ? err.message : "Upload failed");
     }
     if (f.get("remove_image") === "on") image_url = null;
+    if (f.get("remove_video") === "on") video_url = null;
     const link = String(f.get("link")).trim() || "/products";
     const values = {
       title: String(f.get("title")).trim(),
@@ -47,6 +51,7 @@ export default function AdminBannersPage() {
       sort_order: Number(f.get("sort_order")) || 0,
       is_active: f.get("is_active") === "on",
       image_url,
+      video_url,
     };
     const supabase = getSupabase();
     const { error } = editing && editing !== "new"
@@ -75,7 +80,7 @@ export default function AdminBannersPage() {
         <h1 className="text-2xl font-bold">Home page banners</h1>
         {editing === null && <button onClick={() => setEditing("new")} className={adminButton}>+ Add banner</button>}
       </div>
-      <p className="text-sm text-slate-600">These rotate in the big slider at the top of the home page. Use an image around 1600 × 500 px, or leave it empty for a coloured banner.</p>
+      <p className="text-sm text-slate-600">These rotate in the big slider at the top of the home page. Use an image around 1600 × 500 px, a short video (MP4, up to 50 MB — it plays muted on a loop), or neither for a coloured banner.</p>
       {error && <p className="rounded bg-red-50 p-3 text-sm text-red-700">{error}</p>}
       {editing !== null && (
         <form key={current?.id ?? "new"} onSubmit={save} className="grid gap-4 rounded-md bg-white p-5 ring-1 ring-slate-200 sm:grid-cols-2">
@@ -90,8 +95,10 @@ export default function AdminBannersPage() {
           </label>
           <label className="text-sm font-medium">Sort order<input name="sort_order" type="number" defaultValue={current?.sort_order ?? (banners?.length ?? 0) + 1} className={adminField} /></label>
           <label className="text-sm font-medium">Background image<input name="image" type="file" accept="image/*" className={adminField} /></label>
-          <div className="flex flex-col justify-end gap-2 text-sm">
+          <label className="text-sm font-medium">Background video (optional, plays instead of the image)<input name="video" type="file" accept="video/mp4,video/webm,video/quicktime" className={adminField} /></label>
+          <div className="flex flex-col justify-end gap-2 text-sm sm:col-span-2">
             {current?.image_url && <label className="flex items-center gap-2"><input type="checkbox" name="remove_image" className="h-4 w-4" />Remove current image</label>}
+            {current?.video_url && <label className="flex items-center gap-2"><input type="checkbox" name="remove_video" className="h-4 w-4" />Remove current video</label>}
             <label className="flex items-center gap-2"><input type="checkbox" name="is_active" defaultChecked={current?.is_active ?? true} className="h-4 w-4 accent-brand-600" />Show on home page</label>
           </div>
           <div className="flex gap-2 sm:col-span-2">
@@ -107,6 +114,8 @@ export default function AdminBannersPage() {
             <div className={`relative flex h-32 items-end p-4 text-white ${THEME_SWATCH[b.theme]}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {b.image_url && <img src={b.image_url} alt="" className="absolute inset-0 h-full w-full object-cover" />}
+              {b.video_url && <video src={b.video_url} className="absolute inset-0 h-full w-full object-cover" muted loop autoPlay playsInline />}
+              {b.video_url && <span className="absolute right-2 top-2 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-bold">VIDEO</span>}
               <p className="relative text-lg font-bold drop-shadow">{b.title}</p>
             </div>
             <div className="flex items-center justify-between gap-2 p-3 text-xs">

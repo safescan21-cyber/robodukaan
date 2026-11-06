@@ -687,3 +687,39 @@ revoke all on function public.claim_repair_email(uuid) from public;
 grant execute on function public.claim_order_email(uuid) to authenticated;
 grant execute on function public.claim_welcome_email() to authenticated;
 grant execute on function public.claim_repair_email(uuid) to authenticated;
+
+-- ═══════════════════════ v4: videos & customer details for admins ═══════════════════════
+
+alter table public.banners  add column if not exists video_url text;
+alter table public.products add column if not exists videos text[] not null default '{}';
+
+-- Admins can see customers' saved addresses (customers still only see their own).
+drop policy if exists "addresses: admin read" on public.addresses;
+create policy "addresses: admin read" on public.addresses for select using (public.is_admin());
+
+-- Customer list with login info and order totals, for the admin panel.
+create or replace function public.admin_customers(p_search text default null, p_user uuid default null)
+returns table (
+  id uuid, email text, full_name text, phone text, role text, created_at timestamptz,
+  last_sign_in_at timestamptz, email_confirmed boolean, orders bigint, spent numeric, repairs bigint
+)
+language plpgsql stable security definer set search_path = public as $$
+declare term text := nullif(trim(coalesce(p_search, '')), '');
+begin
+  if not public.is_admin() then raise exception 'Admins only'; end if;
+  return query
+  select p.id, p.email, p.full_name, p.phone, p.role, p.created_at,
+         u.last_sign_in_at, u.email_confirmed_at is not null,
+         (select count(*) from public.orders o where o.user_id = p.id),
+         (select coalesce(sum(o.total), 0) from public.orders o where o.user_id = p.id and o.status <> 'cancelled'),
+         (select count(*) from public.repair_requests r where r.user_id = p.id)
+  from public.profiles p
+  join auth.users u on u.id = p.id
+  where (p_user is null or p.id = p_user)
+    and (term is null or p.email ilike '%' || term || '%' or p.full_name ilike '%' || term || '%' or p.phone ilike '%' || term || '%')
+  order by p.created_at desc
+  limit 500;
+end;
+$$;
+revoke all on function public.admin_customers(text, uuid) from public;
+grant execute on function public.admin_customers(text, uuid) to authenticated;

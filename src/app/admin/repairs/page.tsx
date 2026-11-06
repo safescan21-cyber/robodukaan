@@ -7,22 +7,27 @@ import { adminField } from "@/lib/admin";
 import { REPAIR_STATUSES, REPAIR_STATUS_LABEL } from "@/lib/constants";
 import { RepairStatusBadge } from "@/components/RepairStatusBadge";
 import { formatDate, formatINR } from "@/lib/format";
+import { Pager } from "@/components/Pager";
 import type { RepairRequest } from "@/lib/types";
 
 export default function AdminRepairsPage() {
   const [rows, setRows] = useState<RepairRequest[] | null>(null);
   const [status, setStatus] = useState("open");
   const [q, setQ] = useState("");
+  const [page, setPage] = useState(0);
+  const [total, setTotal] = useState(0);
+  const PAGE = 25;
 
   const load = useCallback(async () => {
-    let req = getSupabase().from("repair_requests").select("*").order("created_at", { ascending: false }).limit(200);
+    let req = getSupabase().from("repair_requests").select("*", { count: "exact" }).order("created_at", { ascending: false }).range(page * PAGE, page * PAGE + PAGE - 1);
     if (status === "open") req = req.in("status", ["new", "reviewing", "quoted", "approved", "in_repair"]);
     else if (status) req = req.eq("status", status);
     const term = q.trim().replace(/[%,()*\\]/g, " ");
     if (term) req = req.or(`request_number.ilike.%${term}%,name.ilike.%${term}%,phone.ilike.%${term}%,board_type.ilike.%${term}%`);
-    const { data } = await req;
+    const { data, count } = await req;
     setRows((data as RepairRequest[]) ?? []);
-  }, [status, q]);
+    setTotal(count ?? 0);
+  }, [status, q, page]);
 
   useEffect(() => {
     const t = setTimeout(load, 250);
@@ -34,13 +39,13 @@ export default function AdminRepairsPage() {
       <h1 className="text-2xl font-bold">PCB repair requests</h1>
       <div className="flex flex-wrap gap-2">
         {[["open", "Open"], ["", "All"], ...REPAIR_STATUSES.map((s) => [s, REPAIR_STATUS_LABEL[s]])].map(([value, label]) => (
-          <button key={value} onClick={() => setStatus(value)}
+          <button key={value} onClick={() => { setStatus(value); setPage(0); }}
             className={`rounded-full px-3 py-1 text-sm ring-1 ${status === value ? "bg-brand-600 text-white ring-brand-600" : "bg-white ring-slate-300 hover:ring-brand-600"}`}>
             {label}
           </button>
         ))}
       </div>
-      <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search number, name, phone, board…" className={`${adminField} mt-0 max-w-md`} aria-label="Search repair requests" />
+      <input value={q} onChange={(e) => { setQ(e.target.value); setPage(0); }} placeholder="Search number, name, phone, board…" className={`${adminField} mt-0 max-w-md`} aria-label="Search repair requests" />
       <div className="overflow-x-auto rounded-md bg-white ring-1 ring-slate-200">
         <table className="w-full min-w-[760px] text-sm">
           <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-600">
@@ -63,6 +68,7 @@ export default function AdminRepairsPage() {
           </tbody>
         </table>
       </div>
+      <Pager page={page} pageSize={PAGE} total={total} onPage={setPage} />
     </div>
   );
 }

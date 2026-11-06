@@ -5,6 +5,7 @@ import { CartProvider } from "@/components/CartProvider";
 import { WishlistProvider } from "@/components/WishlistProvider";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { ChatWidget } from "@/components/ChatWidget";
 
 export const metadata: Metadata = {
   title: {
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <Header />
               <main className="flex-1">{children}</main>
               <Footer />
+              <ChatWidget />
             </WishlistProvider>
           </CartProvider>
         </AuthProvider>

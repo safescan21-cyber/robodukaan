@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabase } from "@/lib/supabase-browser";
-import { adminButton, adminField, revalidateCatalog, uploadImage } from "@/lib/admin";
+import { adminButton, adminField, revalidateCatalog, uploadImage, uploadVideo } from "@/lib/admin";
 import { slugify } from "@/lib/format";
 import type { Category, Faq, Product, ProductDocument } from "@/lib/types";
 
@@ -17,6 +17,8 @@ export function ProductForm({ product }: { product?: Product }) {
   const [slug, setSlug] = useState(product?.slug ?? "");
   const [slugTouched, setSlugTouched] = useState(!!product);
   const [images, setImages] = useState<string[]>(product ? [...product.images, ...(product.image_url && !product.images.includes(product.image_url) ? [product.image_url] : [])] : []);
+  const [videos, setVideos] = useState<string[]>(product?.videos ?? []);
+  const [videoUploading, setVideoUploading] = useState(false);
   const [specs, setSpecs] = useState<Row[]>(Object.entries(product?.specs ?? {}).map(([k, v]) => ({ k, v: String(v) })));
   const [faqs, setFaqs] = useState<Faq[]>(product?.faqs ?? []);
   const [docs, setDocs] = useState<ProductDocument[]>(product?.documents ?? []);
@@ -42,6 +44,20 @@ export function ProductForm({ product }: { product?: Product }) {
     setUploading(false);
   }
 
+  async function onVideos(files: FileList | null) {
+    if (!files?.length) return;
+    setVideoUploading(true);
+    setError(null);
+    try {
+      const urls: string[] = [];
+      for (const f of Array.from(files)) urls.push(await uploadVideo(f, "product-videos"));
+      setVideos((cur) => [...cur, ...urls]);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Upload failed");
+    }
+    setVideoUploading(false);
+  }
+
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
@@ -65,6 +81,7 @@ export function ProductForm({ product }: { product?: Product }) {
       is_featured: f.get("is_featured") === "on",
       is_active: f.get("is_active") === "on",
       images,
+      videos,
       image_url: images[0] ?? null,
       specs: Object.fromEntries(specs.filter((r) => r.k.trim() && r.v.trim()).map((r) => [r.k.trim(), r.v.trim()])),
       faqs: faqs.filter((x) => x.q.trim() && x.a.trim()),
@@ -135,6 +152,23 @@ export function ProductForm({ product }: { product?: Product }) {
           <p className="text-xs text-slate-500">JPG, PNG or WebP under 5 MB. The first image is the main one.</p>
         </section>
 
+        <section className="space-y-4 rounded-md bg-white p-5 ring-1 ring-slate-200">
+          <h2 className="text-sm font-bold uppercase tracking-wide">Videos</h2>
+          <div className="flex flex-wrap gap-3">
+            {videos.map((src, i) => (
+              <div key={src} className="relative w-40 overflow-hidden rounded border border-slate-200 bg-black">
+                <video src={src} className="h-24 w-full object-cover" muted preload="metadata" />
+                <button type="button" onClick={() => setVideos((cur) => cur.filter((_, j) => j !== i))} className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-xs text-white" aria-label="Remove video">✕</button>
+              </div>
+            ))}
+            <label className="flex h-24 w-40 cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed border-slate-300 text-center text-xs text-slate-500 hover:border-brand-600">
+              {videoUploading ? "Uploading…" : <><span className="text-2xl">🎬</span>Add videos</>}
+              <input type="file" accept="video/mp4,video/webm,video/quicktime" multiple className="sr-only" onChange={(e) => { onVideos(e.target.files); e.target.value = ""; }} />
+            </label>
+          </div>
+          <p className="text-xs text-slate-500">MP4 or WebM up to 50 MB each — e.g. a working demo or how to wire it. Shown in the product gallery.</p>
+        </section>
+
         <section className="space-y-3 rounded-md bg-white p-5 ring-1 ring-slate-200">
           <h2 className="text-sm font-bold uppercase tracking-wide">Specifications</h2>
           {specs.map((r, i) => (
@@ -187,7 +221,7 @@ export function ProductForm({ product }: { product?: Product }) {
         </section>
         {error && <p className="rounded bg-red-50 p-3 text-sm text-red-700" role="alert">{error}</p>}
         <div className="flex gap-3">
-          <button disabled={saving || uploading} className={`${adminButton} flex-1 py-2.5`}>{saving ? "Saving…" : product ? "Save changes" : "Create product"}</button>
+          <button disabled={saving || uploading || videoUploading} className={`${adminButton} flex-1 py-2.5`}>{saving ? "Saving…" : product ? "Save changes" : "Create product"}</button>
           <Link href="/admin/products" className="rounded-md px-4 py-2.5 text-sm font-semibold text-slate-600 ring-1 ring-slate-300 hover:bg-slate-50">Cancel</Link>
         </div>
       </aside>

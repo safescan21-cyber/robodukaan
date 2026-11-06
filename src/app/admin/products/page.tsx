@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase-browser";
 import { revalidateCatalog, adminField } from "@/lib/admin";
-import { formatINR, productImage } from "@/lib/format";
+import { productImage } from "@/lib/format";
 import { ProductImage } from "@/components/ProductImage";
 import type { Category, Product } from "@/lib/types";
 
@@ -85,7 +85,7 @@ export default function AdminProductsPage() {
         <table className="w-full min-w-[860px] text-sm">
           <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-600">
             <tr>
-              <th className="px-3 py-3">Product</th><th className="px-3 py-3">Category</th><th className="px-3 py-3">Price</th>
+              <th className="px-3 py-3">Product</th><th className="px-3 py-3">Category</th><th className="px-3 py-3">Price / MRP</th>
               <th className="px-3 py-3">Stock</th><th className="px-3 py-3">Sold</th><th className="px-3 py-3 text-center">Featured</th>
               <th className="px-3 py-3 text-center">Visible</th><th className="px-3 py-3" />
             </tr>
@@ -107,7 +107,32 @@ export default function AdminProductsPage() {
                   </div>
                 </td>
                 <td className="px-3 py-2 text-slate-600">{p.category?.name}</td>
-                <td className="px-3 py-2">{formatINR(p.price)}</td>
+                <td className="px-3 py-2">
+                  <label className="flex items-center gap-1 text-xs text-slate-500">₹
+                    <input
+                      type="number" min={0} step="1" defaultValue={p.price} aria-label={`Price for ${p.name}`}
+                      onBlur={(e) => {
+                        const v = Number(e.target.value);
+                        if (!Number.isFinite(v) || v < 0) { e.target.value = String(p.price); return; }
+                        if (p.mrp != null && v > Number(p.mrp)) { alert("Price can't be higher than the MRP. Raise the MRP first."); e.target.value = String(p.price); return; }
+                        if (v !== p.price) patch(p.id, { price: v });
+                      }}
+                      className="w-24 rounded border border-slate-300 px-2 py-1 text-sm font-semibold text-slate-900"
+                    />
+                  </label>
+                  <label className="mt-1 flex items-center gap-1 text-[11px] text-slate-400">MRP
+                    <input
+                      type="number" min={0} step="1" defaultValue={p.mrp ?? ""} placeholder="—" aria-label={`MRP for ${p.name}`}
+                      onBlur={(e) => {
+                        const raw = e.target.value.trim();
+                        const v = raw === "" ? null : Number(raw);
+                        if (v != null && v < p.price) { alert("MRP can't be lower than the price."); e.target.value = p.mrp == null ? "" : String(p.mrp); return; }
+                        if (v !== (p.mrp == null ? null : Number(p.mrp))) patch(p.id, { mrp: v });
+                      }}
+                      className="w-[84px] rounded border border-slate-200 px-2 py-0.5 text-xs line-through decoration-slate-300"
+                    />
+                  </label>
+                </td>
                 <td className="px-3 py-2">
                   <input
                     type="number" min={0} defaultValue={p.stock} aria-label={`Stock for ${p.name}`}

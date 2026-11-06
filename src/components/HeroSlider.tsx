@@ -40,7 +40,19 @@ export function HeroSlider({ banners }: { banners: Banner[] }) {
           className={`absolute inset-0 transition-opacity duration-700 ${i === index ? "opacity-100" : "pointer-events-none opacity-0"}`}
           aria-hidden={i !== index}
         >
-          {b.image_url ? (
+          {b.video_url ? (
+            <video
+              src={b.video_url}
+              poster={b.image_url ?? undefined}
+              className="absolute inset-0 h-full w-full object-cover"
+              muted
+              loop
+              autoPlay
+              playsInline
+              preload={i === 0 ? "auto" : "metadata"}
+              aria-hidden="true"
+            />
+          ) : b.image_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={b.image_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
           ) : (
@@ -52,7 +64,7 @@ export function HeroSlider({ banners }: { banners: Banner[] }) {
               </div>
             </div>
           )}
-          <div className={`relative flex h-full max-w-xl flex-col justify-center px-6 sm:px-16 ${b.image_url ? "bg-gradient-to-r from-black/60 to-transparent" : ""}`}>
+          <div className={`relative flex h-full max-w-xl flex-col justify-center px-6 sm:px-16 ${b.image_url || b.video_url ? "bg-gradient-to-r from-black/60 to-transparent" : ""}`}>
             <h2 className="text-2xl font-extrabold leading-tight text-white sm:text-4xl">{b.title}</h2>
             {b.subtitle && <p className="mt-3 text-sm text-white/85 sm:text-lg">{b.subtitle}</p>}
             <Link

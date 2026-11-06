@@ -31,8 +31,8 @@ export async function Footer() {
           <p className="mt-4 max-w-sm text-sm leading-relaxed">
             Industrial PCBs, power supplies, drive boards, PLC modules, weighing and power components for factories, panel builders and service engineers — plus component-level PCB repair.
           </p>
-          <p className="mt-4 text-sm">📞 <a href={`tel:${STORE.phone.replace(/\s/g, "")}`} className="hover:text-white">{STORE.phone}</a></p>
-          <p className="mt-1 text-sm">✉️ <a href={`mailto:${STORE.email}`} className="hover:text-white">{STORE.email}</a></p>
+          {STORE.phone && <p className="mt-4 text-sm">📞 <a href={`tel:${STORE.phone.replace(/\s/g, "")}`} className="hover:text-white">{STORE.phone}</a></p>}
+          <p className="mt-4 text-sm">✉️ <a href={`mailto:${STORE.email}`} className="hover:text-white">{STORE.email}</a></p>
         </div>
         <div>
           <p className="font-semibold uppercase tracking-wide text-white">Categories</p>

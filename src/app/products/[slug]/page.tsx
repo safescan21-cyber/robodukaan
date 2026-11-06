@@ -128,7 +128,7 @@ async function ProductDetail({ params }: Pick<PageProps<"/products/[slug]">, "pa
       />
 
       <div className="grid gap-8 rounded-md bg-white p-4 ring-1 ring-slate-200 sm:p-6 lg:grid-cols-2">
-        <ProductGallery images={images} icon={icon} name={product.name} />
+        <ProductGallery images={images} videos={product.videos} icon={icon} name={product.name} />
 
         <div>
           <h1 className="text-2xl font-bold leading-snug text-slate-900">{product.name}</h1>
