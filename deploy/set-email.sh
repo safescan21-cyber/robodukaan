@@ -15,8 +15,10 @@ ask() { local prompt="$1" default="${2:-}" var; read -r -p "$prompt${default:+ [
 ask_secret() { local var; read -r -s -p "$1: " var; echo >&2; echo "$var"; }
 
 echo "== Email setup for the PCBDukaan store =="
-SMTP_USER=$(ask "Mailbox address (e.g. sonugiri@pcbdukaan.in)")
-SMTP_PASS=$(ask_secret "Mailbox password (hidden)")
+SMTP_USER=""
+while [[ "$SMTP_USER" != *@*.* ]]; do SMTP_USER=$(ask "Mailbox address" "sonugiri@pcbdukaan.in"); done
+SMTP_PASS=""
+while [ -z "$SMTP_PASS" ]; do SMTP_PASS=$(ask_secret "Mailbox password (hidden, paste with right-click)"); [ -n "$SMTP_PASS" ] || echo "   The password can't be empty."; done
 SMTP_HOST=$(ask "SMTP server" "smtp.hostinger.com")
 SMTP_PORT=$(ask "SMTP port" "465")
 SENDER_NAME=$(ask "Sender name" "PCBDukaan")
