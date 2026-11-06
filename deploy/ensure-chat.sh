@@ -4,6 +4,8 @@
 # It is limited to 1.5 CPU cores and 3 GB RAM so other sites on this server stay fast.
 # To turn the AI off:  touch /etc/robodukaan/chat-disabled  (the chat then answers with plain product search)
 set -euo pipefail
+# Background services start without HOME; the ollama command needs it.
+export HOME="${HOME:-/root}"
 MODEL="${CHAT_MODEL:-qwen2.5:1.5b}"
 MARK=/etc/robodukaan/chat-ready
 LOG=/var/log/robodukaan-update.log
