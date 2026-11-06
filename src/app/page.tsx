@@ -1,112 +1,135 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { getCategories, getFeaturedProducts } from "@/lib/data";
-import { ProductGrid, ProductGridSkeleton } from "@/components/ProductCard";
+import { getBanners, getCategories, getProductRow } from "@/lib/data";
+import { ProductGridSkeleton, ProductRow, SectionHeading } from "@/components/ProductCard";
 import { CategoryIcon } from "@/components/CategoryIcon";
+import { HeroSlider } from "@/components/HeroSlider";
 import { SetupNotice } from "@/components/SetupNotice";
 
 export default function HomePage() {
   return (
-    <>
-      <section className="bg-gradient-to-br from-brand-800 via-brand-700 to-brand-600 text-white">
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 md:grid-cols-2 md:py-20">
+    <div className="mx-auto max-w-7xl space-y-10 px-4 py-5">
+      <Suspense fallback={<div className="h-56 animate-pulse rounded-md bg-slate-200 sm:h-72 lg:h-[340px]" />}>
+        <Hero />
+      </Suspense>
+
+      <Suspense fallback={<div className="h-40 animate-pulse rounded-md bg-slate-100" />}>
+        <Categories />
+      </Suspense>
+
+      <Suspense fallback={<ProductGridSkeleton count={4} />}>
+        <Row title="Deals of the day" sort="popular" featured href="/products" />
+      </Suspense>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Link href="/category/drone-parts" className="group relative overflow-hidden rounded-md bg-gradient-to-r from-slate-900 to-brand-800 p-6 text-white">
+          <p className="text-xs font-semibold uppercase tracking-widest text-accent-400">Up to 40% off</p>
+          <p className="mt-2 text-2xl font-extrabold">Drone parts &amp; accessories</p>
+          <p className="mt-1 text-sm text-slate-300">Motors, ESCs, frames, props</p>
+          <span className="mt-4 inline-block text-sm font-semibold underline-offset-4 group-hover:underline">Shop now →</span>
+          <CategoryIcon name="drone" className="absolute -bottom-4 -right-4 h-36 w-36 text-white/10" />
+        </Link>
+        <Link href="/category/sensors" className="group relative overflow-hidden rounded-md bg-gradient-to-r from-accent-600 to-amber-500 p-6 text-white">
+          <p className="text-xs font-semibold uppercase tracking-widest text-amber-100">Starting ₹35</p>
+          <p className="mt-2 text-2xl font-extrabold">Sensors &amp; modules</p>
+          <p className="mt-1 text-sm text-amber-50">Ultrasonic, IMU, gas, temperature</p>
+          <span className="mt-4 inline-block text-sm font-semibold underline-offset-4 group-hover:underline">Shop now →</span>
+          <CategoryIcon name="sensor" className="absolute -bottom-4 -right-4 h-36 w-36 text-white/15" />
+        </Link>
+      </div>
+
+      <Suspense fallback={<ProductGridSkeleton count={4} />}>
+        <Row title="Best sellers" sort="best-selling" href="/products?sort=best-selling" />
+      </Suspense>
+      <Suspense fallback={<ProductGridSkeleton count={4} />}>
+        <Row title="New arrivals" sort="newest" href="/products?sort=newest" />
+      </Suspense>
+      <Suspense fallback={<ProductGridSkeleton count={4} />}>
+        <Row title="Development boards" sort="popular" category="development-boards" href="/category/development-boards" />
+      </Suspense>
+      <Suspense fallback={<ProductGridSkeleton count={4} />}>
+        <Row title="DIY kits" sort="popular" category="diy-kits" href="/category/diy-kits" />
+      </Suspense>
+    </div>
+  );
+}
+
+async function Hero() {
+  const banners = await getBanners();
+  return (
+    <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
+      {banners.length > 0 ? (
+        <HeroSlider banners={banners} />
+      ) : (
+        <div className="flex h-56 items-center rounded-md bg-gradient-to-r from-brand-800 to-brand-600 px-8 text-white sm:h-72 lg:h-[340px]">
           <div>
-            <p className="inline-block rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent-400">
-              Build · Learn · Innovate
-            </p>
-            <h1 className="mt-4 text-4xl font-extrabold leading-tight md:text-5xl">
-              Everything you need to build your next robot.
-            </h1>
-            <p className="mt-4 max-w-lg text-lg text-brand-100">
-              Development boards, sensors, motors, drone parts and DIY kits, shipped across India with cash on delivery.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/products" className="rounded-lg bg-accent-500 px-6 py-3 font-semibold text-white hover:bg-accent-600">
-                Shop all products
-              </Link>
-              <Link href="/category/diy-kits" className="rounded-lg bg-white/10 px-6 py-3 font-semibold text-white ring-1 ring-white/30 hover:bg-white/20">
-                Explore DIY kits
-              </Link>
-            </div>
-          </div>
-          <div className="hidden grid-cols-3 gap-4 md:grid" aria-hidden="true">
-            {["chip", "sensor", "motor", "drone", "battery", "wifi"].map((icon, i) => (
-              <div
-                key={icon}
-                className={`flex aspect-square items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20 ${i % 2 ? "translate-y-6" : ""}`}
-              >
-                <CategoryIcon name={icon} className="h-12 w-12 text-accent-400" />
-              </div>
-            ))}
+            <h1 className="text-3xl font-extrabold sm:text-4xl">Everything you need to build your next robot.</h1>
+            <Link href="/products" className="mt-6 inline-block rounded-md bg-white px-6 py-2.5 font-bold text-slate-900">Shop now</Link>
           </div>
         </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 py-12">
-        <h2 className="text-2xl font-bold">Shop by category</h2>
-        <Suspense fallback={<div className="mt-6 h-40 animate-pulse rounded-xl bg-slate-100" />}>
-          <Categories />
-        </Suspense>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 pb-4">
-        <div className="flex items-end justify-between">
-          <h2 className="text-2xl font-bold">Featured products</h2>
-          <Link href="/products" className="text-sm font-semibold text-brand-700 hover:underline">
-            View all →
-          </Link>
-        </div>
-        <div className="mt-6">
-          <Suspense fallback={<ProductGridSkeleton />}>
-            <Featured />
-          </Suspense>
-        </div>
-      </section>
-
-      <section className="mx-auto mt-12 max-w-7xl px-4">
-        <div className="grid gap-4 rounded-2xl bg-white p-6 ring-1 ring-slate-200 sm:grid-cols-3">
-          {[
-            ["🚚", "Free shipping", "On all orders above ₹499"],
-            ["💵", "Cash on delivery", "Pay when your order arrives"],
-            ["🛠️", "Maker support", "Help choosing the right parts"],
-          ].map(([icon, title, text]) => (
-            <div key={title} className="flex items-center gap-4">
-              <span className="text-3xl" aria-hidden="true">{icon}</span>
-              <div>
-                <p className="font-semibold">{title}</p>
-                <p className="text-sm text-slate-500">{text}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-    </>
+      )}
+      <div className="hidden grid-rows-2 gap-4 lg:grid">
+        <Link href="/category/development-boards" className="group relative overflow-hidden rounded-md bg-brand-50 p-5 ring-1 ring-brand-100">
+          <p className="text-xs font-semibold uppercase text-brand-700">New stock</p>
+          <p className="mt-1 text-lg font-bold text-slate-900">ESP32 &amp; Pico W boards</p>
+          <p className="mt-2 text-sm font-semibold text-accent-600 group-hover:underline">Shop boards →</p>
+          <CategoryIcon name="chip" className="absolute -bottom-3 -right-3 h-24 w-24 text-brand-600/20" />
+        </Link>
+        <Link href="/category/batteries-power" className="group relative overflow-hidden rounded-md bg-accent-50 p-5 ring-1 ring-accent-400/30">
+          <p className="text-xs font-semibold uppercase text-accent-600">Power up</p>
+          <p className="mt-1 text-lg font-bold text-slate-900">Batteries &amp; chargers</p>
+          <p className="mt-2 text-sm font-semibold text-brand-700 group-hover:underline">Shop power →</p>
+          <CategoryIcon name="battery" className="absolute -bottom-3 -right-3 h-24 w-24 text-accent-500/25" />
+        </Link>
+      </div>
+    </div>
   );
 }
 
 async function Categories() {
   const categories = await getCategories();
-  if (categories.length === 0) return <div className="mt-6"><SetupNotice /></div>;
+  if (categories.length === 0) return <SetupNotice />;
   return (
-    <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-      {categories.map((c) => (
-        <Link
-          key={c.id}
-          href={`/category/${c.slug}`}
-          className="group flex flex-col items-center gap-3 rounded-xl bg-white p-5 text-center ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md hover:ring-brand-600"
-        >
-          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-50 text-brand-600 group-hover:bg-brand-600 group-hover:text-white">
-            <CategoryIcon name={c.icon} className="h-7 w-7" />
-          </span>
-          <span className="text-sm font-semibold">{c.name}</span>
-        </Link>
-      ))}
-    </div>
+    <section>
+      <SectionHeading title="Shop by category" href="/products" />
+      <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 lg:grid-cols-10">
+        {categories.map((c) => (
+          <Link key={c.id} href={`/category/${c.slug}`} className="group flex flex-col items-center gap-2 text-center">
+            <span className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-white text-brand-600 ring-1 ring-slate-200 transition group-hover:bg-brand-600 group-hover:text-white group-hover:ring-brand-600">
+              {c.image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={c.image_url} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <CategoryIcon name={c.icon} className="h-9 w-9" />
+              )}
+            </span>
+            <span className="text-xs font-semibold leading-tight text-slate-700 group-hover:text-brand-700">{c.name}</span>
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }
 
-async function Featured() {
-  const products = await getFeaturedProducts(8);
-  if (products.length === 0) return <SetupNotice />;
-  return <ProductGrid products={products} />;
+async function Row({
+  title,
+  sort,
+  category,
+  featured,
+  href,
+}: {
+  title: string;
+  sort: "popular" | "best-selling" | "newest";
+  category?: string;
+  featured?: boolean;
+  href: string;
+}) {
+  const products = await getProductRow(sort, { category, featured, limit: 10 });
+  if (products.length === 0) return null;
+  return (
+    <section>
+      <SectionHeading title={title} href={href} />
+      <ProductRow products={products} />
+    </section>
+  );
 }

@@ -4,15 +4,18 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "./CartProvider";
 import type { Product } from "@/lib/types";
+import { productImage } from "@/lib/format";
 
 export function AddToCartButton({
   product,
   withQuantity = false,
   buyNow = false,
+  compact = false,
 }: {
-  product: Product;
+  product: Pick<Product, "id" | "slug" | "name" | "price" | "stock" | "image_url" | "images" | "category">;
   withQuantity?: boolean;
   buyNow?: boolean;
+  compact?: boolean;
 }) {
   const { add } = useCart();
   const router = useRouter();
@@ -28,7 +31,7 @@ export function AddToCartButton({
         name: product.name,
         price: product.price,
         icon: product.category?.icon ?? "chip",
-        imageUrl: product.image_url,
+        imageUrl: productImage(product),
         stock: product.stock,
       },
       quantity,
@@ -39,7 +42,7 @@ export function AddToCartButton({
 
   if (outOfStock) {
     return (
-      <button disabled className="w-full rounded-lg bg-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-500">
+      <button disabled className={`w-full rounded-md bg-slate-200 px-4 ${compact ? "py-2" : "py-3"} text-sm font-semibold text-slate-500`}>
         Out of stock
       </button>
     );
@@ -71,7 +74,7 @@ export function AddToCartButton({
       <button
         type="button"
         onClick={addToCart}
-        className={`${withQuantity ? "flex-1" : "w-full"} rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700`}
+        className={`${withQuantity ? "flex-1" : "w-full"} flex items-center justify-center gap-2 rounded-md bg-brand-600 px-4 ${compact ? "py-2" : "py-3"} text-sm font-semibold text-white transition hover:bg-brand-700`}
       >
         {added ? "✓ Added" : "Add to cart"}
       </button>
@@ -82,7 +85,7 @@ export function AddToCartButton({
             addToCart();
             router.push("/checkout");
           }}
-          className="flex-1 rounded-lg bg-accent-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-accent-600"
+          className="flex-1 rounded-md bg-accent-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-accent-600"
         >
           Buy now
         </button>

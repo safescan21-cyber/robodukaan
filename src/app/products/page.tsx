@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { ProductListing, parseSort } from "@/components/ProductListing";
+import { ShopView, parseShopQuery } from "@/components/ShopView";
 import { ProductGridSkeleton } from "@/components/ProductCard";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
-export const metadata: Metadata = { title: "All products" };
+export const metadata: Metadata = { title: "Shop all products" };
 
 export default function ProductsPage(props: PageProps<"/products">) {
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
-      <h1 className="mb-6 text-3xl font-bold">All products</h1>
+    <div className="mx-auto max-w-7xl px-4 py-6">
+      <Breadcrumbs items={[{ label: "Shop" }]} />
+      <h1 className="mb-5 text-2xl font-bold">Shop</h1>
       <Suspense fallback={<ProductGridSkeleton />}>
         <Results searchParams={props.searchParams} />
       </Suspense>
@@ -17,7 +19,6 @@ export default function ProductsPage(props: PageProps<"/products">) {
 }
 
 async function Results({ searchParams }: { searchParams: PageProps<"/products">["searchParams"] }) {
-  const params = await searchParams;
-  const q = Array.isArray(params.q) ? params.q[0] : params.q;
-  return <ProductListing basePath="/products" query={{ q: q || undefined, sort: parseSort(params.sort) }} />;
+  const query = parseShopQuery(await searchParams);
+  return <ShopView basePath="/products" query={query} />;
 }

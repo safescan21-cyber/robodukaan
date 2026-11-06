@@ -15,12 +15,12 @@ export function ProductImage({
   if (imageUrl) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img src={imageUrl} alt={name} className="h-full w-full object-contain" loading="lazy" />
+      <img src={imageUrl} alt={name} className="h-full w-full object-contain transition duration-300 group-hover:scale-105" loading="lazy" />
     );
   }
   return (
     <div
-      className="flex h-full w-full items-center justify-center bg-gradient-to-br from-brand-50 to-accent-50 text-brand-600"
+      className="flex h-full w-full items-center justify-center rounded bg-gradient-to-br from-brand-50 to-accent-50 text-brand-600"
       role="img"
       aria-label={name}
     >

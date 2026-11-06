@@ -1,43 +1,62 @@
 # RoboDukaan
 
-Online store for robotics parts, electronic components and DIY kits, built with **Next.js 16** and **Supabase**.
+Online store for robotics parts, electronic components and DIY kits, built with **Next.js 16** and **Supabase** (database, login, image storage).
 
 ## Features
 
-- Home page with categories and featured products
-- Product listing with search and sorting, category pages, product detail pages with specs
-- Cart saved in the browser
-- Cash-on-delivery checkout: orders are created by a database function that checks stock and calculates prices, so totals can't be tampered with from the browser
-- Order tracking with order number + mobile number
-- Free shipping above ₹499 (₹49 otherwise)
+**Shop**
+- Home page with banner slider, categories, deals, best sellers, new arrivals
+- Shop page with search, category filter, price range, in-stock filter, sorting and pagination
+- Product pages: image gallery, specifications, downloads, FAQs, reviews with star ratings, wishlist, WhatsApp share
+- Cart with coupon codes, cash-on-delivery checkout (guest or logged in), order tracking
+
+**Customer account**
+- Register / login / forgot password
+- Dashboard, order history with order details and cancellation, saved addresses, wishlist, profile & password
+
+**Admin panel** (`/admin`)
+- Dashboard: revenue, orders, customers, 14-day sales chart, low stock, top sellers
+- Products: add/edit with image upload, specs, FAQs, downloads; quick stock / featured / visible toggles
+- Categories, orders (status, payment, courier tracking link, WhatsApp the customer), customers (make admin), coupons, reviews (hide/delete), home page banners
+
+**Security**: prices, stock, coupons and totals are calculated inside the database (`place_order`), and Row Level Security means customers can only see their own orders and can't change prices or make themselves admin.
 
 ## 1. Set up the database (once)
 
 In the Supabase dashboard → **SQL Editor** → **New query**:
 
-1. Paste the contents of [`supabase/schema.sql`](supabase/schema.sql) and click **Run**.
-2. Paste the contents of [`supabase/seed.sql`](supabase/seed.sql) and click **Run** (40 sample products in 10 categories).
+1. Paste all of [`supabase/schema.sql`](supabase/schema.sql) → **Run**.
+2. Paste all of [`supabase/seed.sql`](supabase/seed.sql) → **Run** (39 sample products, 10 categories, 3 banners, 2 coupons).
 
-## 2. Run locally
+Both scripts are safe to run again.
+
+## 2. Make yourself admin
+
+1. Register on the website with your email.
+2. In the SQL Editor run (with your email):
+
+```sql
+update public.profiles set role = 'admin' where email = 'you@example.com';
+```
+
+3. Log in again — an **Admin** button appears in the header. More admins can be added from **Admin → Customers**.
+
+## 3. Login emails
+
+In Supabase → **Authentication → URL Configuration**, set **Site URL** to your website address (e.g. `https://robodukaan.vercel.app`) so confirmation and password-reset emails link back to your site. Supabase's built-in email sender is limited to a few emails per hour; for a live store, add your own SMTP under **Authentication → Emails**.
+
+## Run locally
 
 ```bash
-cp .env.example .env.local   # then fill in your Supabase URL and publishable key
+cp .env.example .env.local   # fill in your Supabase URL and publishable key
 npm install
 npm run dev
 ```
 
-Open http://localhost:3000.
+## Store details
 
-## Managing the store
-
-Until an admin panel is added, use the Supabase dashboard **Table Editor**:
-
-- **products**: add/edit products, prices, stock, `image_url`, `is_featured`, `is_active`
-- **categories**: add/edit categories (`icon` is one of: chip, sensor, motor, drone, battery, display, wifi, component, wrench, kit)
-- **orders** / **order_items**: see new orders and change `status` (pending → confirmed → shipped → delivered, or cancelled)
-
-Catalog changes appear on the site within about a minute.
+Phone number and email shown on the site are in `src/lib/constants.ts` (`STORE`).
 
 ## Deploy
 
-Deploy to [Vercel](https://vercel.com/new): import this GitHub repository and add the two environment variables from `.env.example`.
+Import this repository on [Vercel](https://vercel.com/new) and add the two environment variables from `.env.example`.

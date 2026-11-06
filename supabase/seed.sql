@@ -194,3 +194,18 @@ on conflict (slug) do update set
   description = excluded.description, price = excluded.price, mrp = excluded.mrp,
   stock = excluded.stock, specs = excluded.specs, is_featured = excluded.is_featured,
   updated_at = now();
+
+-- Home page banners (edit in Admin → Banners)
+insert into public.banners (title, subtitle, cta_label, link, theme, sort_order)
+select * from (values
+  ('Build smarter robots', 'Development boards, sensors and motors — everything in one place.', 'Shop now', '/products', 'blue', 1),
+  ('Drone season is here', 'Brushless motors, ESCs, frames and LiPo batteries.', 'Explore drone parts', '/category/drone-parts', 'dark', 2),
+  ('Starter kits for students', 'Learn electronics with step-by-step project kits.', 'View kits', '/category/diy-kits', 'orange', 3)
+) v(title, subtitle, cta_label, link, theme, sort_order)
+where not exists (select 1 from public.banners);
+
+-- Sample coupons (edit in Admin → Coupons)
+insert into public.coupons (code, description, discount_type, discount_value, max_discount, min_order) values
+  ('WELCOME10', '10% off your first order (up to ₹200)', 'percent', 10, 200, 299),
+  ('FLAT100',   '₹100 off orders above ₹1,499',           'flat',    100, null, 1499)
+on conflict (code) do nothing;

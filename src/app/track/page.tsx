@@ -1,12 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase-browser";
 import { formatINR } from "@/lib/format";
+import { STATUS_LABEL } from "@/lib/constants";
+import type { OrderStatus } from "@/lib/types";
 
 type TrackedOrder = {
   order_number: string;
-  status: "pending" | "confirmed" | "shipped" | "delivered" | "cancelled";
+  status: OrderStatus;
+  tracking_url: string | null;
+  discount: number;
   customer_name: string;
   city: string;
   subtotal: number;
@@ -16,14 +20,8 @@ type TrackedOrder = {
   items: { name: string; quantity: number; unit_price: number; line_total: number }[];
 };
 
-const STEPS = ["pending", "confirmed", "shipped", "delivered"] as const;
-const LABELS: Record<TrackedOrder["status"], string> = {
-  pending: "Order placed",
-  confirmed: "Confirmed",
-  shipped: "Shipped",
-  delivered: "Delivered",
-  cancelled: "Cancelled",
-};
+const STEPS = ["pending", "confirmed", "packed", "shipped", "delivered"] as const;
+const LABELS = STATUS_LABEL;
 
 export default function TrackPage() {
   const [order, setOrder] = useState<TrackedOrder | null>(null);
@@ -36,7 +34,7 @@ export default function TrackPage() {
     setLoading(true);
     setMessage(null);
     setOrder(null);
-    const { data, error } = await supabase.rpc("track_order", {
+    const { data, error } = await getSupabase().rpc("track_order", {
       p_order_number: String(form.get("order") ?? ""),
       p_phone: String(form.get("phone") ?? ""),
     });
@@ -73,7 +71,7 @@ export default function TrackPage() {
           {order.status === "cancelled" ? (
             <p className="mt-4 font-semibold text-red-600">This order was cancelled.</p>
           ) : (
-            <ol className="mt-6 grid grid-cols-4 gap-2 text-center text-xs">
+            <ol className="mt-6 grid grid-cols-5 gap-2 text-center text-xs">
               {STEPS.map((s, i) => (
                 <li key={s}>
                   <div className={`h-2 rounded-full ${i <= stepIndex ? "bg-emerald-500" : "bg-slate-200"}`} />
@@ -82,6 +80,11 @@ export default function TrackPage() {
               ))}
             </ol>
           )}
+          {order.tracking_url && (
+            <a href={order.tracking_url} target="_blank" rel="noopener noreferrer" className="mt-4 inline-block rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
+              Track shipment with courier →
+            </a>
+          )}
           <ul className="mt-6 space-y-2 border-t border-slate-200 pt-4 text-sm">
             {order.items.map((i, idx) => (
               <li key={idx} className="flex justify-between gap-3">
@@ -89,6 +92,10 @@ export default function TrackPage() {
                 <span>{formatINR(i.line_total)}</span>
               </li>
             ))}
+            {Number(order.discount) > 0 && (
+              <li className="flex justify-between text-emerald-700"><span>Discount</span><span>− {formatINR(order.discount)}</span></li>
+            )}
+            <li className="flex justify-between"><span>Shipping</span><span>{Number(order.shipping) === 0 ? "Free" : formatINR(order.shipping)}</span></li>
             <li className="flex justify-between border-t border-slate-200 pt-2 font-bold">
               <span>Total (cash on delivery)</span>
               <span>{formatINR(order.total)}</span>

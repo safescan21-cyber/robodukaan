@@ -12,10 +12,13 @@ type CartContextValue = {
   setQuantity: (productId: string, quantity: number) => void;
   remove: (productId: string) => void;
   clear: () => void;
+  coupon: string | null;
+  setCoupon: (code: string | null) => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
 const STORAGE_KEY = "robodukaan-cart-v1";
+const COUPON_KEY = "robodukaan-coupon";
 
 function load(): CartItem[] {
   try {
@@ -30,10 +33,16 @@ function load(): CartItem[] {
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [ready, setReady] = useState(false);
+  const [coupon, setCouponState] = useState<string | null>(null);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate from browser storage once
     setItems(load());
+    try {
+      setCouponState(window.localStorage.getItem(COUPON_KEY));
+    } catch {
+      /* ignore */
+    }
     setReady(true);
   }, []);
 
@@ -76,7 +85,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems((current) => current.filter((i) => i.productId !== productId));
   }, []);
 
-  const clear = useCallback(() => setItems([]), []);
+  const setCoupon = useCallback((code: string | null) => {
+    setCouponState(code);
+    try {
+      if (code) window.localStorage.setItem(COUPON_KEY, code);
+      else window.localStorage.removeItem(COUPON_KEY);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const clear = useCallback(() => {
+    setItems([]);
+    setCoupon(null);
+  }, [setCoupon]);
 
   const value = useMemo<CartContextValue>(
     () => ({
@@ -88,8 +110,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setQuantity,
       remove,
       clear,
+      coupon,
+      setCoupon,
     }),
-    [items, ready, add, setQuantity, remove, clear],
+    [items, ready, add, setQuantity, remove, clear, coupon, setCoupon],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

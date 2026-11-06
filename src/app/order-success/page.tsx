@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { formatINR } from "@/lib/format";
 
-type LastOrder = { order_number: string; total: number; shipping: number; phone: string };
+type LastOrder = { order_number: string; total: number; shipping: number; discount?: number };
 
 export default function OrderSuccessPage() {
   const [order, setOrder] = useState<LastOrder | null>(null);
@@ -37,7 +37,8 @@ export default function OrderSuccessPage() {
       <p className="mt-4 text-sm text-slate-500">
         We’ll call you on your mobile number to confirm. Save your order number to track it.
       </p>
-      <div className="mt-8 flex justify-center gap-3">
+      <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <Link href="/account/orders" className="rounded-md bg-slate-800 px-5 py-2.5 font-semibold text-white hover:bg-slate-700">My orders</Link>
         <Link href="/track" className="rounded-lg bg-brand-600 px-5 py-2.5 font-semibold text-white hover:bg-brand-700">Track order</Link>
         <Link href="/products" className="rounded-lg px-5 py-2.5 font-semibold text-brand-700 ring-1 ring-brand-600 hover:bg-brand-50">Continue shopping</Link>
       </div>
