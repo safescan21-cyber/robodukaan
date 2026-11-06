@@ -79,10 +79,12 @@ systemctl enable --now robodukaan
 systemctl restart robodukaan
 
 step "Configuring nginx for $DOMAIN"
+ipv6_listen=""
+[ -s /proc/net/if_inet6 ] && ipv6_listen="listen [::]:80;"
 cat > /etc/nginx/sites-available/robodukaan <<NGINX
 server {
     listen 80;
-    listen [::]:80;
+    $ipv6_listen
     server_name $DOMAIN www.$DOMAIN;
     client_max_body_size 10m;
 
