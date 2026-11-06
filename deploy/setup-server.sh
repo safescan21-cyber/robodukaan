@@ -88,6 +88,31 @@ systemctl daemon-reload
 systemctl enable --now robodukaan
 systemctl restart robodukaan
 
+step "Turning on automatic updates from GitHub (every 5 minutes)"
+chmod +x "$APP_DIR/deploy/auto-update.sh"
+cat > /etc/systemd/system/robodukaan-update.service <<UNIT
+[Unit]
+Description=Update RoboDukaan from GitHub if there are new commits
+
+[Service]
+Type=oneshot
+Environment=APP_DIR=$APP_DIR
+ExecStart=/bin/bash $APP_DIR/deploy/auto-update.sh
+UNIT
+cat > /etc/systemd/system/robodukaan-update.timer <<UNIT
+[Unit]
+Description=Check GitHub for RoboDukaan updates every 5 minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+
+[Install]
+WantedBy=timers.target
+UNIT
+systemctl daemon-reload
+systemctl enable --now robodukaan-update.timer
+
 step "Configuring nginx for $DOMAIN"
 ipv6_listen=""
 [ -s /proc/net/if_inet6 ] && ipv6_listen="listen [::]:80;"
@@ -146,4 +171,5 @@ sleep 2
 code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/" || true)
 step "Done. Store responds locally with HTTP $code"
 echo "Open https://$DOMAIN in your browser."
-echo "To update later:  bash $APP_DIR/deploy/update.sh"
+echo "Automatic updates are on: new code on GitHub goes live within about 5-10 minutes."
+echo "Update log: /var/log/robodukaan-update.log"
