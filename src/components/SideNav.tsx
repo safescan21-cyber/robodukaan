@@ -1,10 +1,11 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/i18n/client";
 import { usePathname } from "next/navigation";
+import { stripLocale } from "@/i18n/config";
 
 export function SideNav({ title, items, footer }: { title: string; items: { href: string; label: string; icon: string; exact?: boolean }[]; footer?: React.ReactNode }) {
-  const pathname = usePathname();
+  const pathname = stripLocale(usePathname());
   return (
     <aside className="h-fit rounded-md bg-white ring-1 ring-slate-200">
       <p className="border-b border-slate-200 px-4 py-3 text-sm font-bold uppercase tracking-wide">{title}</p>

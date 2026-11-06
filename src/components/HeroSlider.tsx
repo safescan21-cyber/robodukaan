@@ -1,9 +1,10 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/i18n/client";
 import { useEffect, useState } from "react";
 import type { Banner } from "@/lib/types";
 import { CategoryIcon } from "./CategoryIcon";
+import { useI18n } from "@/i18n/client";
 
 const THEMES: Record<Banner["theme"], string> = {
   blue: "from-brand-800 via-brand-700 to-brand-600",
@@ -16,6 +17,7 @@ const ICONS = ["pcb", "power", "scale", "chip", "motor"];
 export function HeroSlider({ banners }: { banners: Banner[] }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const { t } = useI18n();
   const count = banners.length;
 
   useEffect(() => {
@@ -72,22 +74,22 @@ export function HeroSlider({ banners }: { banners: Banner[] }) {
               tabIndex={i === index ? 0 : -1}
               className="mt-6 inline-block w-fit rounded-md bg-white px-6 py-2.5 text-sm font-bold uppercase tracking-wide text-slate-900 shadow hover:bg-accent-500 hover:text-white"
             >
-              {b.cta_label || "Shop now"}
+              {b.cta_label || t("common.shopNow")}
             </Link>
           </div>
         </div>
       ))}
       {count > 1 && (
         <>
-          <button onClick={() => go(index - 1)} className="absolute left-2 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-xl text-slate-800 shadow hover:bg-white sm:flex" aria-label="Previous slide">‹</button>
-          <button onClick={() => go(index + 1)} className="absolute right-2 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-xl text-slate-800 shadow hover:bg-white sm:flex" aria-label="Next slide">›</button>
+          <button onClick={() => go(index - 1)} className="absolute left-2 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-xl text-slate-800 shadow hover:bg-white sm:flex" aria-label={t("slider.prev")}>‹</button>
+          <button onClick={() => go(index + 1)} className="absolute right-2 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-xl text-slate-800 shadow hover:bg-white sm:flex" aria-label={t("slider.next")}>›</button>
           <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1">
             {banners.map((b, i) => (
               <button
                 key={b.id}
                 onClick={() => go(i)}
                 className="flex h-6 items-center px-1.5"
-                aria-label={`Go to slide ${i + 1}`}
+                aria-label={t("slider.goto", { n: i + 1 })}
                 aria-current={i === index}
               >
                 <span className={`block h-2.5 rounded-full transition-all ${i === index ? "w-7 bg-white" : "w-2.5 bg-white/60"}`} />

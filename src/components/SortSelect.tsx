@@ -1,12 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/client";
 
-export function SortSelect({ options, value }: { options: { label: string; href: string; value: string }[]; value: string }) {
+export function SortSelect({ options, value, label }: { options: { label: string; href: string; value: string }[]; value: string; label: string }) {
   const router = useRouter();
   return (
     <label className="flex items-center gap-2 text-sm text-slate-600">
-      Sort by
+      {label}
       <select
         value={value}
         onChange={(e) => {

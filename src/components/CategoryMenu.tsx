@@ -1,11 +1,13 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/i18n/client";
 import { useEffect, useRef, useState } from "react";
 import type { Category } from "@/lib/types";
 import { CategoryIcon } from "./CategoryIcon";
+import { useI18n } from "@/i18n/client";
 
 export function CategoryMenu({ categories }: { categories: Category[] }) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -29,13 +31,13 @@ export function CategoryMenu({ categories }: { categories: Category[] }) {
         <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
           <path strokeLinecap="round" d="M4 6h16M4 12h16M4 18h16" />
         </svg>
-        Shop by categories
+        {t("nav.shopByCategories")}
         <svg viewBox="0 0 20 20" className={`ml-auto h-4 w-4 transition ${open ? "rotate-180" : ""}`} fill="currentColor" aria-hidden="true">
           <path d="M5.3 7.3a1 1 0 0 1 1.4 0L10 10.6l3.3-3.3a1 1 0 1 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 0-1.4Z" />
         </svg>
       </button>
       {open && (
-        <ul onClick={(e) => { if ((e.target as HTMLElement).closest("a")) setOpen(false); }} className="absolute left-0 top-full w-64 overflow-hidden rounded-b-md border border-slate-200 bg-white py-1 text-slate-800 shadow-xl">
+        <ul onClick={(e) => { if ((e.target as HTMLElement).closest("a")) setOpen(false); }} className="absolute start-0 top-full w-64 overflow-hidden rounded-b-md border border-slate-200 bg-white py-1 text-slate-800 shadow-xl">
           {categories.map((c) => (
             <li key={c.id}>
               <Link href={`/category/${c.slug}`} className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-brand-50 hover:text-brand-700">
@@ -46,7 +48,7 @@ export function CategoryMenu({ categories }: { categories: Category[] }) {
           ))}
           <li className="border-t border-slate-100">
             <Link href="/products" className="block px-4 py-2.5 text-sm font-semibold text-brand-700 hover:bg-brand-50">
-              View all products →
+              {t("nav.viewAllProducts")} →
             </Link>
           </li>
         </ul>

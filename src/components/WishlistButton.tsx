@@ -1,9 +1,11 @@
 "use client";
 
 import { useWishlist } from "./WishlistProvider";
+import { useI18n } from "@/i18n/client";
 
 export function WishlistButton({ productId, variant = "icon" }: { productId: string; variant?: "icon" | "full" }) {
   const { has, toggle } = useWishlist();
+  const { t } = useI18n();
   const active = has(productId);
   const heart = (
     <svg viewBox="0 0 24 24" className="h-5 w-5" fill={active ? "currentColor" : "none"} stroke="currentColor" strokeWidth={1.8} aria-hidden="true">
@@ -19,7 +21,7 @@ export function WishlistButton({ productId, variant = "icon" }: { productId: str
         aria-pressed={active}
       >
         {heart}
-        {active ? "In your wishlist" : "Add to wishlist"}
+        {active ? t("wishlist.in") : t("wishlist.add")}
       </button>
     );
   }
@@ -28,7 +30,7 @@ export function WishlistButton({ productId, variant = "icon" }: { productId: str
       type="button"
       onClick={() => toggle(productId)}
       className={`flex h-9 w-9 items-center justify-center rounded-full bg-white shadow ring-1 ring-slate-200 ${active ? "text-red-600" : "text-slate-500 hover:text-red-600"}`}
-      aria-label={active ? "Remove from wishlist" : "Add to wishlist"}
+      aria-label={active ? t("wishlist.remove") : t("wishlist.add")}
       aria-pressed={active}
     >
       {heart}

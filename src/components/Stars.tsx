@@ -1,7 +1,12 @@
+"use client";
+
+import { useI18n } from "@/i18n/client";
+
 export function Stars({ value, count, size = "sm" }: { value: number; count?: number; size?: "sm" | "md" }) {
+  const { t } = useI18n();
   const cls = size === "md" ? "h-5 w-5" : "h-3.5 w-3.5";
   return (
-    <span className="inline-flex items-center gap-1" aria-label={`Rated ${value.toFixed(1)} out of 5`}>
+    <span className="inline-flex items-center gap-1" aria-label={t("reviews.rated", { value: value.toFixed(1) })}>
       <span className="flex">
         {[1, 2, 3, 4, 5].map((i) => {
           const fill = Math.max(0, Math.min(1, value - (i - 1)));

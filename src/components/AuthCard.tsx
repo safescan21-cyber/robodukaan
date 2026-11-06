@@ -1,6 +1,10 @@
-import Link from "next/link";
+"use client";
+
+import Link from "@/i18n/client";
+import { useI18n } from "@/i18n/client";
 
 export function AuthCard({ title, subtitle, children, footer }: { title: string; subtitle?: string; children: React.ReactNode; footer?: React.ReactNode }) {
+  const { t } = useI18n();
   return (
     <div className="mx-auto max-w-md px-4 py-12">
       <div className="rounded-md bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
@@ -9,7 +13,7 @@ export function AuthCard({ title, subtitle, children, footer }: { title: string;
         <div className="mt-6">{children}</div>
       </div>
       {footer && <div className="mt-4 text-center text-sm text-slate-600">{footer}</div>}
-      <p className="mt-6 text-center text-xs text-slate-400"><Link href="/" className="hover:underline">← Back to store</Link></p>
+      <p className="mt-6 text-center text-xs text-slate-400"><Link href="/" className="hover:underline">← {t("common.backToStore")}</Link></p>
     </div>
   );
 }

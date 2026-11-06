@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/client";
 import { getSupabase } from "@/lib/supabase-browser";
 import { useAuth } from "./AuthProvider";
 

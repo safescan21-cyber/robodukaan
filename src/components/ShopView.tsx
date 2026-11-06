@@ -1,16 +1,18 @@
-import Link from "next/link";
+import Link from "@/i18n/client";
 import { getCategories, getProducts, type ProductQuery, type ProductSort } from "@/lib/data";
 import { ProductGrid } from "./ProductCard";
 import { SortSelect } from "./SortSelect";
 import { CategoryIcon } from "./CategoryIcon";
+import { getT } from "@/i18n/server";
+import { localizePath } from "@/i18n/config";
 
 const SORTS: { value: ProductSort; label: string }[] = [
-  { value: "popular", label: "Popularity" },
-  { value: "best-selling", label: "Best selling" },
-  { value: "rating", label: "Average rating" },
-  { value: "newest", label: "Newest first" },
-  { value: "price-asc", label: "Price: low to high" },
-  { value: "price-desc", label: "Price: high to low" },
+  { value: "popular", label: "sort.popular" },
+  { value: "best-selling", label: "sort.bestSelling" },
+  { value: "rating", label: "sort.rating" },
+  { value: "newest", label: "sort.newest" },
+  { value: "price-asc", label: "sort.priceAsc" },
+  { value: "price-desc", label: "sort.priceDesc" },
 ];
 const PAGE_SIZE = 24;
 
@@ -66,6 +68,7 @@ export async function ShopView({
   const from = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
   const to = Math.min(total, page * PAGE_SIZE);
   const hasFilters = query.minPrice != null || query.maxPrice != null || query.inStock;
+  const { t, locale } = await getT();
 
   return (
     <div className="grid gap-6 lg:grid-cols-[250px_1fr]">
@@ -73,12 +76,12 @@ export async function ShopView({
       <aside className="space-y-5">
         {!fixedCategory && (
           <details open className="rounded-md bg-white ring-1 ring-slate-200">
-            <summary className="cursor-pointer border-b border-slate-100 px-4 py-3 text-sm font-bold uppercase tracking-wide">Categories</summary>
+            <summary className="cursor-pointer border-b border-slate-100 px-4 py-3 text-sm font-bold uppercase tracking-wide">{t("footer.categories")}</summary>
             <ul className="max-h-80 overflow-y-auto py-1 text-sm">
               <li>
                 <Link href={hrefWith(basePath, query, false, { category: undefined, page: undefined })}
                   className={`block px-4 py-2 hover:bg-brand-50 ${!query.category ? "font-semibold text-brand-700" : "text-slate-700"}`}>
-                  All categories
+                  {t("search.allCategories")}
                 </Link>
               </li>
               {categories.map((c) => (
@@ -93,29 +96,29 @@ export async function ShopView({
             </ul>
           </details>
         )}
-        <form action={basePath} method="get" className="space-y-4 rounded-md bg-white p-4 ring-1 ring-slate-200">
+        <form action={localizePath(basePath, locale)} method="get" className="space-y-4 rounded-md bg-white p-4 ring-1 ring-slate-200">
           {query.q && <input type="hidden" name="q" value={query.q} />}
           {!fixedCategory && query.category && <input type="hidden" name="category" value={query.category} />}
           {query.sort && query.sort !== "popular" && <input type="hidden" name="sort" value={query.sort} />}
-          <p className="text-sm font-bold uppercase tracking-wide">Filter by price</p>
+          <p className="text-sm font-bold uppercase tracking-wide">{t("shop.filterPrice")}</p>
           <div className="flex items-center gap-2">
-            <label className="flex-1 text-xs text-slate-500">Min ₹
+            <label className="flex-1 text-xs text-slate-500">{t("shop.min")} ₹
               <input name="min" type="number" min={0} defaultValue={query.minPrice} className="mt-1 w-full rounded border border-slate-300 px-2 py-1.5 text-sm text-slate-900" />
             </label>
             <span className="pt-4 text-slate-400">–</span>
-            <label className="flex-1 text-xs text-slate-500">Max ₹
+            <label className="flex-1 text-xs text-slate-500">{t("shop.max")} ₹
               <input name="max" type="number" min={0} defaultValue={query.maxPrice} className="mt-1 w-full rounded border border-slate-300 px-2 py-1.5 text-sm text-slate-900" />
             </label>
           </div>
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" name="stock" value="1" defaultChecked={query.inStock} className="h-4 w-4 accent-brand-600" />
-            In stock only
+            {t("shop.inStockOnly")}
           </label>
-          <button className="w-full rounded-md bg-brand-600 py-2 text-sm font-semibold text-white hover:bg-brand-700">Apply filters</button>
+          <button className="w-full rounded-md bg-brand-600 py-2 text-sm font-semibold text-white hover:bg-brand-700">{t("shop.applyFilters")}</button>
           {hasFilters && (
             <Link href={hrefWith(basePath, query, fixedCategory, { min: undefined, max: undefined, stock: undefined, page: undefined })}
               className="block text-center text-xs font-semibold text-red-600 hover:underline">
-              Clear filters
+              {t("shop.clearFilters")}
             </Link>
           )}
         </form>
@@ -125,29 +128,30 @@ export async function ShopView({
       <div>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-md bg-white px-4 py-3 ring-1 ring-slate-200">
           <p className="text-sm text-slate-600">
-            {total === 0 ? "No results" : <>Showing {from}–{to} of <span className="font-semibold">{total}</span> results</>}
-            {query.q ? <> for “<span className="font-semibold">{query.q}</span>”</> : null}
+            {total === 0 ? t("shop.noResults") : t("shop.showing", { from, to, total })}
+            {query.q ? <> · “<span className="font-semibold">{query.q}</span>”</> : null}
           </p>
           <SortSelect
-            options={SORTS.map((s) => ({ label: s.label, href: hrefWith(basePath, query, fixedCategory, { sort: s.value === "popular" ? undefined : s.value, page: undefined }), value: s.value }))}
+            label={t("shop.sortBy")}
+            options={SORTS.map((s) => ({ label: t(s.label), href: hrefWith(basePath, query, fixedCategory, { sort: s.value === "popular" ? undefined : s.value, page: undefined }), value: s.value }))}
             value={query.sort ?? "popular"}
           />
         </div>
 
         {products.length === 0 ? (
           <div className="rounded-md bg-white p-10 text-center ring-1 ring-slate-200">
-            <p className="font-semibold">No products found</p>
-            <p className="mt-1 text-sm text-slate-500">Try a different search, or remove some filters.</p>
-            <Link href="/products" className="mt-4 inline-block font-semibold text-brand-700 hover:underline">Browse all products</Link>
+            <p className="font-semibold">{t("shop.noProducts")}</p>
+            <p className="mt-1 text-sm text-slate-500">{t("shop.tryDifferent")}</p>
+            <Link href="/products" className="mt-4 inline-block font-semibold text-brand-700 hover:underline">{t("shop.browseAll")}</Link>
           </div>
         ) : (
           <ProductGrid products={products} />
         )}
 
         {pages > 1 && (
-          <nav className="mt-8 flex flex-wrap justify-center gap-1" aria-label="Pages">
+          <nav className="mt-8 flex flex-wrap justify-center gap-1" aria-label={t("common.pages")}>
             {page > 1 && (
-              <Link href={hrefWith(basePath, query, fixedCategory, { page: String(page - 1) })} className="rounded border border-slate-300 bg-white px-3 py-1.5 text-sm hover:border-brand-600">← Prev</Link>
+              <Link href={hrefWith(basePath, query, fixedCategory, { page: String(page - 1) })} className="rounded border border-slate-300 bg-white px-3 py-1.5 text-sm hover:border-brand-600">← {t("common.prev")}</Link>
             )}
             {Array.from({ length: pages }, (_, i) => i + 1).map((n) => (
               <Link key={n} href={hrefWith(basePath, query, fixedCategory, { page: n > 1 ? String(n) : undefined })}
@@ -157,7 +161,7 @@ export async function ShopView({
               </Link>
             ))}
             {page < pages && (
-              <Link href={hrefWith(basePath, query, fixedCategory, { page: String(page + 1) })} className="rounded border border-slate-300 bg-white px-3 py-1.5 text-sm hover:border-brand-600">Next →</Link>
+              <Link href={hrefWith(basePath, query, fixedCategory, { page: String(page + 1) })} className="rounded border border-slate-300 bg-white px-3 py-1.5 text-sm hover:border-brand-600">{t("common.next")} →</Link>
             )}
           </nav>
         )}

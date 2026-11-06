@@ -1,18 +1,19 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/i18n/client";
 import { useEffect, useRef, useState } from "react";
 import { formatINR } from "@/lib/format";
+import { useI18n } from "@/i18n/client";
 
 type Msg = { role: "user" | "assistant"; content: string; products?: ChatProduct[] };
 type ChatProduct = { name: string; slug: string; price: number; image: string | null; stock: number };
 
-const GREETING = "Hello! 👋 Welcome to PCBDukaan. Which products are you looking for? I can help you find power supplies, drive boards, PLC modules, load cells and more — or a PCB repair.";
-const QUICK = ["SMPS power supply", "Load cell & indicator", "VFD / motor drive board", "Repair my PCB"];
+const QUICK = ["chat.q1", "chat.q2", "chat.q3", "chat.q4"];
 const SEEN_KEY = "pcbdukaan-chat-greeted";
 
 // Turns links like /products/x and [text](/products/x) into clickable links.
 function RichText({ text }: { text: string }) {
+  const { t } = useI18n();
   const parts: React.ReactNode[] = [];
   const re = /\[([^\]]+)\]\((\/[a-z0-9/_-]+)\)|(\/(?:products|category)\/[a-z0-9_-]+|\/pcb-repair)\b|\*\*([^*]+)\*\*/gi;
   let last = 0;
@@ -21,7 +22,7 @@ function RichText({ text }: { text: string }) {
   while ((m = re.exec(text))) {
     if (m.index > last) parts.push(text.slice(last, m.index));
     if (m[1] && m[2]) parts.push(<Link key={i++} href={m[2]} className="font-semibold text-brand-700 underline">{m[1]}</Link>);
-    else if (m[3]) parts.push(<Link key={i++} href={m[3]} className="font-semibold text-brand-700 underline">{m[3] === "/pcb-repair" ? "PCB repair" : "view"}</Link>);
+    else if (m[3]) parts.push(<Link key={i++} href={m[3]} className="font-semibold text-brand-700 underline">{m[3] === "/pcb-repair" ? t("nav.pcbRepair") : t("chat.view")}</Link>);
     else if (m[4]) parts.push(<strong key={i++}>{m[4]}</strong>);
     last = m.index + m[0].length;
   }
@@ -30,6 +31,8 @@ function RichText({ text }: { text: string }) {
 }
 
 export function ChatWidget() {
+  const { t, locale } = useI18n();
+  const GREETING = t("chat.greeting");
   const [open, setOpen] = useState(false);
   const [teaser, setTeaser] = useState(false);
   const [hidden, setHidden] = useState(true);
@@ -40,7 +43,7 @@ export function ChatWidget() {
 
   useEffect(() => {
     // Not shown inside the admin panel.
-    if (window.location.pathname.startsWith("/admin")) return;
+    if (/^(\/(hi|ur|fr|ko|ja|zh))?\/admin(\/|$)/.test(window.location.pathname)) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- decide visibility on the client
     setHidden(false);
     let greeted = false;
@@ -69,11 +72,11 @@ export function ChatWidget() {
     }
   }
 
-  async function send(text: string) {
+  async function send(text: string, repairShortcut = false) {
     const content = text.trim();
     if (!content || busy) return;
-    if (/repair/i.test(content) && content.length < 25) {
-      setMessages((cur) => [...cur, { role: "user", content }, { role: "assistant", content: "We repair inverter, SMPS, VFD, PLC, machine and weighing boards. Upload photos of your board on /pcb-repair and our technician will send you a free quote, usually within 1–2 working days." }]);
+    if (repairShortcut || (/repair/i.test(content) && content.length < 25)) {
+      setMessages((cur) => [...cur, { role: "user", content }, { role: "assistant", content: t("chat.repairAnswer") }]);
       setInput("");
       return;
     }
@@ -85,7 +88,7 @@ export function ChatWidget() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: history.map(({ role, content }) => ({ role, content })) }),
+        body: JSON.stringify({ locale, messages: history.map(({ role, content }) => ({ role, content })) }),
       });
       let products: ChatProduct[] = [];
       try {
@@ -104,9 +107,9 @@ export function ChatWidget() {
         const snapshot = text;
         setMessages((cur) => [...cur.slice(0, -1), { role: "assistant", content: snapshot }]);
       }
-      setMessages((cur) => [...cur.slice(0, -1), { role: "assistant", content: text || "Sorry, I couldn't answer that. Please try again.", products: res.ok ? products : [] }]);
+      setMessages((cur) => [...cur.slice(0, -1), { role: "assistant", content: text || t("chat.noAnswer"), products: res.ok ? products : [] }]);
     } catch {
-      setMessages((cur) => [...cur.slice(0, -1), { role: "assistant", content: "Sorry, the assistant is not available right now. Please browse the categories or email us." }]);
+      setMessages((cur) => [...cur.slice(0, -1), { role: "assistant", content: t("chat.unavailable") }]);
     }
     setBusy(false);
   }
@@ -114,17 +117,17 @@ export function ChatWidget() {
   if (hidden) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-3 print:hidden">
+    <div className="fixed bottom-4 end-4 z-50 flex flex-col items-end gap-3 print:hidden">
       {open && (
-        <section className="flex h-[min(560px,calc(100vh-6rem))] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-slate-200" aria-label="Chat with PCBDukaan assistant">
+        <section className="flex h-[min(560px,calc(100vh-6rem))] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-slate-200" aria-label={t("chat.aria")}>
           <header className="flex items-center gap-3 bg-brand-800 px-4 py-3 text-white">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo-mark.svg" alt="" className="h-9 w-9 rounded-lg bg-white p-1" />
             <div className="flex-1 leading-tight">
-              <p className="font-semibold">PCBDukaan assistant</p>
-              <p className="text-xs text-brand-100">Ask about products, prices or repairs</p>
+              <p className="font-semibold">{t("chat.title")}</p>
+              <p className="text-xs text-brand-100">{t("chat.subtitle")}</p>
             </div>
-            <button onClick={() => setOpen(false)} className="rounded p-1 text-2xl leading-none hover:bg-white/10" aria-label="Close chat">×</button>
+            <button onClick={() => setOpen(false)} className="rounded p-1 text-2xl leading-none hover:bg-white/10" aria-label={t("chat.close")}>×</button>
           </header>
           <div className="flex-1 space-y-3 overflow-y-auto bg-slate-50 p-3 text-sm" aria-live="polite">
             {messages.map((m, i) => (
@@ -144,7 +147,7 @@ export function ChatWidget() {
                           <span className="min-w-0 flex-1">
                             <span className="line-clamp-1 text-xs font-medium">{p.name}</span>
                             <span className="text-xs font-bold text-brand-700">{formatINR(p.price)}</span>
-                            {p.stock <= 0 && <span className="ml-1 text-[10px] text-red-600">Out of stock</span>}
+                            {p.stock <= 0 && <span className="ms-1 text-[10px] text-red-600">{t("product.outOfStock")}</span>}
                           </span>
                         </Link>
                       ))}
@@ -155,41 +158,41 @@ export function ChatWidget() {
             ))}
             {messages.length === 1 && (
               <div className="flex flex-wrap gap-2">
-                {QUICK.map((q) => (
-                  <button key={q} onClick={() => send(q)} className="rounded-full bg-white px-3 py-1.5 text-xs font-medium text-brand-700 ring-1 ring-brand-600 hover:bg-brand-50">{q}</button>
+                {QUICK.map((q, qi) => (
+                  <button key={q} onClick={() => send(t(q), qi === 3)} className="rounded-full bg-white px-3 py-1.5 text-xs font-medium text-brand-700 ring-1 ring-brand-600 hover:bg-brand-50">{t(q)}</button>
                 ))}
               </div>
             )}
             <div ref={endRef} />
           </div>
           <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="flex gap-2 border-t border-slate-200 p-2">
-            <label htmlFor="chat-input" className="sr-only">Your message</label>
+            <label htmlFor="chat-input" className="sr-only">{t("chat.yourMessage")}</label>
             <input
               id="chat-input"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               maxLength={600}
-              placeholder="Type what you’re looking for…"
+              placeholder={t("chat.placeholder")}
               className="flex-1 rounded-full border border-slate-300 px-4 py-2 text-sm outline-none focus:border-brand-600"
               autoComplete="off"
             />
-            <button disabled={busy || !input.trim()} className="rounded-full bg-accent-500 px-4 text-sm font-semibold text-white hover:bg-accent-600 disabled:opacity-50" aria-label="Send">➤</button>
+            <button disabled={busy || !input.trim()} className="rounded-full bg-accent-500 px-4 text-sm font-semibold text-white hover:bg-accent-600 disabled:opacity-50" aria-label={t("chat.send")}><span className="inline-block rtl:rotate-180">➤</span></button>
           </form>
         </section>
       )}
 
       {!open && teaser && (
         <div className="relative max-w-[260px] rounded-2xl rounded-br-sm bg-white p-3 text-sm text-slate-800 shadow-xl ring-1 ring-slate-200">
-          <button onClick={markGreeted} className="absolute right-1.5 top-1 text-slate-400 hover:text-slate-700" aria-label="Dismiss">×</button>
-          <p className="pr-3"><span className="font-semibold">Hello! 👋</span> Which products are you looking for?</p>
-          <button onClick={() => { markGreeted(); setOpen(true); }} className="mt-2 text-xs font-semibold text-brand-700 hover:underline">Chat with us →</button>
+          <button onClick={markGreeted} className="absolute right-1.5 top-1 text-slate-400 hover:text-slate-700" aria-label={t("chat.dismiss")}>×</button>
+          <p className="pe-3">{t("chat.teaser")}</p>
+          <button onClick={() => { markGreeted(); setOpen(true); }} className="mt-2 text-xs font-semibold text-brand-700 hover:underline">{t("chat.chatWithUs")} →</button>
         </div>
       )}
 
       <button
         onClick={() => { markGreeted(); setOpen((o) => !o); }}
         className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-700 text-white shadow-xl ring-4 ring-white hover:bg-brand-800"
-        aria-label={open ? "Close chat" : "Open chat"}
+        aria-label={open ? t("chat.close") : t("chat.open")}
         aria-expanded={open}
       >
         {open ? (

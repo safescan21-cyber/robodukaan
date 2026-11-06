@@ -1,5 +1,7 @@
-import Link from "next/link";
-import { STATUS_LABEL } from "@/lib/constants";
+"use client";
+
+import Link from "@/i18n/client";
+import { useI18n } from "@/i18n/client";
 import { formatDate, formatINR } from "@/lib/format";
 import type { Order } from "@/lib/types";
 import { StatusBadge } from "./StatusBadge";
@@ -9,13 +11,14 @@ const STEPS = ["pending", "confirmed", "packed", "shipped", "delivered"] as cons
 
 export function OrderDetail({ order, actions }: { order: Order; actions?: React.ReactNode }) {
   const step = STEPS.indexOf(order.status as (typeof STEPS)[number]);
+  const { t } = useI18n();
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-md bg-white p-5 ring-1 ring-slate-200">
         <div>
-          <p className="text-sm text-slate-500">Order</p>
+          <p className="text-sm text-slate-500">{t("order.label")}</p>
           <h1 className="font-mono text-xl font-bold">{order.order_number}</h1>
-          <p className="text-sm text-slate-500">Placed on {formatDate(order.created_at)}</p>
+          <p className="text-sm text-slate-500">{t("order.placedOn", { date: formatDate(order.created_at) })}</p>
         </div>
         <div className="flex items-center gap-3">
           <StatusBadge status={order.status} />
@@ -28,20 +31,20 @@ export function OrderDetail({ order, actions }: { order: Order; actions?: React.
           {STEPS.map((s, i) => (
             <li key={s}>
               <div className={`h-2 rounded-full ${i <= step ? "bg-emerald-500" : "bg-slate-200"}`} />
-              <p className={`mt-2 ${i <= step ? "font-semibold text-emerald-700" : "text-slate-400"}`}>{STATUS_LABEL[s]}</p>
+              <p className={`mt-2 ${i <= step ? "font-semibold text-emerald-700" : "text-slate-400"}`}>{t(`orderStatus.${s}`)}</p>
             </li>
           ))}
         </ol>
       )}
       {order.tracking_url && (
         <a href={order.tracking_url} target="_blank" rel="noopener noreferrer" className="inline-block rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
-          Track shipment with courier →
+          {t("order.trackCourier")} →
         </a>
       )}
 
       <div className="grid gap-5 lg:grid-cols-[1fr_300px]">
         <section className="rounded-md bg-white ring-1 ring-slate-200">
-          <h2 className="border-b border-slate-200 px-4 py-3 text-sm font-bold uppercase tracking-wide">Items</h2>
+          <h2 className="border-b border-slate-200 px-4 py-3 text-sm font-bold uppercase tracking-wide">{t("order.items")}</h2>
           <ul className="divide-y divide-slate-100">
             {order.order_items?.map((i) => (
               <li key={i.id} className="flex items-center gap-3 px-4 py-3 text-sm">
@@ -57,25 +60,25 @@ export function OrderDetail({ order, actions }: { order: Order; actions?: React.
             ))}
           </ul>
           <dl className="space-y-1.5 border-t border-slate-200 px-4 py-3 text-sm">
-            <div className="flex justify-between"><dt>Subtotal</dt><dd>{formatINR(order.subtotal)}</dd></div>
-            {Number(order.discount) > 0 && <div className="flex justify-between text-emerald-700"><dt>Discount {order.coupon_code ? `(${order.coupon_code})` : ""}</dt><dd>− {formatINR(order.discount)}</dd></div>}
-            <div className="flex justify-between"><dt>Shipping</dt><dd>{Number(order.shipping) === 0 ? "Free" : formatINR(order.shipping)}</dd></div>
-            {Number(order.gst_amount ?? 0) > 0 && <div className="flex justify-between"><dt>GST ({Number(order.gst_rate)}%)</dt><dd>{formatINR(Number(order.gst_amount))}</dd></div>}
-            <div className="flex justify-between border-t border-slate-200 pt-2 text-base font-bold"><dt>Total</dt><dd>{formatINR(order.total)}</dd></div>
+            <div className="flex justify-between"><dt>{t("cart.subtotal")}</dt><dd>{formatINR(order.subtotal)}</dd></div>
+            {Number(order.discount) > 0 && <div className="flex justify-between text-emerald-700"><dt>{t("cart.discount")} {order.coupon_code ? `(${order.coupon_code})` : ""}</dt><dd>− {formatINR(order.discount)}</dd></div>}
+            <div className="flex justify-between"><dt>{t("cart.shipping")}</dt><dd>{Number(order.shipping) === 0 ? t("cart.free") : formatINR(order.shipping)}</dd></div>
+            {Number(order.gst_amount ?? 0) > 0 && <div className="flex justify-between"><dt>{t("cart.gst", { rate: Number(order.gst_rate) })}</dt><dd>{formatINR(Number(order.gst_amount))}</dd></div>}
+            <div className="flex justify-between border-t border-slate-200 pt-2 text-base font-bold"><dt>{t("cart.total")}</dt><dd>{formatINR(order.total)}</dd></div>
           </dl>
         </section>
         <aside className="space-y-5">
           <section className="rounded-md bg-white p-4 text-sm ring-1 ring-slate-200">
-            <h2 className="mb-2 text-sm font-bold uppercase tracking-wide">Shipping address</h2>
+            <h2 className="mb-2 text-sm font-bold uppercase tracking-wide">{t("order.shippingAddress")}</h2>
             <p className="font-semibold">{order.customer_name}</p>
             <p className="text-slate-600">{order.address_line}<br />{order.city}, {order.state} – {order.pincode}</p>
             <p className="mt-2 text-slate-600">📞 {order.phone}{order.email ? <><br />✉️ {order.email}</> : null}</p>
             {order.notes && <p className="mt-2 rounded bg-slate-50 p-2 text-xs text-slate-600">Note: {order.notes}</p>}
           </section>
           <section className="rounded-md bg-white p-4 text-sm ring-1 ring-slate-200">
-            <h2 className="mb-2 text-sm font-bold uppercase tracking-wide">Payment</h2>
-            <p>Cash on delivery</p>
-            <p className="text-slate-600">Status: <span className="font-semibold capitalize">{order.payment_status}</span></p>
+            <h2 className="mb-2 text-sm font-bold uppercase tracking-wide">{t("order.payment")}</h2>
+            <p>{t("trust.cod")}</p>
+            <p className="text-slate-600">{t("order.paymentStatus")}: <span className="font-semibold">{t(`paymentStatus.${order.payment_status}`)}</span></p>
           </section>
         </aside>
       </div>

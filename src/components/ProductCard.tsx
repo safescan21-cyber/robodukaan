@@ -1,12 +1,14 @@
-import Link from "next/link";
+import Link from "@/i18n/client";
 import type { Product } from "@/lib/types";
 import { discountPercent, formatINR, productImage } from "@/lib/format";
 import { ProductImage } from "./ProductImage";
 import { AddToCartButton } from "./AddToCartButton";
 import { WishlistButton } from "./WishlistButton";
 import { Stars } from "./Stars";
+import { getT } from "@/i18n/server";
 
-export function ProductCard({ product }: { product: Product }) {
+export async function ProductCard({ product }: { product: Product }) {
+  const { t } = await getT();
   const off = discountPercent(product.price, product.mrp);
   return (
     <article className="group relative flex h-full flex-col rounded-md border border-slate-200 bg-white transition hover:border-brand-600 hover:shadow-lg">
@@ -17,11 +19,11 @@ export function ProductCard({ product }: { product: Product }) {
         <ProductImage imageUrl={productImage(product)} icon={product.category?.icon ?? "chip"} name={product.name} />
         {off > 0 && (
           <span className="absolute left-2 top-2 rounded bg-red-600 px-2 py-0.5 text-[11px] font-bold uppercase text-white">
-            Sale {off}%
+            {t("product.sale", { off })}
           </span>
         )}
         {product.stock <= 0 && (
-          <span className="absolute inset-x-0 bottom-0 bg-slate-900/70 py-1 text-center text-xs font-semibold text-white">Out of stock</span>
+          <span className="absolute inset-x-0 bottom-0 bg-slate-900/70 py-1 text-center text-xs font-semibold text-white">{t("product.outOfStock")}</span>
         )}
       </Link>
       <div className="flex flex-1 flex-col gap-1.5 border-t border-slate-100 p-3">
@@ -35,7 +37,7 @@ export function ProductCard({ product }: { product: Product }) {
             <span className="text-xs text-slate-500 line-through">{formatINR(product.mrp)}</span>
           )}
         </div>
-        <p className="text-[11px] text-slate-500">+ 18% GST</p>
+        <p className="text-[11px] text-slate-500">{t("product.plusGst")}</p>
         <div className="mt-auto pt-1">
           <AddToCartButton product={product} compact />
         </div>
@@ -83,7 +85,8 @@ export function ProductGridSkeleton({ count = 8 }: { count?: number }) {
   );
 }
 
-export function SectionHeading({ title, href, linkLabel = "View all" }: { title: string; href?: string; linkLabel?: string }) {
+export async function SectionHeading({ title, href, linkLabel }: { title: string; href?: string; linkLabel?: string }) {
+  const { t } = await getT();
   return (
     <div className="mb-4 flex items-end justify-between border-b-2 border-slate-200">
       <h2 className="-mb-0.5 border-b-2 border-accent-500 pb-2 text-lg font-bold uppercase tracking-wide text-slate-800 sm:text-xl">
@@ -91,7 +94,7 @@ export function SectionHeading({ title, href, linkLabel = "View all" }: { title:
       </h2>
       {href && (
         <Link href={href} className="pb-2 text-sm font-semibold text-brand-700 hover:underline">
-          {linkLabel} →
+          {linkLabel ?? t("common.viewAll")} →
         </Link>
       )}
     </div>

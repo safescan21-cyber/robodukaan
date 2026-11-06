@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (data?.is_blocked) {
       await getSupabase().auth.signOut();
       setProfile(null);
-      window.location.replace("/login?blocked=1");
+      window.location.replace(`${/^\/(hi|ur|fr|ko|ja|zh)(\/|$)/.test(window.location.pathname) ? window.location.pathname.split("/").slice(0, 2).join("/") : ""}/login?blocked=1`);
       return;
     }
     setProfile((data as Profile) ?? null);

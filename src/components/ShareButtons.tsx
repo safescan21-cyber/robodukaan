@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { useI18n } from "@/i18n/client";
 
 export function ShareButtons({ name, path }: { name: string; path: string }) {
   const [copied, setCopied] = useState(false);
-  const url = () => `${window.location.origin}${path}`;
+  const { t, href } = useI18n();
+  const url = () => `${window.location.origin}${href(path)}`;
   return (
     <div className="flex items-center gap-3 text-sm text-slate-600">
-      <span>Share:</span>
+      <span>{t("share.label")}</span>
       <button
         onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`${name} ${url()}`)}`, "_blank", "noopener")}
         className="rounded bg-emerald-700 px-2.5 py-1 text-xs font-semibold text-white hover:bg-emerald-800"
@@ -26,7 +28,7 @@ export function ShareButtons({ name, path }: { name: string; path: string }) {
         }}
         className="rounded bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-300"
       >
-        {copied ? "Copied!" : "Copy link"}
+        {copied ? t("share.copied") : t("share.copy")}
       </button>
     </div>
   );

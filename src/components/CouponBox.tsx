@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase-browser";
 import { useCart } from "./CartProvider";
+import { useI18n } from "@/i18n/client";
 
 export type CouponResult = { valid: boolean; code?: string; discount?: number; message: string };
 
@@ -34,13 +35,14 @@ export function useCoupon() {
 export function CouponBox() {
   const { coupon, setCoupon, result } = useCoupon();
   const [code, setCode] = useState("");
+  const { t } = useI18n();
 
   if (coupon) {
     return (
       <div className={`rounded-md p-3 text-sm ${result?.valid === false ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-800"}`}>
         <div className="flex items-center justify-between gap-2">
           <span className="font-mono font-bold">{coupon}</span>
-          <button onClick={() => setCoupon(null)} className="text-xs font-semibold underline">Remove</button>
+          <button onClick={() => setCoupon(null)} className="text-xs font-semibold underline">{t("common.remove")}</button>
         </div>
         {result && <p className="mt-1 text-xs">{result.message}</p>}
       </div>
@@ -55,15 +57,15 @@ export function CouponBox() {
       }}
       className="flex"
     >
-      <label htmlFor="coupon" className="sr-only">Coupon code</label>
+      <label htmlFor="coupon" className="sr-only">{t("coupon.label")}</label>
       <input
         id="coupon"
         value={code}
         onChange={(e) => setCode(e.target.value)}
-        placeholder="Coupon code"
+        placeholder={t("coupon.label")}
         className="w-full rounded-l-md border border-slate-300 px-3 py-2 text-sm uppercase outline-none focus:border-brand-600"
       />
-      <button className="rounded-r-md bg-slate-800 px-4 text-sm font-semibold text-white hover:bg-slate-700">Apply</button>
+      <button className="rounded-r-md bg-slate-800 px-4 text-sm font-semibold text-white hover:bg-slate-700">{t("coupon.apply")}</button>
     </form>
   );
 }

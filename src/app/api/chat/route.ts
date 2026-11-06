@@ -91,7 +91,7 @@ function fallbackReply(products: FoundProduct[], categories: { name: string; slu
 }
 
 export async function POST(request: Request) {
-  const ip = request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
+  const ip = request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   if (!allowed(ip)) {
     return new Response("You're sending messages very quickly — please wait a few minutes and try again.", { status: 429 });
   }
@@ -103,6 +103,8 @@ export async function POST(request: Request) {
         .slice(-MAX_MESSAGES)
         .map((m: ChatMessage) => ({ role: m.role, content: m.content.slice(0, MAX_CHARS) }))
     : [];
+  const LANGS: Record<string, string> = { hi: "Hindi", ur: "Urdu", fr: "French", ko: "Korean", ja: "Japanese", zh: "Simplified Chinese" };
+  const replyLanguage = typeof body?.locale === "string" ? LANGS[body.locale] : undefined;
   const lastUser = [...messages].reverse().find((m) => m.role === "user");
   if (!lastUser) return new Response("Please type a message.", { status: 400 });
 
@@ -127,7 +129,7 @@ export async function POST(request: Request) {
         stream: true,
         keep_alive: "30m",
         options: { temperature: 0.1, num_predict: 320, num_ctx: 3072 },
-        messages: [{ role: "system", content: systemPrompt(products, categories) }, ...messages],
+        messages: [{ role: "system", content: systemPrompt(products, categories) + (replyLanguage ? `\n\nThe customer is browsing the site in ${replyLanguage}: reply in ${replyLanguage} unless they write in another language. Keep product names, prices and links exactly as written.` : "") }, ...messages],
       }),
       signal: AbortSignal.timeout(90_000),
     });

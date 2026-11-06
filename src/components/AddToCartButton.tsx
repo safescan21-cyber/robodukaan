@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useI18n, useRouter } from "@/i18n/client";
 import { useCart } from "./CartProvider";
 import { useAuth } from "./AuthProvider";
 import type { Product } from "@/lib/types";
@@ -21,6 +21,7 @@ export function AddToCartButton({
   const { add } = useCart();
   const { ready, user } = useAuth();
   const router = useRouter();
+  const { t } = useI18n();
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const outOfStock = product.stock <= 0;
@@ -49,7 +50,7 @@ export function AddToCartButton({
         onClick={() => router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`)}
         className={`w-full rounded-md bg-slate-800 px-4 ${compact ? "py-2" : "py-3"} text-sm font-semibold text-white transition hover:bg-slate-700`}
       >
-        🔒 Login to buy
+        🔒 {t("product.loginToBuy")}
       </button>
     );
   }
@@ -57,7 +58,7 @@ export function AddToCartButton({
   if (outOfStock) {
     return (
       <button disabled className={`w-full rounded-md bg-slate-200 px-4 ${compact ? "py-2" : "py-3"} text-sm font-semibold text-slate-500`}>
-        Out of stock
+        {t("product.outOfStock")}
       </button>
     );
   }
@@ -70,7 +71,7 @@ export function AddToCartButton({
             type="button"
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
             className="px-3 py-2 text-lg leading-none hover:bg-slate-100"
-            aria-label="Decrease quantity"
+            aria-label={t("cart.decrease")}
           >
             −
           </button>
@@ -79,7 +80,7 @@ export function AddToCartButton({
             type="button"
             onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
             className="px-3 py-2 text-lg leading-none hover:bg-slate-100"
-            aria-label="Increase quantity"
+            aria-label={t("cart.increase")}
           >
             +
           </button>
@@ -90,7 +91,7 @@ export function AddToCartButton({
         onClick={addToCart}
         className={`${withQuantity ? "flex-1" : "w-full"} flex items-center justify-center gap-2 rounded-md bg-brand-600 px-4 ${compact ? "py-2" : "py-3"} text-sm font-semibold text-white transition hover:bg-brand-700`}
       >
-        {added ? "✓ Added" : "Add to cart"}
+        {added ? `✓ ${t("product.added")}` : t("product.addToCart")}
       </button>
       {buyNow && (
         <button
@@ -101,7 +102,7 @@ export function AddToCartButton({
           }}
           className="flex-1 rounded-md bg-accent-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-accent-600"
         >
-          Buy now
+          {t("product.buyNow")}
         </button>
       )}
     </div>

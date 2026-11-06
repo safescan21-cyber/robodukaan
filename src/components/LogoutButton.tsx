@@ -1,11 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useI18n, useRouter } from "@/i18n/client";
 import { useAuth } from "./AuthProvider";
 
-export function LogoutButton({ className, label = "Log out", icon = true }: { className?: string; label?: string; icon?: boolean }) {
+export function LogoutButton({ className, label, icon = true }: { className?: string; label?: string; icon?: boolean }) {
   const { signOut } = useAuth();
   const router = useRouter();
+  const { t } = useI18n();
   return (
     <button
       type="button"
@@ -17,7 +18,7 @@ export function LogoutButton({ className, label = "Log out", icon = true }: { cl
       className={className ?? "flex shrink-0 items-center gap-3 rounded px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"}
     >
       {icon && <span aria-hidden="true">🚪</span>}
-      {label}
+      {label ?? t("auth.logout")}
     </button>
   );
 }

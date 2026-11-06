@@ -1,6 +1,7 @@
-import Link from "next/link";
+import Link from "@/i18n/client";
 import type { Category } from "@/lib/types";
 import { CategoryIcon } from "./CategoryIcon";
+import { getT } from "@/i18n/server";
 
 export function CategoryLinks({ slugs, categories }: { slugs: string[]; categories: Category[] }) {
   const list = slugs.map((s) => categories.find((c) => c.slug === s)).filter(Boolean) as Category[];
@@ -22,14 +23,15 @@ export function CategoryLinks({ slugs, categories }: { slugs: string[]; categori
   );
 }
 
-export function RepairCta({ place }: { place: string }) {
+export async function RepairCta({ place }: { place: string }) {
+  const { t } = await getT();
   return (
     <section className="flex flex-col items-start gap-4 rounded-md bg-gradient-to-r from-slate-900 to-brand-800 p-6 text-white sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <p className="text-lg font-bold">Faulty board in {place}?</p>
-        <p className="text-sm text-brand-100">Upload photos online and get a free repair quote, usually within 1–2 working days. Courier pickup-to-return across India.</p>
+        <p className="text-lg font-bold">{t("loc.faultyIn", { place })}</p>
+        <p className="text-sm text-brand-100">{t("loc.ctaText")}</p>
       </div>
-      <Link href="/pcb-repair" className="shrink-0 rounded-md bg-accent-500 px-5 py-2.5 font-bold text-white hover:bg-accent-600">Get a repair quote</Link>
+      <Link href="/pcb-repair" className="shrink-0 rounded-md bg-accent-500 px-5 py-2.5 font-bold text-white hover:bg-accent-600">{t("loc.getQuote")}</Link>
     </section>
   );
 }

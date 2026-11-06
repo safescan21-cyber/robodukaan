@@ -1,6 +1,9 @@
 "use client";
 
+import { useI18n } from "@/i18n/client";
+
 export function OtpInput({ value, onChange, autoFocus = true }: { value: string; onChange: (v: string) => void; autoFocus?: boolean }) {
+  const { t } = useI18n();
   return (
     <input
       value={value}
@@ -12,7 +15,7 @@ export function OtpInput({ value, onChange, autoFocus = true }: { value: string;
       minLength={6}
       maxLength={8}
       placeholder="••••••"
-      aria-label="Verification code"
+      aria-label={t("auth.code")}
       className="mt-1 w-full rounded border border-slate-300 px-3 py-3 text-center font-mono text-2xl tracking-[0.5em] outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
     />
   );
