@@ -5,6 +5,7 @@ import { useCart } from "./CartProvider";
 import { useWishlist } from "./WishlistProvider";
 import { useAuth } from "./AuthProvider";
 import { formatINR } from "@/lib/format";
+import { LogoutButton } from "./LogoutButton";
 
 export function HeaderActions() {
   const { count, subtotal, ready } = useCart();
@@ -28,6 +29,12 @@ export function HeaderActions() {
         <Link href="/admin" className="hidden rounded-md bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-700 sm:block">
           Admin
         </Link>
+      )}
+      {user && (
+        <LogoutButton
+          icon={false}
+          className="hidden rounded-md px-2 py-1.5 text-xs font-semibold text-slate-500 ring-1 ring-slate-300 hover:bg-red-50 hover:text-red-600 hover:ring-red-300 md:block"
+        />
       )}
       <Link href="/wishlist" className="relative rounded-md p-1.5 hover:bg-slate-100" aria-label={`Wishlist, ${wishCount} items`}>
         <svg viewBox="0 0 24 24" className="h-7 w-7 text-slate-700" fill="none" stroke="currentColor" strokeWidth={1.6} aria-hidden="true">

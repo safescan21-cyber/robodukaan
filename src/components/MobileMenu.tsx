@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { Category } from "@/lib/types";
 import { CategoryIcon } from "./CategoryIcon";
 import { useAuth } from "./AuthProvider";
+import { LogoutButton } from "./LogoutButton";
 
 export function MobileMenu({ categories }: { categories: Category[] }) {
   const [open, setOpen] = useState(false);
@@ -56,6 +57,7 @@ export function MobileMenu({ categories }: { categories: Category[] }) {
               <li><Link href="/products?sort=best-selling" className="block px-4 py-2.5 hover:bg-brand-50">Best sellers</Link></li>
               <li><Link href="/wishlist" className="block px-4 py-2.5 hover:bg-brand-50">Wishlist</Link></li>
               <li><Link href="/track" className="block px-4 py-2.5 hover:bg-brand-50">Track order</Link></li>
+              {user && <li><LogoutButton className="w-full px-4 py-2.5 text-left font-semibold text-red-600 hover:bg-red-50" icon={false} /></li>}
             </ul>
           </div>
         </div>

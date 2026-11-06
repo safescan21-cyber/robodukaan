@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { RequireAuth } from "@/components/RequireAuth";
 import { SideNav } from "@/components/SideNav";
+import { LogoutButton } from "@/components/LogoutButton";
 
 const ITEMS = [
   { href: "/admin", label: "Dashboard", icon: "📊", exact: true },
@@ -25,7 +26,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <SideNav
           title="Admin panel"
           items={ITEMS}
-          footer={<Link href="/" className="flex shrink-0 items-center gap-3 rounded px-3 py-2 text-sm text-slate-500 hover:bg-slate-100"><span aria-hidden="true">🏪</span>View store</Link>}
+          footer={<><Link href="/" className="flex shrink-0 items-center gap-3 rounded px-3 py-2 text-sm text-slate-500 hover:bg-slate-100"><span aria-hidden="true">🏪</span>View store</Link><LogoutButton /></>}
         />
         </Suspense>
         <div className="min-w-0">{children}</div>

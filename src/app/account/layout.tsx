@@ -1,10 +1,9 @@
 "use client";
 
 import { Suspense } from "react";
-import { useRouter } from "next/navigation";
 import { RequireAuth } from "@/components/RequireAuth";
 import { SideNav } from "@/components/SideNav";
-import { useAuth } from "@/components/AuthProvider";
+import { LogoutButton } from "@/components/LogoutButton";
 
 const ITEMS = [
   { href: "/account", label: "Dashboard", icon: "🏠", exact: true },
@@ -25,21 +24,5 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
         <div className="min-w-0">{children}</div>
       </div>
     </RequireAuth>
-  );
-}
-
-function LogoutButton() {
-  const { signOut } = useAuth();
-  const router = useRouter();
-  return (
-    <button
-      onClick={async () => {
-        await signOut();
-        router.replace("/");
-      }}
-      className="flex shrink-0 items-center gap-3 rounded px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
-    >
-      <span aria-hidden="true">🚪</span>Log out
-    </button>
   );
 }
