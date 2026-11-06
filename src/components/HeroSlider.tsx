@@ -52,7 +52,7 @@ export function HeroSlider({ banners }: { banners: Banner[] }) {
               </div>
             </div>
           )}
-          <div className={`relative flex h-full max-w-xl flex-col justify-center px-6 sm:px-10 ${b.image_url ? "bg-gradient-to-r from-black/60 to-transparent" : ""}`}>
+          <div className={`relative flex h-full max-w-xl flex-col justify-center px-6 sm:px-16 ${b.image_url ? "bg-gradient-to-r from-black/60 to-transparent" : ""}`}>
             <h2 className="text-2xl font-extrabold leading-tight text-white sm:text-4xl">{b.title}</h2>
             {b.subtitle && <p className="mt-3 text-sm text-white/85 sm:text-lg">{b.subtitle}</p>}
             <Link
