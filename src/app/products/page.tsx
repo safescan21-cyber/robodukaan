@@ -4,7 +4,7 @@ import { ShopView, parseShopQuery } from "@/components/ShopView";
 import { ProductGridSkeleton } from "@/components/ProductCard";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 
-export const metadata: Metadata = { title: "Shop all products" };
+export const metadata: Metadata = { title: "Shop all products", alternates: { canonical: "/products" } };
 
 export default function ProductsPage(props: PageProps<"/products">) {
   return (

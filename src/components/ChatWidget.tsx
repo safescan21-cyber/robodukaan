@@ -50,8 +50,10 @@ export function ChatWidget() {
       /* ignore */
     }
     if (greeted) return;
-    const t = setTimeout(() => setTeaser(true), 2500);
-    return () => clearTimeout(t);
+    // Greet after a few seconds, then tuck the bubble away so it doesn't cover the page.
+    const show = setTimeout(() => setTeaser(true), 5000);
+    const hide = setTimeout(() => setTeaser(false), 17000);
+    return () => { clearTimeout(show); clearTimeout(hide); };
   }, []);
 
   useEffect(() => {

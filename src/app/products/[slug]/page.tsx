@@ -2,7 +2,10 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getProduct, getRelatedProducts } from "@/lib/data";
-import { discountPercent, formatINR, FREE_SHIPPING_FROM, GST_RATE, gstFor } from "@/lib/format";
+import { discountPercent, formatINR, FREE_SHIPPING_FROM, GST_RATE, gstFor, productImage } from "@/lib/format";
+import { JsonLd } from "@/components/JsonLd";
+
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://pcbdukaan.com";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { ProductRow, SectionHeading } from "@/components/ProductCard";
 import { ProductGallery } from "@/components/ProductGallery";
@@ -16,9 +19,15 @@ import { Stars } from "@/components/Stars";
 export async function generateMetadata(props: PageProps<"/products/[slug]">) {
   const { slug } = await props.params;
   const product = await getProduct(slug);
-  return product
-    ? { title: product.name, description: product.short_description ?? undefined }
-    : { title: "Product not found" };
+  if (!product) return { title: "Product not found" };
+  const image = productImage(product);
+  const description = product.short_description ?? product.description?.slice(0, 155) ?? undefined;
+  return {
+    title: product.name,
+    description,
+    alternates: { canonical: `/products/${product.slug}` },
+    openGraph: { type: "website", title: product.name, description, url: `/products/${product.slug}`, images: image ? [image] : [{ url: "/og.png", width: 1200, height: 630 }] },
+  };
 }
 
 export default function ProductPage(props: PageProps<"/products/[slug]">) {
@@ -117,8 +126,43 @@ async function ProductDetail({ params }: Pick<PageProps<"/products/[slug]">, "pa
     },
   ];
 
+  const priceWithGst = Math.round((product.price + gstFor(product.price)) * 100) / 100;
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    sku: product.sku,
+    description: product.short_description ?? product.description ?? undefined,
+    ...(images.length ? { image: images } : {}),
+    ...(product.brand ? { brand: { "@type": "Brand", name: product.brand } } : {}),
+    ...(product.category ? { category: product.category.name } : {}),
+    offers: {
+      "@type": "Offer",
+      url: `${SITE}/products/${product.slug}`,
+      priceCurrency: "INR",
+      price: priceWithGst.toFixed(2),
+      priceSpecification: { "@type": "UnitPriceSpecification", price: priceWithGst.toFixed(2), priceCurrency: "INR", valueAddedTaxIncluded: true },
+      availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      itemCondition: "https://schema.org/NewCondition",
+      seller: { "@type": "Organization", name: "PCBDukaan" },
+    },
+    ...(product.rating_count > 0 ? { aggregateRating: { "@type": "AggregateRating", ratingValue: product.rating_avg.toFixed(1), reviewCount: product.rating_count } } : {}),
+  };
+  const breadcrumbs = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE },
+      { "@type": "ListItem", position: 2, name: "Shop", item: `${SITE}/products` },
+      ...(product.category ? [{ "@type": "ListItem", position: 3, name: product.category.name, item: `${SITE}/category/${product.category.slug}` }] : []),
+      { "@type": "ListItem", position: product.category ? 4 : 3, name: product.name, item: `${SITE}/products/${product.slug}` },
+    ],
+  };
+
   return (
     <>
+      <JsonLd data={schema} />
+      <JsonLd data={breadcrumbs} />
       <Breadcrumbs
         items={[
           { label: "Shop", href: "/products" },
@@ -143,7 +187,7 @@ async function ProductDetail({ params }: Pick<PageProps<"/products/[slug]">, "pa
             <span className="text-3xl font-extrabold text-brand-700">{formatINR(product.price)}</span>
             {product.mrp && product.mrp > product.price && (
               <>
-                <span className="text-lg text-slate-400 line-through">{formatINR(product.mrp)}</span>
+                <span className="text-lg text-slate-500 line-through">{formatINR(product.mrp)}</span>
                 <span className="rounded bg-red-600 px-2 py-0.5 text-sm font-bold text-white">{off}% OFF</span>
               </>
             )}

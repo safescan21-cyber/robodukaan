@@ -9,7 +9,9 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 export async function generateMetadata(props: PageProps<"/category/[slug]">) {
   const { slug } = await props.params;
   const category = await getCategory(slug);
-  return category ? { title: category.name, description: category.description ?? undefined } : { title: "Category not found" };
+  return category
+    ? { title: category.name, description: category.description ?? undefined, alternates: { canonical: `/category/${category.slug}` } }
+    : { title: "Category not found" };
 }
 
 export default function CategoryPage(props: PageProps<"/category/[slug]">) {

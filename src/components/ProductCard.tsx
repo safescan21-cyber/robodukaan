@@ -32,7 +32,7 @@ export function ProductCard({ product }: { product: Product }) {
         <div className="flex flex-wrap items-baseline gap-x-2">
           <span className="text-base font-bold text-brand-700">{formatINR(product.price)}</span>
           {product.mrp && product.mrp > product.price && (
-            <span className="text-xs text-slate-400 line-through">{formatINR(product.mrp)}</span>
+            <span className="text-xs text-slate-500 line-through">{formatINR(product.mrp)}</span>
           )}
         </div>
         <p className="text-[11px] text-slate-500">+ 18% GST</p>

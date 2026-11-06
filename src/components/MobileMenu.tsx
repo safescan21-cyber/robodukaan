@@ -14,7 +14,7 @@ export function MobileMenu({ categories }: { categories: Category[] }) {
 
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} className="rounded-md p-1.5 hover:bg-slate-100 lg:hidden" aria-label="Open menu">
+      <button type="button" onClick={() => setOpen(true)} className="rounded-md p-1 hover:bg-slate-100 lg:hidden" aria-label="Open menu">
         <svg viewBox="0 0 24 24" className="h-7 w-7 text-slate-700" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
           <path strokeLinecap="round" d="M4 6h16M4 12h16M4 18h16" />
         </svg>

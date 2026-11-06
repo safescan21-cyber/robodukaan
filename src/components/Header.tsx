@@ -26,7 +26,7 @@ export async function Header() {
 
       {/* Main row */}
       <div className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3 lg:flex-nowrap lg:gap-8">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-1.5 gap-y-3 px-3 py-3 sm:gap-x-4 sm:px-4 lg:flex-nowrap lg:gap-8">
           <MobileMenu categories={categories} />
           <Logo />
           <form action="/products" method="get" role="search" className="order-last flex w-full lg:order-none lg:flex-1">

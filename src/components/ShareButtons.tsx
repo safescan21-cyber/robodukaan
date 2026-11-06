@@ -10,7 +10,7 @@ export function ShareButtons({ name, path }: { name: string; path: string }) {
       <span>Share:</span>
       <button
         onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`${name} ${url()}`)}`, "_blank", "noopener")}
-        className="rounded bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-emerald-700"
+        className="rounded bg-emerald-700 px-2.5 py-1 text-xs font-semibold text-white hover:bg-emerald-800"
       >
         WhatsApp
       </button>

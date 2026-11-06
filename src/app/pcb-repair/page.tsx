@@ -6,6 +6,7 @@ import { BOARD_TYPES } from "@/lib/constants";
 export const metadata: Metadata = {
   title: "PCB repair service",
   description: "Send photos of your faulty PCB — inverter, SMPS, VFD, PLC, machine and appliance boards — and get a repair quote. Pan-India service.",
+  alternates: { canonical: "/pcb-repair" },
 };
 
 const STEPS = [
