@@ -69,14 +69,14 @@ export async function Header() {
           <ul className="flex items-center text-sm font-medium">
             <li><Link href="/products?sort=newest" className="block px-4 py-3 hover:bg-white/10">New arrivals</Link></li>
             <li><Link href="/products?sort=best-selling" className="block px-4 py-3 hover:bg-white/10">Best sellers</Link></li>
-            {categories.slice(0, 4).map((c) => (
+            {categories.slice(0, 3).map((c) => (
               <li key={c.id}>
                 <Link href={`/category/${c.slug}`} className="block px-4 py-3 hover:bg-white/10">{c.name}</Link>
               </li>
             ))}
           </ul>
-          <Link href="/category/diy-kits" className="ml-auto flex items-center gap-1 bg-accent-500 px-4 text-sm font-semibold hover:bg-accent-600">
-            🎓 Student kits
+          <Link href="/pcb-repair" className="ml-auto flex items-center gap-1 bg-accent-500 px-4 text-sm font-semibold hover:bg-accent-600">
+            🔧 PCB repair
           </Link>
         </div>
       </nav>

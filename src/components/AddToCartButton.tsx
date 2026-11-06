@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "./CartProvider";
+import { useAuth } from "./AuthProvider";
 import type { Product } from "@/lib/types";
 import { productImage } from "@/lib/format";
 
@@ -18,6 +19,7 @@ export function AddToCartButton({
   compact?: boolean;
 }) {
   const { add } = useCart();
+  const { ready, user } = useAuth();
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
@@ -38,6 +40,18 @@ export function AddToCartButton({
     );
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
+  }
+
+  if (ready && !user) {
+    return (
+      <button
+        type="button"
+        onClick={() => router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`)}
+        className={`w-full rounded-md bg-slate-800 px-4 ${compact ? "py-2" : "py-3"} text-sm font-semibold text-white transition hover:bg-slate-700`}
+      >
+        🔒 Login to buy
+      </button>
+    );
   }
 
   if (outOfStock) {

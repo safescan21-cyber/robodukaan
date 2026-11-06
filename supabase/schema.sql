@@ -371,6 +371,9 @@ declare
   v_product      public.products%rowtype;
   v_phone        text := regexp_replace(coalesce(customer->>'phone',''), '\D', '', 'g');
 begin
+  if auth.uid() is null then
+    raise exception 'Please log in to place an order';
+  end if;
   if jsonb_typeof(items) <> 'array' or jsonb_array_length(items) = 0 then
     raise exception 'Your cart is empty';
   end if;
@@ -546,7 +549,7 @@ revoke all on function public.track_order(text, text) from public;
 revoke all on function public.check_coupon(text, numeric) from public;
 revoke all on function public.cancel_my_order(uuid) from public;
 revoke all on function public.admin_stats() from public;
-grant execute on function public.place_order(jsonb, jsonb, text) to anon, authenticated;
+grant execute on function public.place_order(jsonb, jsonb, text) to authenticated;
 grant execute on function public.track_order(text, text) to anon, authenticated;
 grant execute on function public.check_coupon(text, numeric) to anon, authenticated;
 grant execute on function public.cancel_my_order(uuid) to authenticated;
@@ -571,3 +574,116 @@ create policy "product-images: admin delete" on storage.objects for delete using
 insert into public.profiles (id, email, full_name)
 select id, email, split_part(email, '@', 1) from auth.users
 on conflict (id) do nothing;
+
+
+-- ═══════════════════════ v3: emails & PCB repair requests ═══════════════════════
+
+alter table public.profiles add column if not exists welcome_sent_at timestamptz;
+alter table public.orders   add column if not exists email_sent_at   timestamptz;
+
+create table if not exists public.repair_requests (
+  id             uuid primary key default gen_random_uuid(),
+  request_number text not null unique,
+  user_id        uuid not null references auth.users(id) on delete cascade,
+  name           text not null,
+  phone          text not null,
+  email          text,
+  board_type     text not null,
+  device         text,
+  problem        text not null check (length(problem) between 5 and 3000),
+  quantity       int  not null default 1 check (quantity between 1 and 1000),
+  photos         text[] not null default '{}',
+  status         text not null default 'new'
+                 check (status in ('new','reviewing','quoted','approved','in_repair','repaired','returned','rejected','cancelled')),
+  quote_amount   numeric(10,2),
+  admin_notes    text,
+  email_sent_at  timestamptz,
+  created_at     timestamptz not null default now(),
+  updated_at     timestamptz not null default now()
+);
+create index if not exists repair_requests_user_idx on public.repair_requests(user_id);
+create index if not exists repair_requests_created_idx on public.repair_requests(created_at desc);
+
+-- Customers can only create "new" requests for themselves; admins set status/quote/notes.
+create or replace function public.prepare_repair_request()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if tg_op = 'INSERT' then
+    new.request_number := 'PR' || to_char(now() at time zone 'Asia/Kolkata', 'YYMMDD')
+                          || upper(substr(md5(gen_random_uuid()::text), 1, 5));
+    if not public.is_admin() then
+      new.user_id := auth.uid();
+      new.status := 'new';
+      new.quote_amount := null;
+      new.admin_notes := null;
+      new.email_sent_at := null;
+      new.email := coalesce(nullif(trim(new.email), ''), (select email from auth.users where id = auth.uid()));
+      if array_length(new.photos, 1) > 8 then raise exception 'Up to 8 photos per request'; end if;
+    end if;
+  end if;
+  new.updated_at := now();
+  return new;
+end;
+$$;
+drop trigger if exists repair_requests_prepare on public.repair_requests;
+create trigger repair_requests_prepare before insert or update on public.repair_requests
+  for each row execute function public.prepare_repair_request();
+
+alter table public.repair_requests enable row level security;
+drop policy if exists "repairs: read own or admin" on public.repair_requests;
+drop policy if exists "repairs: create own" on public.repair_requests;
+drop policy if exists "repairs: admin update" on public.repair_requests;
+drop policy if exists "repairs: admin delete" on public.repair_requests;
+create policy "repairs: read own or admin" on public.repair_requests for select using (user_id = auth.uid() or public.is_admin());
+create policy "repairs: create own" on public.repair_requests for insert with check (auth.uid() is not null);
+create policy "repairs: admin update" on public.repair_requests for update using (public.is_admin());
+create policy "repairs: admin delete" on public.repair_requests for delete using (public.is_admin());
+
+-- Private photo storage: customers upload into their own folder ({user id}/...), admins see all.
+insert into storage.buckets (id, name, public)
+values ('pcb-repairs', 'pcb-repairs', false)
+on conflict (id) do update set public = false;
+
+drop policy if exists "pcb-repairs: upload own" on storage.objects;
+drop policy if exists "pcb-repairs: read own or admin" on storage.objects;
+drop policy if exists "pcb-repairs: delete own or admin" on storage.objects;
+create policy "pcb-repairs: upload own" on storage.objects for insert
+  with check (bucket_id = 'pcb-repairs' and auth.uid() is not null and (storage.foldername(name))[1] = auth.uid()::text);
+create policy "pcb-repairs: read own or admin" on storage.objects for select
+  using (bucket_id = 'pcb-repairs' and ((storage.foldername(name))[1] = auth.uid()::text or public.is_admin()));
+create policy "pcb-repairs: delete own or admin" on storage.objects for delete
+  using (bucket_id = 'pcb-repairs' and ((storage.foldername(name))[1] = auth.uid()::text or public.is_admin()));
+
+-- "Send this email only once" helpers used by the website's email routes.
+create or replace function public.claim_order_email(p_order_id uuid)
+returns boolean language plpgsql security definer set search_path = public as $$
+begin
+  update public.orders set email_sent_at = now()
+   where id = p_order_id and email_sent_at is null and (user_id = auth.uid() or public.is_admin());
+  return found;
+end;
+$$;
+
+create or replace function public.claim_welcome_email()
+returns boolean language plpgsql security definer set search_path = public as $$
+begin
+  update public.profiles set welcome_sent_at = now() where id = auth.uid() and welcome_sent_at is null;
+  return found;
+end;
+$$;
+
+create or replace function public.claim_repair_email(p_request_id uuid)
+returns boolean language plpgsql security definer set search_path = public as $$
+begin
+  update public.repair_requests set email_sent_at = now()
+   where id = p_request_id and email_sent_at is null and (user_id = auth.uid() or public.is_admin());
+  return found;
+end;
+$$;
+
+revoke all on function public.claim_order_email(uuid) from public;
+revoke all on function public.claim_welcome_email() from public;
+revoke all on function public.claim_repair_email(uuid) from public;
+grant execute on function public.claim_order_email(uuid) to authenticated;
+grant execute on function public.claim_welcome_email() to authenticated;
+grant execute on function public.claim_repair_email(uuid) to authenticated;

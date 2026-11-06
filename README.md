@@ -1,6 +1,6 @@
-# RoboDukaan
+# PCBDukaan
 
-Online store for robotics parts, electronic components and DIY kits, built with **Next.js 16** and **Supabase** (database, login, image storage).
+Online store for industrial PCBs, electronics and PCB repair (pcbdukaan.com), built with **Next.js 16** and **Supabase** (database, login, image storage).
 
 ## Features
 

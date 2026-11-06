@@ -23,7 +23,7 @@ export function MobileMenu({ categories }: { categories: Category[] }) {
           <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
           <div className="absolute inset-y-0 left-0 flex w-80 max-w-[85%] flex-col overflow-y-auto bg-white shadow-xl" onClick={(e) => { if ((e.target as HTMLElement).closest("a")) setOpen(false); }}>
             <div className="flex items-center justify-between bg-brand-700 px-4 py-3 text-white">
-              <span className="font-semibold">{user ? "My RoboDukaan" : "Welcome"}</span>
+              <span className="font-semibold">{user ? "My PCBDukaan" : "Welcome"}</span>
               <button onClick={() => setOpen(false)} aria-label="Close menu" className="text-2xl leading-none">×</button>
             </div>
             <div className="flex gap-2 border-b border-slate-200 p-4 text-sm">
@@ -51,6 +51,7 @@ export function MobileMenu({ categories }: { categories: Category[] }) {
               ))}
             </ul>
             <ul className="border-t border-slate-200 py-2 text-sm">
+              <li><Link href="/pcb-repair" className="block px-4 py-2.5 font-semibold text-accent-600 hover:bg-brand-50">🔧 PCB repair service</Link></li>
               <li><Link href="/products?sort=newest" className="block px-4 py-2.5 hover:bg-brand-50">New arrivals</Link></li>
               <li><Link href="/products?sort=best-selling" className="block px-4 py-2.5 hover:bg-brand-50">Best sellers</Link></li>
               <li><Link href="/wishlist" className="block px-4 py-2.5 hover:bg-brand-50">Wishlist</Link></li>

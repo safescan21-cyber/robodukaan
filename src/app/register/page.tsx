@@ -4,18 +4,27 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabase } from "@/lib/supabase-browser";
+import { postAsUser } from "@/lib/api-client";
 import { AuthCard, authButton, authField } from "@/components/AuthCard";
+import { OtpInput } from "@/components/OtpInput";
 
 export default function RegisterPage() {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sentTo, setSentTo] = useState<string | null>(null);
+  const [email, setEmail] = useState<string | null>(null);
+  const [code, setCode] = useState("");
+  const [resent, setResent] = useState(false);
+
+  async function finish() {
+    await postAsUser("/api/email/welcome");
+    router.replace("/account");
+  }
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
-    const email = String(form.get("email"));
+    const address = String(form.get("email")).trim();
     const password = String(form.get("password"));
     if (password !== String(form.get("confirm"))) {
       setError("Passwords don't match.");
@@ -24,7 +33,7 @@ export default function RegisterPage() {
     setBusy(true);
     setError(null);
     const { data, error } = await getSupabase().auth.signUp({
-      email,
+      email: address,
       password,
       options: {
         data: { full_name: String(form.get("name")).trim(), phone: String(form.get("phone")).trim() },
@@ -33,20 +42,56 @@ export default function RegisterPage() {
     });
     setBusy(false);
     if (error) {
-      setError(error.message);
+      setError(/rate|seconds/i.test(error.message) ? "Too many attempts. Please wait a minute and try again." : error.message);
       return;
     }
-    if (data.session) router.replace("/account");
-    else setSentTo(email);
+    if (data.user && data.user.identities?.length === 0) {
+      setError("An account with this email already exists. Please log in instead.");
+      return;
+    }
+    if (data.session) return finish();
+    setEmail(address);
   }
 
-  if (sentTo) {
+  async function verify(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email) return;
+    setBusy(true);
+    setError(null);
+    const supabase = getSupabase();
+    let { error } = await supabase.auth.verifyOtp({ email, token: code, type: "email" });
+    if (error) ({ error } = await supabase.auth.verifyOtp({ email, token: code, type: "signup" }));
+    setBusy(false);
+    if (error) {
+      setError("That code is wrong or has expired. Check the latest email, or send a new code.");
+      return;
+    }
+    await finish();
+  }
+
+  if (email) {
     return (
-      <AuthCard title="Check your email">
-        <p className="text-sm text-slate-700">
-          We sent a confirmation link to <span className="font-semibold">{sentTo}</span>. Click it to activate your account, then log in.
-        </p>
-        <Link href="/login" className={`${authButton} mt-6 block text-center`}>Go to login</Link>
+      <AuthCard title="Confirm your email" subtitle={`We sent a 6-digit code to ${email}.`}>
+        <form onSubmit={verify} className="space-y-4">
+          <label className="block text-sm font-medium">Verification code
+            <OtpInput value={code} onChange={setCode} />
+          </label>
+          <p className="text-xs text-slate-500">It can take a minute to arrive — check spam too. If the email has a link instead, click it to confirm.</p>
+          {error && <p className="rounded bg-red-50 p-3 text-sm text-red-700" role="alert">{error}</p>}
+          <button disabled={busy || code.length < 6} className={authButton}>{busy ? "Checking…" : "Confirm & continue"}</button>
+          <button
+            type="button"
+            disabled={resent}
+            onClick={async () => {
+              const { error } = await getSupabase().auth.resend({ type: "signup", email, options: { emailRedirectTo: `${window.location.origin}/account` } });
+              if (error) setError(error.message);
+              else setResent(true);
+            }}
+            className="w-full text-center text-sm font-semibold text-brand-700 hover:underline disabled:text-slate-400 disabled:no-underline"
+          >
+            {resent ? "New code sent" : "Send a new code"}
+          </button>
+        </form>
       </AuthCard>
     );
   }
@@ -54,7 +99,7 @@ export default function RegisterPage() {
   return (
     <AuthCard
       title="Create an account"
-      subtitle="Save addresses, track orders and write reviews."
+      subtitle="Register to buy products, track orders and send PCBs for repair."
       footer={<>Already have an account? <Link href="/login" className="font-semibold text-brand-700 hover:underline">Log in</Link></>}
     >
       <form onSubmit={onSubmit} className="space-y-4">

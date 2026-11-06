@@ -12,8 +12,8 @@ export async function Footer() {
           {[
             ["🚚", "Fast dispatch", "Most orders ship in 24 hours"],
             ["💵", "Cash on delivery", "Pay when it arrives"],
-            ["🔁", "Easy returns", "7-day replacement on defects"],
-            ["🛠️", "Maker support", "We help you pick the right part"],
+            ["🛡️", "Warranty", "Tested parts with warranty"],
+            ["🔧", "PCB repair", "Send photos, get a free quote"],
           ].map(([icon, title, text]) => (
             <div key={title} className="flex items-center gap-3">
               <span className="text-2xl" aria-hidden="true">{icon}</span>
@@ -29,7 +29,7 @@ export async function Footer() {
         <div className="lg:col-span-2">
           <Logo light />
           <p className="mt-4 max-w-sm text-sm leading-relaxed">
-            India’s friendly store for robotics parts, electronic components, drone parts and DIY kits — for makers, students and engineers.
+            Industrial PCBs, power supplies, drive boards, PLC modules, weighing and power components for factories, panel builders and service engineers — plus component-level PCB repair.
           </p>
           <p className="mt-4 text-sm">📞 <a href={`tel:${STORE.phone.replace(/\s/g, "")}`} className="hover:text-white">{STORE.phone}</a></p>
           <p className="mt-1 text-sm">✉️ <a href={`mailto:${STORE.email}`} className="hover:text-white">{STORE.email}</a></p>
@@ -55,6 +55,7 @@ export async function Footer() {
         <div>
           <p className="font-semibold uppercase tracking-wide text-white">Help</p>
           <ul className="mt-3 space-y-2 text-sm">
+            <li><Link href="/pcb-repair" className="hover:text-white">PCB repair service</Link></li>
             <li><Link href="/contact" className="hover:text-white">Contact us</Link></li>
             <li><Link href="/about" className="hover:text-white">About us</Link></li>
             <li><Link href="/shipping-returns" className="hover:text-white">Shipping &amp; returns</Link></li>
@@ -64,7 +65,7 @@ export async function Footer() {
       </div>
       <div className="border-t border-white/10 py-4">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 text-xs">
-          <p>© RoboDukaan. All rights reserved.</p>
+          <p>© PCBDukaan. All rights reserved.</p>
           <p>Prices include GST · Cash on delivery · UPI on delivery</p>
         </div>
       </div>

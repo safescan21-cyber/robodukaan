@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/components/CartProvider";
 import { useAuth } from "@/components/AuthProvider";
 import { CouponBox, useCoupon } from "@/components/CouponBox";
+import { RequireAuth } from "@/components/RequireAuth";
+import { postAsUser } from "@/lib/api-client";
 import { getSupabase } from "@/lib/supabase-browser";
 import { formatINR, shippingFor } from "@/lib/format";
 import { INDIAN_STATES } from "@/lib/constants";
@@ -14,7 +16,7 @@ import type { Address } from "@/lib/types";
 type Form = { name: string; phone: string; email: string; address_line: string; city: string; state: string; pincode: string; notes: string };
 const EMPTY: Form = { name: "", phone: "", email: "", address_line: "", city: "", state: "", pincode: "", notes: "" };
 
-export default function CheckoutPage() {
+function Checkout() {
   const { items, ready, subtotal, clear } = useCart();
   const { user, profile } = useAuth();
   const { coupon, discount } = useCoupon();
@@ -91,6 +93,7 @@ export default function CheckoutPage() {
     } catch {
       /* ignore */
     }
+    await postAsUser("/api/email/order", { orderNumber: data.order_number });
     clear();
     router.push(`/order-success?order=${encodeURIComponent(data.order_number)}`);
   }
@@ -100,11 +103,6 @@ export default function CheckoutPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
       <h1 className="mb-5 text-2xl font-bold">Checkout</h1>
-      {!user && (
-        <p className="mb-5 rounded-md bg-brand-50 p-3 text-sm text-brand-800 ring-1 ring-brand-100">
-          Returning customer? <Link href="/login?next=/checkout" className="font-semibold underline">Log in</Link> to use your saved addresses and see this order in your account. You can also check out as a guest.
-        </p>
-      )}
       <form onSubmit={onSubmit} className="grid gap-6 lg:grid-cols-[1fr_380px]">
         <div className="space-y-5">
           {addresses.length > 0 && (
@@ -180,5 +178,13 @@ export default function CheckoutPage() {
         </aside>
       </form>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <RequireAuth>
+      <Checkout />
+    </RequireAuth>
   );
 }

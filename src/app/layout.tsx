@@ -8,11 +8,11 @@ import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: {
-    default: "RoboDukaan – Robotics, Electronics & DIY Kits Store India",
-    template: "%s | RoboDukaan",
+    default: "PCBDukaan – Industrial PCBs, Electronics & PCB Repair India",
+    template: "%s | PCBDukaan",
   },
   description:
-    "Buy development boards, sensors, motors, drone parts, batteries and DIY robotics kits online in India. Cash on delivery available.",
+    "Industrial control boards, SMPS, VFD and motor-drive boards, PLC modules, load cells, sensors and power components — plus PCB repair. Shipped across India.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

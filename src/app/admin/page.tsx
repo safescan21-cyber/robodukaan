@@ -18,11 +18,14 @@ export default function AdminDashboard() {
   const [recent, setRecent] = useState<Order[]>([]);
   const [lowStock, setLowStock] = useState<{ id: string; name: string; stock: number }[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [openRepairs, setOpenRepairs] = useState<number | null>(null);
 
   useEffect(() => {
     const supabase = getSupabase();
     supabase.rpc("admin_stats").then(({ data, error }) => (error ? setError(error.message) : setStats(data as Stats)));
     supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(8).then(({ data }) => setRecent((data as Order[]) ?? []));
+    supabase.from("repair_requests").select("id", { count: "exact", head: true }).in("status", ["new", "reviewing", "approved", "in_repair"])
+      .then(({ count }) => setOpenRepairs(count ?? 0));
     supabase.from("products").select("id, name, stock").eq("is_active", true).lte("stock", 5).order("stock").limit(8)
       .then(({ data }) => setLowStock(data ?? []));
   }, []);
@@ -42,6 +45,7 @@ export default function AdminDashboard() {
           ["Products", stats?.products ?? "–", "bg-slate-700", "/admin/products"],
           ["Low stock (≤5)", stats?.low_stock ?? "–", "bg-red-600", "/admin/products?stock=low"],
           ["Reviews", stats?.reviews ?? "–", "bg-amber-500", "/admin/reviews"],
+          ["Open PCB repairs", openRepairs ?? "–", "bg-teal-600", "/admin/repairs"],
         ].map(([label, value, color, href]) => (
           <Link key={String(label)} href={String(href)} className="flex items-center gap-4 rounded-md bg-white p-4 ring-1 ring-slate-200 hover:ring-brand-600">
             <span className={`h-10 w-1.5 rounded-full ${color}`} />

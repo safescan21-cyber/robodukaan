@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCart } from "@/components/CartProvider";
+import { useAuth } from "@/components/AuthProvider";
 import { ProductImage } from "@/components/ProductImage";
 import { CouponBox, useCoupon } from "@/components/CouponBox";
 import { formatINR, FREE_SHIPPING_FROM, shippingFor } from "@/lib/format";
@@ -9,6 +10,7 @@ import { formatINR, FREE_SHIPPING_FROM, shippingFor } from "@/lib/format";
 export default function CartPage() {
   const { items, ready, subtotal, setQuantity, remove } = useCart();
   const { discount } = useCoupon();
+  const { user } = useAuth();
   const shipping = shippingFor(subtotal);
 
   if (!ready) return <div className="mx-auto max-w-5xl px-4 py-16"><div className="h-40 animate-pulse rounded-md bg-slate-100" /></div>;
@@ -18,7 +20,7 @@ export default function CartPage() {
       <div className="mx-auto max-w-xl px-4 py-24 text-center">
         <p className="text-5xl" aria-hidden="true">🛒</p>
         <h1 className="mt-4 text-2xl font-bold">Your cart is empty</h1>
-        <p className="mt-2 text-slate-600">Find the parts for your next project.</p>
+        <p className="mt-2 text-slate-600">Find the boards and parts you need.</p>
         <Link href="/products" className="mt-6 inline-block rounded-md bg-brand-600 px-5 py-2.5 font-semibold text-white hover:bg-brand-700">
           Return to shop
         </Link>
@@ -73,8 +75,8 @@ export default function CartPage() {
               Add {formatINR(FREE_SHIPPING_FROM - subtotal)} more for free shipping.
             </p>
           )}
-          <Link href="/checkout" className="block rounded-md bg-accent-500 px-4 py-3 text-center font-bold uppercase tracking-wide text-white hover:bg-accent-600">
-            Proceed to checkout
+          <Link href={user ? "/checkout" : "/login?next=/checkout"} className="block rounded-md bg-accent-500 px-4 py-3 text-center font-bold uppercase tracking-wide text-white hover:bg-accent-600">
+            {user ? "Proceed to checkout" : "Login to checkout"}
           </Link>
         </aside>
       </div>

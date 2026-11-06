@@ -1,4 +1,4 @@
-import type { OrderStatus } from "./types";
+import type { OrderStatus, RepairStatus } from "./types";
 
 export const INDIAN_STATES = [
   "Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chandigarh",
@@ -29,10 +29,51 @@ export const STATUS_STYLE: Record<OrderStatus, string> = {
   cancelled: "bg-red-100 text-red-700",
 };
 
-export const CATEGORY_ICONS = ["chip", "sensor", "motor", "drone", "battery", "display", "wifi", "component", "wrench", "kit"];
+export const CATEGORY_ICONS = ["pcb", "power", "scale", "chip", "sensor", "motor", "drone", "battery", "display", "wifi", "component", "wrench", "kit"];
 
 export const STORE = {
-  name: "RoboDukaan",
-  phone: "+91 90000 00000",
-  email: "support@robodukaan.in",
+  name: "PCBDukaan",
+  phone: "+91 97739 10846",
+  email: "sonugiri@pcbdukaan.in",
 };
+
+export const REPAIR_STATUSES: RepairStatus[] = [
+  "new", "reviewing", "quoted", "approved", "in_repair", "repaired", "returned", "rejected", "cancelled",
+];
+
+export const REPAIR_STATUS_LABEL: Record<RepairStatus, string> = {
+  new: "Received",
+  reviewing: "Under review",
+  quoted: "Quote sent",
+  approved: "Approved – send the board",
+  in_repair: "Repair in progress",
+  repaired: "Repaired",
+  returned: "Shipped back",
+  rejected: "Not repairable",
+  cancelled: "Cancelled",
+};
+
+export const REPAIR_STATUS_STYLE: Record<RepairStatus, string> = {
+  new: "bg-amber-100 text-amber-800",
+  reviewing: "bg-sky-100 text-sky-800",
+  quoted: "bg-violet-100 text-violet-800",
+  approved: "bg-indigo-100 text-indigo-800",
+  in_repair: "bg-blue-100 text-blue-800",
+  repaired: "bg-emerald-100 text-emerald-800",
+  returned: "bg-emerald-100 text-emerald-800",
+  rejected: "bg-red-100 text-red-700",
+  cancelled: "bg-slate-200 text-slate-700",
+};
+
+export const BOARD_TYPES = [
+  "Inverter / UPS board",
+  "SMPS / power supply",
+  "Motor drive / VFD",
+  "PLC / industrial controller",
+  "Machine control board",
+  "Weighing / load cell indicator",
+  "Appliance board (AC, washing machine, fridge)",
+  "LED driver / lighting",
+  "Arduino / ESP / custom PCB",
+  "Other",
+];

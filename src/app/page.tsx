@@ -22,19 +22,19 @@ export default function HomePage() {
       </Suspense>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Link href="/category/drone-parts" className="group relative overflow-hidden rounded-md bg-gradient-to-r from-slate-900 to-brand-800 p-6 text-white">
-          <p className="text-xs font-semibold uppercase tracking-widest text-accent-400">Up to 40% off</p>
-          <p className="mt-2 text-2xl font-extrabold">Drone parts &amp; accessories</p>
-          <p className="mt-1 text-sm text-slate-300">Motors, ESCs, frames, props</p>
+        <Link href="/category/vfd-motor-drives" className="group relative overflow-hidden rounded-md bg-gradient-to-r from-slate-900 to-brand-800 p-6 text-white">
+          <p className="text-xs font-semibold uppercase tracking-widest text-accent-400">Drives &amp; motion</p>
+          <p className="mt-2 text-2xl font-extrabold">VFD &amp; motor drive boards</p>
+          <p className="mt-1 text-sm text-slate-300">Gate drivers, BLDC, stepper and DC drives</p>
           <span className="mt-4 inline-block text-sm font-semibold underline-offset-4 group-hover:underline">Shop now →</span>
-          <CategoryIcon name="drone" className="absolute -bottom-4 -right-4 h-36 w-36 text-white/10" />
+          <CategoryIcon name="motor" className="absolute -bottom-4 -right-4 h-36 w-36 text-white/10" />
         </Link>
-        <Link href="/category/sensors" className="group relative overflow-hidden rounded-md bg-gradient-to-r from-accent-600 to-amber-500 p-6 text-white">
-          <p className="text-xs font-semibold uppercase tracking-widest text-amber-100">Starting ₹35</p>
-          <p className="mt-2 text-2xl font-extrabold">Sensors &amp; modules</p>
-          <p className="mt-1 text-sm text-amber-50">Ultrasonic, IMU, gas, temperature</p>
+        <Link href="/category/load-cells-weighing" className="group relative overflow-hidden rounded-md bg-gradient-to-r from-accent-600 to-amber-500 p-6 text-white">
+          <p className="text-xs font-semibold uppercase tracking-widest text-amber-100">Weighing</p>
+          <p className="mt-2 text-2xl font-extrabold">Load cells &amp; indicators</p>
+          <p className="mt-1 text-sm text-amber-50">S-type, single point, junction boxes</p>
           <span className="mt-4 inline-block text-sm font-semibold underline-offset-4 group-hover:underline">Shop now →</span>
-          <CategoryIcon name="sensor" className="absolute -bottom-4 -right-4 h-36 w-36 text-white/15" />
+          <CategoryIcon name="scale" className="absolute -bottom-4 -right-4 h-36 w-36 text-white/15" />
         </Link>
       </div>
 
@@ -45,10 +45,10 @@ export default function HomePage() {
         <Row title="New arrivals" sort="newest" href="/products?sort=newest" />
       </Suspense>
       <Suspense fallback={<ProductGridSkeleton count={4} />}>
-        <Row title="Development boards" sort="popular" category="development-boards" href="/category/development-boards" />
+        <Row title="SMPS & power supplies" sort="popular" category="smps-power-supplies" href="/category/smps-power-supplies" />
       </Suspense>
       <Suspense fallback={<ProductGridSkeleton count={4} />}>
-        <Row title="DIY kits" sort="popular" category="diy-kits" href="/category/diy-kits" />
+        <Row title="Test & repair tools" sort="popular" category="test-repair-tools" href="/category/test-repair-tools" />
       </Suspense>
     </div>
   );
@@ -63,23 +63,23 @@ async function Hero() {
       ) : (
         <div className="flex h-56 items-center rounded-md bg-gradient-to-r from-brand-800 to-brand-600 px-8 text-white sm:h-72 lg:h-[340px]">
           <div>
-            <h1 className="text-3xl font-extrabold sm:text-4xl">Everything you need to build your next robot.</h1>
+            <h1 className="text-3xl font-extrabold sm:text-4xl">Industrial PCBs, power supplies and drive boards — plus PCB repair.</h1>
             <Link href="/products" className="mt-6 inline-block rounded-md bg-white px-6 py-2.5 font-bold text-slate-900">Shop now</Link>
           </div>
         </div>
       )}
       <div className="hidden grid-rows-2 gap-4 lg:grid">
-        <Link href="/category/development-boards" className="group relative overflow-hidden rounded-md bg-brand-50 p-5 ring-1 ring-brand-100">
-          <p className="text-xs font-semibold uppercase text-brand-700">New stock</p>
-          <p className="mt-1 text-lg font-bold text-slate-900">ESP32 &amp; Pico W boards</p>
-          <p className="mt-2 text-sm font-semibold text-accent-600 group-hover:underline">Shop boards →</p>
-          <CategoryIcon name="chip" className="absolute -bottom-3 -right-3 h-24 w-24 text-brand-600/20" />
+        <Link href="/pcb-repair" className="group relative overflow-hidden rounded-md bg-brand-50 p-5 ring-1 ring-brand-100">
+          <p className="text-xs font-semibold uppercase text-brand-700">Free quote</p>
+          <p className="mt-1 text-lg font-bold text-slate-900">Industrial PCB repair</p>
+          <p className="mt-2 text-sm font-semibold text-accent-600 group-hover:underline">Send board photos →</p>
+          <CategoryIcon name="pcb" className="absolute -bottom-3 -right-3 h-24 w-24 text-brand-600/20" />
         </Link>
-        <Link href="/category/batteries-power" className="group relative overflow-hidden rounded-md bg-accent-50 p-5 ring-1 ring-accent-400/30">
-          <p className="text-xs font-semibold uppercase text-accent-600">Power up</p>
-          <p className="mt-1 text-lg font-bold text-slate-900">Batteries &amp; chargers</p>
-          <p className="mt-2 text-sm font-semibold text-brand-700 group-hover:underline">Shop power →</p>
-          <CategoryIcon name="battery" className="absolute -bottom-3 -right-3 h-24 w-24 text-accent-500/25" />
+        <Link href="/category/plc-io-modules" className="group relative overflow-hidden rounded-md bg-accent-50 p-5 ring-1 ring-accent-400/30">
+          <p className="text-xs font-semibold uppercase text-accent-600">Automation</p>
+          <p className="mt-1 text-lg font-bold text-slate-900">PLC &amp; I/O modules</p>
+          <p className="mt-2 text-sm font-semibold text-brand-700 group-hover:underline">Shop PLC →</p>
+          <CategoryIcon name="chip" className="absolute -bottom-3 -right-3 h-24 w-24 text-accent-500/25" />
         </Link>
       </div>
     </div>

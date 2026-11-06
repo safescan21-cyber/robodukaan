@@ -82,7 +82,7 @@ export default function AdminBannersPage() {
           <label className="text-sm font-medium sm:col-span-2">Title *<input name="title" required defaultValue={current?.title} className={adminField} /></label>
           <label className="text-sm font-medium sm:col-span-2">Subtitle<input name="subtitle" defaultValue={current?.subtitle ?? ""} className={adminField} /></label>
           <label className="text-sm font-medium">Button text<input name="cta_label" defaultValue={current?.cta_label ?? "Shop now"} className={adminField} /></label>
-          <label className="text-sm font-medium">Button link<input name="link" defaultValue={current?.link ?? "/products"} placeholder="/category/drone-parts" className={adminField} /></label>
+          <label className="text-sm font-medium">Button link<input name="link" defaultValue={current?.link ?? "/products"} placeholder="/category/smps-power-supplies" className={adminField} /></label>
           <label className="text-sm font-medium">Colour (when no image)
             <select name="theme" defaultValue={current?.theme ?? "blue"} className={adminField}>
               <option value="blue">Blue</option><option value="orange">Orange</option><option value="dark">Dark</option><option value="green">Green</option>

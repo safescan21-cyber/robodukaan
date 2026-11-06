@@ -80,6 +80,7 @@ User=$APP_USER
 WorkingDirectory=$APP_DIR
 Environment=NODE_ENV=production
 Environment=NEXT_TELEMETRY_DISABLED=1
+EnvironmentFile=-/etc/robodukaan/email.env
 ExecStart=$NODE_BIN $APP_DIR/node_modules/next/dist/bin/next start -H 127.0.0.1 -p $PORT
 Restart=always
 RestartSec=5

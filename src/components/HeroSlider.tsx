@@ -11,7 +11,7 @@ const THEMES: Record<Banner["theme"], string> = {
   dark: "from-slate-900 via-slate-800 to-brand-900",
   green: "from-emerald-800 via-emerald-700 to-teal-600",
 };
-const ICONS = ["chip", "drone", "kit", "sensor", "motor"];
+const ICONS = ["pcb", "power", "scale", "chip", "motor"];
 
 export function HeroSlider({ banners }: { banners: Banner[] }) {
   const [index, setIndex] = useState(0);

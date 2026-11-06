@@ -135,6 +135,7 @@ export type Profile = {
   full_name: string | null;
   phone: string | null;
   role: "user" | "admin";
+  welcome_sent_at: string | null;
   created_at: string;
 };
 
@@ -147,4 +148,26 @@ export type CartItem = {
   imageUrl: string | null;
   stock: number;
   quantity: number;
+};
+
+export type RepairStatus =
+  | "new" | "reviewing" | "quoted" | "approved" | "in_repair" | "repaired" | "returned" | "rejected" | "cancelled";
+
+export type RepairRequest = {
+  id: string;
+  request_number: string;
+  user_id: string;
+  name: string;
+  phone: string;
+  email: string | null;
+  board_type: string;
+  device: string | null;
+  problem: string;
+  quantity: number;
+  photos: string[];
+  status: RepairStatus;
+  quote_amount: number | null;
+  admin_notes: string | null;
+  created_at: string;
+  updated_at: string;
 };

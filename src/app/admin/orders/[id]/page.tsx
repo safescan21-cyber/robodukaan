@@ -48,7 +48,7 @@ function AdminOrderPage() {
   if (order === undefined) return <div className="h-96 animate-pulse rounded-md bg-slate-100" />;
   if (order === null) return <p>Order not found. <Link href="/admin/orders" className="text-brand-700 underline">Back</Link></p>;
 
-  const waText = encodeURIComponent(`Hello ${order.customer_name}, your RoboDukaan order ${order.order_number} is now: ${STATUS_LABEL[order.status]}.${order.tracking_url ? ` Track it here: ${order.tracking_url}` : ""}`);
+  const waText = encodeURIComponent(`Hello ${order.customer_name}, your PCBDukaan order ${order.order_number} is now: ${STATUS_LABEL[order.status]}.${order.tracking_url ? ` Track it here: ${order.tracking_url}` : ""}`);
 
   return (
     <div className="space-y-5">

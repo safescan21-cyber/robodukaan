@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { Session, User } from "@supabase/supabase-js";
 import { getSupabase } from "@/lib/supabase-browser";
 import type { Profile } from "@/lib/types";
+import { postAsUser } from "@/lib/api-client";
 
 type AuthContextValue = {
   ready: boolean;
@@ -29,6 +30,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     const { data } = await getSupabase().from("profiles").select("*").eq("id", userId).maybeSingle();
     setProfile((data as Profile) ?? null);
+    // Customers who confirmed by clicking the email link still get their welcome email (sent once).
+    if (data && !data.welcome_sent_at) postAsUser("/api/email/welcome");
   }, []);
 
   useEffect(() => {
