@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { RepairForm } from "@/components/RepairForm";
 import { BOARD_TYPES } from "@/lib/constants";
@@ -48,6 +49,7 @@ export default function PcbRepairPage() {
             <ul className="mt-3 space-y-1.5 text-sm text-slate-700">
               {BOARD_TYPES.filter((b) => b !== "Other").map((b) => <li key={b}>✓ {b}</li>)}
             </ul>
+            <Link href="/locations" className="mt-3 inline-block text-sm font-semibold text-brand-700 hover:underline">We serve every Indian state →</Link>
           </div>
           <div className="rounded-md bg-accent-50 p-5 text-sm ring-1 ring-accent-400/30">
             <h3 className="font-bold">Tips for good photos</h3>

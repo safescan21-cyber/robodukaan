@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { getAllProductLinks, getCategories, getOpenJobs } from "@/lib/data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CategoryIcon } from "@/components/CategoryIcon";
+import { STATES, areasIn } from "@/lib/locations";
 
 export const metadata: Metadata = {
   title: "Sitemap",
@@ -18,6 +19,7 @@ const MAIN = [
   ["/products?sort=best-selling", "Best sellers"],
   ["/pcb-repair", "PCB repair service"],
   ["/careers", "Careers"],
+  ["/locations", "Areas we serve"],
 ];
 const ACCOUNT = [
   ["/login", "Login"],
@@ -100,6 +102,21 @@ async function CatalogAndJobs() {
             </section>
           );
         })}
+      </div>
+      <h2 className="mb-4 mt-8 text-xl font-bold">Areas we serve</h2>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {STATES.map((s) => (
+          <section key={s.slug} className="rounded-md bg-white p-4 ring-1 ring-slate-200">
+            <Link href={`/locations/${s.slug}`} className="font-semibold text-brand-700 hover:underline">{s.name}</Link>
+            {areasIn(s.slug).length > 0 && (
+              <ul className="mt-2 space-y-1 text-sm">
+                {areasIn(s.slug).map((x) => (
+                  <li key={x.slug}><Link href={`/locations/${s.slug}/${x.slug}`} className="text-slate-700 hover:text-brand-700 hover:underline">{x.name}</Link></li>
+                ))}
+              </ul>
+            )}
+          </section>
+        ))}
       </div>
       <h2 className="mb-4 mt-8 text-xl font-bold">Job openings</h2>
       <section className="rounded-md bg-white p-5 ring-1 ring-slate-200">
