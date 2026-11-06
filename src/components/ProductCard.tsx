@@ -35,7 +35,7 @@ export function ProductCard({ product }: { product: Product }) {
             <span className="text-xs text-slate-400 line-through">{formatINR(product.mrp)}</span>
           )}
         </div>
-        <p className="text-[11px] text-slate-500">(incl. GST)</p>
+        <p className="text-[11px] text-slate-500">+ 18% GST</p>
         <div className="mt-auto pt-1">
           <AddToCartButton product={product} compact />
         </div>

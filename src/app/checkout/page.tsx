@@ -9,7 +9,7 @@ import { CouponBox, useCoupon } from "@/components/CouponBox";
 import { RequireAuth } from "@/components/RequireAuth";
 import { postAsUser } from "@/lib/api-client";
 import { getSupabase } from "@/lib/supabase-browser";
-import { formatINR, shippingFor } from "@/lib/format";
+import { formatINR, GST_RATE, gstFor, shippingFor } from "@/lib/format";
 import { INDIAN_STATES } from "@/lib/constants";
 import type { Address } from "@/lib/types";
 
@@ -27,6 +27,7 @@ function Checkout() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const shipping = shippingFor(subtotal);
+  const gst = gstFor(subtotal - discount + shipping);
 
   useEffect(() => {
     if (!user) return;
@@ -164,7 +165,8 @@ function Checkout() {
             <div className="flex justify-between"><dt>Subtotal</dt><dd>{formatINR(subtotal)}</dd></div>
             {discount > 0 && <div className="flex justify-between text-emerald-700"><dt>Coupon ({coupon})</dt><dd>− {formatINR(discount)}</dd></div>}
             <div className="flex justify-between"><dt>Shipping</dt><dd>{shipping === 0 ? "Free" : formatINR(shipping)}</dd></div>
-            <div className="flex justify-between border-t border-slate-200 pt-3 text-lg font-bold"><dt>Total</dt><dd>{formatINR(subtotal - discount + shipping)}</dd></div>
+            <div className="flex justify-between"><dt>GST ({GST_RATE}%)</dt><dd>{formatINR(gst)}</dd></div>
+            <div className="flex justify-between border-t border-slate-200 pt-3 text-lg font-bold"><dt>Total</dt><dd>{formatINR(subtotal - discount + shipping + gst)}</dd></div>
           </dl>
           <div className="rounded-md border-2 border-brand-600 bg-brand-50 p-3 text-sm">
             <p className="font-semibold">💵 Cash on delivery</p>

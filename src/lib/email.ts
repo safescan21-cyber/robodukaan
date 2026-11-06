@@ -75,6 +75,7 @@ function itemsTable(order: Order) {
 ${line("Subtotal", formatINR(order.subtotal))}
 ${Number(order.discount) > 0 ? line(`Discount${order.coupon_code ? ` (${esc(order.coupon_code)})` : ""}`, `− ${formatINR(order.discount)}`) : ""}
 ${line("Shipping", Number(order.shipping) === 0 ? "Free" : formatINR(order.shipping))}
+${Number(order.gst_amount ?? 0) > 0 ? line(`GST (${Number(order.gst_rate)}%)`, formatINR(Number(order.gst_amount))) : ""}
 ${line("Total (cash on delivery)", formatINR(order.total), true)}</table>`;
 }
 

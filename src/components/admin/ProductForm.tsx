@@ -77,6 +77,7 @@ export function ProductForm({ product }: { product?: Product }) {
       mrp,
       stock: num("stock") ?? 0,
       warranty_months: num("warranty_months") ?? 0,
+      hsn_code: String(f.get("hsn_code") ?? "").trim() || null,
       ready_to_dispatch: f.get("ready_to_dispatch") === "on",
       is_featured: f.get("is_featured") === "on",
       is_active: f.get("is_active") === "on",
@@ -210,11 +211,13 @@ export function ProductForm({ product }: { product?: Product }) {
         <section className="space-y-4 rounded-md bg-white p-5 ring-1 ring-slate-200">
           <h2 className="text-sm font-bold uppercase tracking-wide">Price &amp; stock</h2>
           <div className="grid grid-cols-2 gap-3">
-            <label className="block text-sm font-medium">Price (₹) *<input name="price" type="number" min={0} step="0.01" required defaultValue={product?.price} className={adminField} /></label>
+            <label className="block text-sm font-medium">Price excl. GST (₹) *<input name="price" type="number" min={0} step="0.01" required defaultValue={product?.price} className={adminField} /></label>
             <label className="block text-sm font-medium">MRP (₹)<input name="mrp" type="number" min={0} step="0.01" defaultValue={product?.mrp ?? ""} className={adminField} /></label>
             <label className="block text-sm font-medium">Stock *<input name="stock" type="number" min={0} required defaultValue={product?.stock ?? 0} className={adminField} /></label>
             <label className="block text-sm font-medium">Warranty (months)<input name="warranty_months" type="number" min={0} defaultValue={product?.warranty_months ?? 0} className={adminField} /></label>
+            <label className="col-span-2 block text-sm font-medium">HSN code<input name="hsn_code" defaultValue={product?.hsn_code ?? ""} placeholder="blank = use the category’s HSN" className={adminField} /></label>
           </div>
+          <p className="text-xs text-slate-500">Enter prices <b>excluding GST</b>. 18% GST is added at checkout.</p>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="ready_to_dispatch" defaultChecked={product?.ready_to_dispatch ?? true} className="h-4 w-4 accent-brand-600" />Ready to dispatch (ships in 24h)</label>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_featured" defaultChecked={product?.is_featured ?? false} className="h-4 w-4 accent-brand-600" />Featured (shows in Deals of the day)</label>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_active" defaultChecked={product?.is_active ?? true} className="h-4 w-4 accent-brand-600" />Visible in store</label>

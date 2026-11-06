@@ -67,7 +67,7 @@ export async function Footer() {
       <div className="border-t border-white/10 py-4">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 text-xs">
           <p>© PCBDukaan. All rights reserved.</p>
-          <p>Prices include GST · Cash on delivery · UPI on delivery</p>
+          <p>Prices exclude GST · 18% GST added at checkout · Cash on delivery</p>
         </div>
       </div>
     </footer>

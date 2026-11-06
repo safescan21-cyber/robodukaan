@@ -14,6 +14,12 @@ export function discountPercent(price: number, mrp: number | null) {
 }
 
 export const FREE_SHIPPING_FROM = 499;
+export const GST_RATE = 18;
+
+// Prices are excluding GST; GST is added on goods after discount, plus shipping.
+export function gstFor(taxable: number) {
+  return Math.round(taxable * GST_RATE) / 100;
+}
 export const SHIPPING_FEE = 49;
 
 export function shippingFor(subtotal: number) {

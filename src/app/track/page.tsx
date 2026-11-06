@@ -11,6 +11,8 @@ type TrackedOrder = {
   status: OrderStatus;
   tracking_url: string | null;
   discount: number;
+  gst_rate?: number;
+  gst_amount?: number;
   customer_name: string;
   city: string;
   subtotal: number;
@@ -96,6 +98,7 @@ export default function TrackPage() {
               <li className="flex justify-between text-emerald-700"><span>Discount</span><span>− {formatINR(order.discount)}</span></li>
             )}
             <li className="flex justify-between"><span>Shipping</span><span>{Number(order.shipping) === 0 ? "Free" : formatINR(order.shipping)}</span></li>
+            {Number(order.gst_amount ?? 0) > 0 && <li className="flex justify-between"><span>GST ({Number(order.gst_rate)}%)</span><span>{formatINR(Number(order.gst_amount))}</span></li>}
             <li className="flex justify-between border-t border-slate-200 pt-2 font-bold">
               <span>Total (cash on delivery)</span>
               <span>{formatINR(order.total)}</span>

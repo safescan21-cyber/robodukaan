@@ -40,6 +40,7 @@ export default function AdminCategoriesPage() {
       description: String(f.get("description")).trim() || null,
       icon: String(f.get("icon")),
       sort_order: Number(f.get("sort_order")) || 0,
+      hsn_code: String(f.get("hsn_code") ?? "").trim() || null,
       image_url,
     };
     const supabase = getSupabase();
@@ -82,6 +83,7 @@ export default function AdminCategoriesPage() {
               {CATEGORY_ICONS.map((i) => <option key={i}>{i}</option>)}
             </select>
           </label>
+          <label className="text-sm font-medium">HSN code<input name="hsn_code" defaultValue={current?.hsn_code ?? ""} placeholder="e.g. 8543 90 00" className={adminField} /></label>
           <label className="text-sm font-medium">Sort order<input name="sort_order" type="number" defaultValue={current?.sort_order ?? (categories?.length ?? 0) + 1} className={adminField} /></label>
           <label className="text-sm font-medium">Image (optional, replaces the icon)<input name="image" type="file" accept="image/*" className={adminField} /></label>
           {current?.image_url && <label className="flex items-center gap-2 self-end text-sm"><input type="checkbox" name="remove_image" className="h-4 w-4" />Remove current image</label>}
@@ -99,7 +101,7 @@ export default function AdminCategoriesPage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {c.image_url ? <img src={c.image_url} alt="" className="h-full w-full object-cover" /> : <CategoryIcon name={c.icon} className="h-5 w-5" />}
             </span>
-            <span className="flex-1"><span className="font-semibold">{c.name}</span><span className="block text-xs text-slate-500">/{c.slug} · order {c.sort_order}</span></span>
+            <span className="flex-1"><span className="font-semibold">{c.name}</span><span className="block text-xs text-slate-500">/{c.slug} · order {c.sort_order}{c.hsn_code ? ` · HSN ${c.hsn_code}` : ""}</span></span>
             <button onClick={() => setEditing(c)} className="text-xs font-semibold text-brand-700 hover:underline">Edit</button>
             <button onClick={() => remove(c)} className="text-xs font-semibold text-red-600 hover:underline">Delete</button>
           </li>

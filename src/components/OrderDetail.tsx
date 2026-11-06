@@ -50,7 +50,7 @@ export function OrderDetail({ order, actions }: { order: Order; actions?: React.
                 </span>
                 <span className="flex-1">
                   {i.slug ? <Link href={`/products/${i.slug}`} className="font-medium hover:text-brand-700">{i.name}</Link> : <span className="font-medium">{i.name}</span>}
-                  <span className="block text-xs text-slate-500">SKU {i.sku} · {formatINR(i.unit_price)} × {i.quantity}</span>
+                  <span className="block text-xs text-slate-500">SKU {i.sku}{i.hsn_code ? ` · HSN ${i.hsn_code}` : ""} · {formatINR(i.unit_price)} × {i.quantity}</span>
                 </span>
                 <span className="font-semibold">{formatINR(i.line_total)}</span>
               </li>
@@ -60,6 +60,7 @@ export function OrderDetail({ order, actions }: { order: Order; actions?: React.
             <div className="flex justify-between"><dt>Subtotal</dt><dd>{formatINR(order.subtotal)}</dd></div>
             {Number(order.discount) > 0 && <div className="flex justify-between text-emerald-700"><dt>Discount {order.coupon_code ? `(${order.coupon_code})` : ""}</dt><dd>− {formatINR(order.discount)}</dd></div>}
             <div className="flex justify-between"><dt>Shipping</dt><dd>{Number(order.shipping) === 0 ? "Free" : formatINR(order.shipping)}</dd></div>
+            {Number(order.gst_amount ?? 0) > 0 && <div className="flex justify-between"><dt>GST ({Number(order.gst_rate)}%)</dt><dd>{formatINR(Number(order.gst_amount))}</dd></div>}
             <div className="flex justify-between border-t border-slate-200 pt-2 text-base font-bold"><dt>Total</dt><dd>{formatINR(order.total)}</dd></div>
           </dl>
         </section>

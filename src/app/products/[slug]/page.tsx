@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getProduct, getRelatedProducts } from "@/lib/data";
-import { discountPercent, formatINR, FREE_SHIPPING_FROM } from "@/lib/format";
+import { discountPercent, formatINR, FREE_SHIPPING_FROM, GST_RATE, gstFor } from "@/lib/format";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { ProductRow, SectionHeading } from "@/components/ProductCard";
 import { ProductGallery } from "@/components/ProductGallery";
@@ -135,6 +135,7 @@ async function ProductDetail({ params }: Pick<PageProps<"/products/[slug]">, "pa
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500">
             {product.rating_count > 0 && <Stars value={product.rating_avg} count={product.rating_count} />}
             <span>SKU: <span className="text-slate-700">{product.sku}</span></span>
+            {(product.hsn_code || product.category?.hsn_code) && <span>HSN: <span className="text-slate-700">{product.hsn_code || product.category?.hsn_code}</span></span>}
             {product.brand && <span>Brand: <span className="text-slate-700">{product.brand}</span></span>}
           </div>
 
@@ -146,7 +147,9 @@ async function ProductDetail({ params }: Pick<PageProps<"/products/[slug]">, "pa
                 <span className="rounded bg-red-600 px-2 py-0.5 text-sm font-bold text-white">{off}% OFF</span>
               </>
             )}
-            <span className="w-full text-xs text-slate-500">Price inclusive of GST</span>
+            <span className="w-full text-xs text-slate-500">
+              Price excludes GST · <span className="font-semibold text-slate-700">{formatINR(product.price + gstFor(product.price))}</span> incl. {GST_RATE}% GST
+            </span>
           </div>
 
           {product.short_description && <p className="mt-4 text-slate-700">{product.short_description}</p>}

@@ -5,8 +5,7 @@ import type { Banner, Category, Product } from "./types";
 // Server-side catalog reads, cached for a minute and refreshed immediately
 // when an admin saves something (see app/api/revalidate/route.ts).
 
-const PRODUCT_FIELDS =
-  "id, slug, sku, name, brand, category_id, short_description, description, price, mrp, stock, image_url, images, videos, specs, faqs, documents, warranty_months, ready_to_dispatch, rating_avg, rating_count, sold_count, is_featured, is_active, created_at, category:categories(slug, name, icon)";
+const PRODUCT_FIELDS = "*, category:categories(*)";
 const CARD_FIELDS =
   "id, slug, sku, name, brand, category_id, short_description, price, mrp, stock, image_url, images, rating_avg, rating_count, sold_count, is_featured, is_active, created_at, category:categories(slug, name, icon)";
 

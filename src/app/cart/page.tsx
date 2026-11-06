@@ -5,13 +5,14 @@ import { useCart } from "@/components/CartProvider";
 import { useAuth } from "@/components/AuthProvider";
 import { ProductImage } from "@/components/ProductImage";
 import { CouponBox, useCoupon } from "@/components/CouponBox";
-import { formatINR, FREE_SHIPPING_FROM, shippingFor } from "@/lib/format";
+import { formatINR, FREE_SHIPPING_FROM, GST_RATE, gstFor, shippingFor } from "@/lib/format";
 
 export default function CartPage() {
   const { items, ready, subtotal, setQuantity, remove } = useCart();
   const { discount } = useCoupon();
   const { user } = useAuth();
   const shipping = shippingFor(subtotal);
+  const gst = gstFor(subtotal - discount + shipping);
 
   if (!ready) return <div className="mx-auto max-w-5xl px-4 py-16"><div className="h-40 animate-pulse rounded-md bg-slate-100" /></div>;
 
@@ -68,7 +69,8 @@ export default function CartPage() {
             <div className="flex justify-between"><dt>Subtotal</dt><dd>{formatINR(subtotal)}</dd></div>
             {discount > 0 && <div className="flex justify-between text-emerald-700"><dt>Coupon discount</dt><dd>− {formatINR(discount)}</dd></div>}
             <div className="flex justify-between"><dt>Shipping</dt><dd>{shipping === 0 ? "Free" : formatINR(shipping)}</dd></div>
-            <div className="flex justify-between border-t border-slate-200 pt-3 text-lg font-bold"><dt>Total</dt><dd>{formatINR(subtotal - discount + shipping)}</dd></div>
+            <div className="flex justify-between"><dt>GST ({GST_RATE}%)</dt><dd>{formatINR(gst)}</dd></div>
+            <div className="flex justify-between border-t border-slate-200 pt-3 text-lg font-bold"><dt>Total</dt><dd>{formatINR(subtotal - discount + shipping + gst)}</dd></div>
           </dl>
           {shipping > 0 && (
             <p className="rounded bg-accent-50 p-2 text-xs text-accent-600">

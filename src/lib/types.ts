@@ -6,6 +6,7 @@ export type Category = {
   icon: string;
   image_url: string | null;
   sort_order: number;
+  hsn_code?: string | null;
 };
 
 export type Faq = { q: string; a: string };
@@ -30,6 +31,7 @@ export type Product = {
   faqs: Faq[];
   documents: ProductDocument[];
   warranty_months: number;
+  hsn_code?: string | null;
   ready_to_dispatch: boolean;
   rating_avg: number;
   rating_count: number;
@@ -37,7 +39,7 @@ export type Product = {
   is_featured: boolean;
   is_active: boolean;
   created_at: string;
-  category?: Pick<Category, "slug" | "name" | "icon"> | null;
+  category?: (Pick<Category, "slug" | "name" | "icon"> & { hsn_code?: string | null }) | null;
 };
 
 export type Banner = {
@@ -101,6 +103,8 @@ export type Order = {
   discount: number;
   coupon_code: string | null;
   shipping: number;
+  gst_rate?: number;
+  gst_amount?: number;
   total: number;
   tracking_url: string | null;
   created_at: string;
@@ -113,6 +117,7 @@ export type OrderItem = {
   name: string;
   sku: string;
   slug: string | null;
+  hsn_code?: string | null;
   image_url: string | null;
   unit_price: number;
   quantity: number;

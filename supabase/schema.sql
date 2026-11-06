@@ -172,6 +172,15 @@ alter table public.order_items add column if not exists slug text;
 alter table public.order_items add column if not exists image_url text;
 create index if not exists order_items_order_idx on public.order_items(order_id);
 
+-- v6: GST & HSN
+alter table public.categories  add column if not exists hsn_code   text;
+alter table public.products    add column if not exists hsn_code   text;
+alter table public.order_items add column if not exists hsn_code   text;
+alter table public.orders      add column if not exists gst_rate   numeric(5,2) not null default 0;
+alter table public.orders      add column if not exists gst_amount numeric(10,2) not null default 0;
+create or replace function public.gst_rate()
+returns numeric language sql immutable as $$ select 18::numeric $$;
+
 -- ═══════════════════════ Helpers & triggers ═══════════════════════
 
 create or replace function public.is_admin()
@@ -365,6 +374,10 @@ declare
   v_subtotal     numeric(10,2) := 0;
   v_discount     numeric(10,2) := 0;
   v_shipping     numeric(10,2);
+  v_taxable      numeric(10,2);
+  v_gst          numeric(10,2);
+  v_gst_rate     numeric(5,2) := public.gst_rate();
+  v_hsn          text;
   v_coupon       jsonb;
   v_item         jsonb;
   v_qty          int;
@@ -396,7 +409,7 @@ begin
     raise exception 'Please enter your full address';
   end if;
 
-  v_order_number := 'RD' || to_char(now() at time zone 'Asia/Kolkata', 'YYMMDD')
+  v_order_number := 'PD' || to_char(now() at time zone 'Asia/Kolkata', 'YYMMDD')
                     || upper(substr(md5(gen_random_uuid()::text), 1, 5));
 
   insert into public.orders (order_number, user_id, customer_name, phone, email, address_line,
@@ -423,12 +436,15 @@ begin
       raise exception 'Only % left in stock for %', v_product.stock, v_product.name;
     end if;
 
+    select coalesce(nullif(v_product.hsn_code, ''), c.hsn_code) into v_hsn
+      from public.categories c where c.id = v_product.category_id;
+
     update public.products
        set stock = stock - v_qty, sold_count = sold_count + v_qty, updated_at = now()
      where id = v_product.id;
 
-    insert into public.order_items (order_id, product_id, name, sku, slug, image_url, unit_price, quantity, line_total)
-    values (v_order_id, v_product.id, v_product.name, v_product.sku, v_product.slug,
+    insert into public.order_items (order_id, product_id, name, sku, slug, hsn_code, image_url, unit_price, quantity, line_total)
+    values (v_order_id, v_product.id, v_product.name, v_product.sku, v_product.slug, v_hsn,
             coalesce(v_product.images[1], v_product.image_url),
             v_product.price, v_qty, v_product.price * v_qty);
 
@@ -445,10 +461,14 @@ begin
   end if;
 
   v_shipping := public.shipping_for(v_subtotal);
+  -- Prices are excluding GST. GST applies to the goods after discount, plus shipping.
+  v_taxable := v_subtotal - v_discount + v_shipping;
+  v_gst := round(v_taxable * v_gst_rate / 100, 2);
 
   update public.orders
      set subtotal = v_subtotal, discount = v_discount, coupon_code = v_coupon->>'code',
-         shipping = v_shipping, total = v_subtotal - v_discount + v_shipping
+         shipping = v_shipping, gst_rate = v_gst_rate, gst_amount = v_gst,
+         total = v_taxable + v_gst
    where id = v_order_id;
 
   return jsonb_build_object(
@@ -456,7 +476,9 @@ begin
     'subtotal', v_subtotal,
     'discount', v_discount,
     'shipping', v_shipping,
-    'total', v_subtotal - v_discount + v_shipping
+    'gst_rate', v_gst_rate,
+    'gst', v_gst,
+    'total', v_taxable + v_gst
   );
 end;
 $$;
@@ -472,6 +494,8 @@ returns jsonb language sql stable security definer set search_path = public as $
     'subtotal', o.subtotal,
     'discount', o.discount,
     'shipping', o.shipping,
+    'gst_rate', o.gst_rate,
+    'gst_amount', o.gst_amount,
     'total', o.total,
     'tracking_url', o.tracking_url,
     'created_at', o.created_at,

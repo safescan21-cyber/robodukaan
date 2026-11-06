@@ -85,7 +85,7 @@ export default function AdminProductsPage() {
         <table className="w-full min-w-[860px] text-sm">
           <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-600">
             <tr>
-              <th className="px-3 py-3">Product</th><th className="px-3 py-3">Category</th><th className="px-3 py-3">Price / MRP</th>
+              <th className="px-3 py-3">Product</th><th className="px-3 py-3">Category</th><th className="px-3 py-3">Price excl. GST / MRP</th>
               <th className="px-3 py-3">Stock</th><th className="px-3 py-3">Sold</th><th className="px-3 py-3 text-center">Featured</th>
               <th className="px-3 py-3 text-center">Visible</th><th className="px-3 py-3" />
             </tr>
