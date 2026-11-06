@@ -61,12 +61,16 @@ export async function Footer() {
             <li><Link href="/careers" className="hover:text-white">Careers</Link></li>
             <li><Link href="/shipping-returns" className="hover:text-white">Shipping &amp; returns</Link></li>
             <li><Link href="/privacy" className="hover:text-white">Privacy policy</Link></li>
+            <li><Link href="/site-map" className="hover:text-white">Sitemap</Link></li>
           </ul>
         </div>
       </div>
       <div className="border-t border-white/10 py-4">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 text-xs">
-          <p>© PCBDukaan. All rights reserved.</p>
+          <p className="flex flex-wrap items-center gap-3">
+            <span>© PCBDukaan. All rights reserved.</span>
+            <Link href="/site-map" className="inline-flex items-center gap-1 rounded border border-white/20 px-2.5 py-1 font-semibold text-slate-200 hover:border-white/50 hover:text-white">🗺️ Sitemap</Link>
+          </p>
           <p>Prices exclude GST · 18% GST added at checkout · Cash on delivery</p>
         </div>
       </div>

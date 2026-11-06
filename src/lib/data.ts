@@ -171,3 +171,18 @@ export async function getJob(slug: string): Promise<import("./types").Job | null
   logError("getJob", error);
   return data ?? null;
 }
+
+// Every active product (slug, name, category) for the sitemaps.
+export async function getAllProductLinks(): Promise<{ slug: string; name: string; category_id: number; created_at: string }[]> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("catalog");
+  const { data, error } = await supabase
+    .from("products")
+    .select("slug, name, category_id, created_at")
+    .eq("is_active", true)
+    .order("name")
+    .limit(5000);
+  logError("getAllProductLinks", error);
+  return data ?? [];
+}

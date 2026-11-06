@@ -57,6 +57,7 @@ export function MobileMenu({ categories }: { categories: Category[] }) {
               <li><Link href="/products?sort=best-selling" className="block px-4 py-2.5 hover:bg-brand-50">Best sellers</Link></li>
               <li><Link href="/wishlist" className="block px-4 py-2.5 hover:bg-brand-50">Wishlist</Link></li>
               <li><Link href="/track" className="block px-4 py-2.5 hover:bg-brand-50">Track order</Link></li>
+              <li><Link href="/site-map" className="block px-4 py-2.5 hover:bg-brand-50">Sitemap</Link></li>
               {user && <li><LogoutButton className="w-full px-4 py-2.5 text-left font-semibold text-red-600 hover:bg-red-50" icon={false} /></li>}
             </ul>
           </div>
