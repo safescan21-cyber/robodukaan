@@ -32,6 +32,7 @@ export default function LoginPage() {
     setBusy(false);
     if (error) {
       if (/signups? not allowed|not found|user/i.test(error.message)) setError("No account uses this email yet. Please register first.");
+      else if (/email rate limit/i.test(error.message)) setError("We can't send more login emails right now. Please try again later, or use the Password tab.");
       else if (/rate|seconds|too many/i.test(error.message)) setError("Please wait a minute before asking for another code.");
       else setError(error.message);
       return;
