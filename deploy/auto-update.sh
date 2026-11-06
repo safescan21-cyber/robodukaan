@@ -12,13 +12,20 @@ flock -n 9 || exit 0                      # an update is already running
 as_app() { sudo -u "$APP_USER" -H env PATH=/usr/local/bin:/usr/bin:/bin bash -c "cd '$APP_DIR' && $1"; }
 log() { echo "$(date '+%F %T') $*" >> "$LOG"; }
 
-# One-time extras (e.g. the AI chat model); quick no-op once installed.
-if [ -x "$APP_DIR/deploy/ensure-chat.sh" ]; then bash "$APP_DIR/deploy/ensure-chat.sh" || log "AI chat setup failed (see above)"; fi
+# One-time extras (the AI chat model) run as their own background job so a long
+# download never holds up website updates.
+start_chat_setup() {
+  [ -f "$APP_DIR/deploy/ensure-chat.sh" ] || return 0
+  [ -f /etc/robodukaan/chat-ready ] && systemctl is-active --quiet ollama && return 0
+  systemctl is-active --quiet robodukaan-chat-setup && return 0
+  systemd-run --unit=robodukaan-chat-setup --collect --quiet /bin/bash "$APP_DIR/deploy/ensure-chat.sh" \
+    || log "Could not start AI chat setup"
+}
 
 as_app "git fetch -q origin main" || { log "git fetch failed"; exit 1; }
 current=$(as_app "git rev-parse HEAD")
 latest=$(as_app "git rev-parse origin/main")
-[ "$current" = "$latest" ] && exit 0
+[ "$current" = "$latest" ] && { start_chat_setup; exit 0; }
 
 log "Updating ${current:0:7} -> ${latest:0:7}"
 build() { as_app "git reset -q --hard $1 && npm ci --no-audit --no-fund >/dev/null 2>&1 && NEXT_TELEMETRY_DISABLED=1 npm run build >/dev/null 2>&1"; }
@@ -30,3 +37,4 @@ else
   log "Build of ${latest:0:7} FAILED - rolling back to ${current:0:7}"
   build "$current" && systemctl restart robodukaan && log "Rolled back to ${current:0:7}"
 fi
+start_chat_setup
