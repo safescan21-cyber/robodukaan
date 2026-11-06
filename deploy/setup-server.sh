@@ -8,7 +8,7 @@ DOMAIN="${DOMAIN:-pcbdukaan.com}"
 EMAIL="${EMAIL:-}"                       # for SSL expiry reminders (optional)
 APP_DIR="${APP_DIR:-/opt/robodukaan}"
 APP_USER="robodukaan"
-PORT=3000
+PORT="${PORT:-3100}"   # other sites on this server use 3000/3001/5000, so we stay out of their way
 REPO="https://github.com/safescan21-cyber/robodukaan.git"
 # Public values (the publishable key is meant to be public; security comes from Supabase RLS)
 SUPABASE_URL="https://cjslvfsrfjslpnyjrvhr.supabase.co"
@@ -56,6 +56,16 @@ chown -R "$APP_USER:$APP_USER" "$APP_DIR"
 step "Installing dependencies and building (takes a few minutes)"
 as_app "cd '$APP_DIR' && npm ci --no-audit --no-fund && NEXT_TELEMETRY_DISABLED=1 npm run build"
 
+step "Choosing a free port"
+port_in_use() { ss -ltnH "sport = :$1" | grep -q .; }
+if systemctl is-active --quiet robodukaan; then
+  # Keep the port the store already uses
+  PORT=$(grep -oP '(?<=-p )[0-9]+' /etc/systemd/system/robodukaan.service || echo "$PORT")
+else
+  while port_in_use "$PORT"; do PORT=$((PORT + 1)); done
+fi
+echo "Store will listen on 127.0.0.1:$PORT"
+
 step "Starting the store as a service"
 cat > /etc/systemd/system/robodukaan.service <<UNIT
 [Unit]
@@ -100,9 +110,20 @@ server {
     }
 }
 NGINX
+# Never touch other sites on this server; only add our own file.
+other=$(grep -lsE "server_name[^;]*\b(www\.)?${DOMAIN//./\\.}\b" /etc/nginx/sites-enabled/* /etc/nginx/conf.d/*.conf 2>/dev/null | grep -v '/robodukaan$' || true)
+if [ -n "$other" ]; then
+  echo "!! Another nginx config already serves $DOMAIN: $other"
+  echo "   Remove $DOMAIN from that file first, then run this script again."
+  exit 1
+fi
 ln -sf /etc/nginx/sites-available/robodukaan /etc/nginx/sites-enabled/robodukaan
-rm -f /etc/nginx/sites-enabled/default
-nginx -t && systemctl reload nginx
+if ! nginx -t; then
+  echo "!! nginx config test failed. Removing the RoboDukaan site so your other sites keep working."
+  rm -f /etc/nginx/sites-enabled/robodukaan
+  exit 1
+fi
+systemctl reload nginx
 
 if command -v ufw >/dev/null && ufw status | grep -q "Status: active"; then
   ufw allow 'Nginx Full' >/dev/null
