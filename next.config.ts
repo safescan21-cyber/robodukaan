@@ -8,6 +8,12 @@ const securityHeaders = [
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
 ];
 
+// English lives at the plain address (/products); other languages at /hi/products etc.
+// Pages live under app/[lang], so plain addresses are rewritten to /en internally.
+// (Done here, not in proxy.ts: a proxy rewrite behind nginx's X-Forwarded-Proto
+// made Next fetch itself over https on the plain-http port.)
+const OTHER = "hi|ur|fr|ko|ja|zh|en|api|_next";
+
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
@@ -32,7 +38,21 @@ const nextConfig: NextConfig = {
         destination: "https://pcbdukaan.com/:path*",
         permanent: true,
       },
+      // /en/products → /products (one address per page)
+      { source: "/en", destination: "/", permanent: true },
+      { source: "/en/:path*", destination: "/:path*", permanent: true },
     ];
+  },
+  async rewrites() {
+    return {
+      beforeFiles: [
+        { source: "/", destination: "/en" },
+        // First segment is not a language/api/_next and has no dot (files like sitemap.xml are left alone).
+        { source: `/:first((?!(?:${OTHER})(?:/|$))[^/.]+)/:rest*`, destination: "/en/:first/:rest*" },
+      ],
+      afterFiles: [],
+      fallback: [],
+    };
   },
 };
 
