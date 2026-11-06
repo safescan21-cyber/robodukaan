@@ -9,7 +9,7 @@ LOG=/var/log/robodukaan-update.log
 exec 9>/run/robodukaan-update.lock
 flock -n 9 || exit 0                      # an update is already running
 
-as_app() { sudo -u "$APP_USER" -H bash -c "cd '$APP_DIR' && $1"; }
+as_app() { sudo -u "$APP_USER" -H env PATH=/usr/local/bin:/usr/bin:/bin bash -c "cd '$APP_DIR' && $1"; }
 log() { echo "$(date '+%F %T') $*" >> "$LOG"; }
 
 as_app "git fetch -q origin main" || { log "git fetch failed"; exit 1; }

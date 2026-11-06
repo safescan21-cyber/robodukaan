@@ -24,11 +24,14 @@ apt-get update -y
 apt-get install -y ca-certificates curl git sudo nginx certbot python3-certbot-nginx
 
 step "Installing Node.js 22"
-if ! command -v node >/dev/null || [ "$(node -p 'process.versions.node.split(".")[0]')" -lt 20 ]; then
+# The store runs as its own user, so it needs a system-wide Node in /usr/bin.
+# (A Node installed with nvm under /root is not readable by other users; it is left untouched.)
+NODE_BIN=/usr/bin/node
+if [ ! -x "$NODE_BIN" ] || [ "$("$NODE_BIN" -p 'process.versions.node.split(".")[0]')" -lt 20 ]; then
   curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
   apt-get install -y nodejs
 fi
-node -v
+"$NODE_BIN" -v
 
 step "Adding swap if the server has little memory (needed for the build)"
 mem_mb=$(awk '/MemTotal/ {print int($2/1024)}' /proc/meminfo)
@@ -39,7 +42,7 @@ fi
 
 step "Creating app user and downloading the store"
 id "$APP_USER" >/dev/null 2>&1 || useradd --system --create-home --shell /usr/sbin/nologin "$APP_USER"
-as_app() { sudo -u "$APP_USER" -H bash -c "$1"; }
+as_app() { sudo -u "$APP_USER" -H env PATH=/usr/local/bin:/usr/bin:/bin bash -c "$1"; }
 if [ -d "$APP_DIR/.git" ]; then
   chown -R "$APP_USER:$APP_USER" "$APP_DIR"
   as_app "git -C '$APP_DIR' fetch origin main && git -C '$APP_DIR' reset --hard origin/main"
@@ -77,7 +80,7 @@ User=$APP_USER
 WorkingDirectory=$APP_DIR
 Environment=NODE_ENV=production
 Environment=NEXT_TELEMETRY_DISABLED=1
-ExecStart=$(command -v node) $APP_DIR/node_modules/next/dist/bin/next start -H 127.0.0.1 -p $PORT
+ExecStart=$NODE_BIN $APP_DIR/node_modules/next/dist/bin/next start -H 127.0.0.1 -p $PORT
 Restart=always
 RestartSec=5
 
