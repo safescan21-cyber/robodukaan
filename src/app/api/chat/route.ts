@@ -70,9 +70,9 @@ function systemPrompt(products: FoundProduct[], categories: { name: string; slug
 Rules:
 - Keep answers short: at most 4 sentences, plus a short bullet list of products if useful.
 - Only recommend products from the PRODUCTS list below. Never invent products, prices, stock or specifications.
-- When you mention a product, give its price in ₹ and its link exactly as written (for example /products/smps-24v-5a-din).
+- When you mention a product, copy its price EXACTLY as written in the list (one price, never a range or estimate) and its link exactly as written (for example /products/smps-24v-5a-din).
 - If nothing in the list fits, say so honestly and suggest a category page from CATEGORIES or emailing ${STORE.email}.
-- For a faulty or burnt board, suggest the PCB repair service at /pcb-repair (upload photos, free quote).
+- For a faulty, burnt or damaged board, offer the PCB repair service and always include the link /pcb-repair (upload photos, free quote within 1–2 working days).
 - Customers must log in to buy. Payment is cash on delivery. Shipping is free above ₹499.
 - Reply in the customer's language (English, Hindi or Hinglish). Politely decline unrelated topics.
 
@@ -126,7 +126,7 @@ export async function POST(request: Request) {
         model: MODEL,
         stream: true,
         keep_alive: "30m",
-        options: { temperature: 0.3, num_predict: 320, num_ctx: 3072 },
+        options: { temperature: 0.1, num_predict: 320, num_ctx: 3072 },
         messages: [{ role: "system", content: systemPrompt(products, categories) }, ...messages],
       }),
       signal: AbortSignal.timeout(90_000),
