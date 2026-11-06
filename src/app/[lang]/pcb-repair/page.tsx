@@ -3,15 +3,14 @@ import Link from "@/i18n/client";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { RepairForm } from "@/components/RepairForm";
 import { BOARD_TYPES } from "@/lib/constants";
-import { getT } from "@/i18n/server";
-import { languageAlternates } from "@/i18n/config";
+import { getT, alternatesFor } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getT();
   return {
     title: t("nav.pcbRepairService"),
     description: t("repairPage.metaDescription"),
-    alternates: { canonical: "/pcb-repair", languages: languageAlternates("/pcb-repair") },
+    alternates: await alternatesFor("/pcb-repair"),
   };
 }
 
@@ -55,7 +54,7 @@ export default async function PcbRepairPage() {
             <ul className="mt-3 space-y-1.5 text-sm text-slate-700">
               {BOARD_TYPES.filter((b) => b !== "Other").map((b, i) => <li key={b}>✓ {t(`board.${i}`)}</li>)}
             </ul>
-            <Link href="/locations" className="mt-3 inline-block text-sm font-semibold text-brand-700 hover:underline">{t("repairPage.everyState")} →</Link>
+            <Link href="/locations" className="mt-3 inline-block text-sm font-semibold text-brand-700 hover:underline">{t("repairPage.everyState")} <span className="inline-block rtl:-scale-x-100">→</span></Link>
           </div>
           <div className="rounded-md bg-accent-50 p-5 text-sm ring-1 ring-accent-400/30">
             <h3 className="font-bold">{t("repairPage.tipsTitle")}</h3>

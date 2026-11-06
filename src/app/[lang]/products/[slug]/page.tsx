@@ -14,8 +14,7 @@ import { ProductReviews } from "@/components/ProductReviews";
 import { WishlistButton } from "@/components/WishlistButton";
 import { ShareButtons } from "@/components/ShareButtons";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { getT } from "@/i18n/server";
-import { languageAlternates } from "@/i18n/config";
+import { getT, alternatesFor } from "@/i18n/server";
 import { Stars } from "@/components/Stars";
 
 export async function generateMetadata(props: PageProps<"/[lang]/products/[slug]">) {
@@ -28,7 +27,7 @@ export async function generateMetadata(props: PageProps<"/[lang]/products/[slug]
   return {
     title: product.name,
     description,
-    alternates: { canonical: `/products/${product.slug}`, languages: languageAlternates(`/products/${product.slug}`) },
+    alternates: await alternatesFor(`/products/${product.slug}`),
     openGraph: { type: "website", title: product.name, description, url: `/products/${product.slug}`, images: image ? [image] : [{ url: "/og.png", width: 1200, height: 630 }] },
   };
 }

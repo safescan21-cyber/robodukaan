@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { InfoPage } from "@/components/InfoPage";
-import { getT } from "@/i18n/server";
-import { languageAlternates } from "@/i18n/config";
+import { getT, alternatesFor } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getT();
-  return { title: t("nav.about"), alternates: { canonical: "/about", languages: languageAlternates("/about") } };
+  return { title: t("nav.about"), alternates: await alternatesFor("/about") };
 }
 
 export default async function AboutPage() {

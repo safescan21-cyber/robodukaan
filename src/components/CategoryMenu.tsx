@@ -48,7 +48,7 @@ export function CategoryMenu({ categories }: { categories: Category[] }) {
           ))}
           <li className="border-t border-slate-100">
             <Link href="/products" className="block px-4 py-2.5 text-sm font-semibold text-brand-700 hover:bg-brand-50">
-              {t("nav.viewAllProducts")} →
+              {t("nav.viewAllProducts")} <span className="inline-block rtl:-scale-x-100">→</span>
             </Link>
           </li>
         </ul>

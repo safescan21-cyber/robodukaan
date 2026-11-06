@@ -13,7 +13,7 @@ export function AuthCard({ title, subtitle, children, footer }: { title: string;
         <div className="mt-6">{children}</div>
       </div>
       {footer && <div className="mt-4 text-center text-sm text-slate-600">{footer}</div>}
-      <p className="mt-6 text-center text-xs text-slate-400"><Link href="/" className="hover:underline">← {t("common.backToStore")}</Link></p>
+      <p className="mt-6 text-center text-xs text-slate-400"><Link href="/" className="hover:underline"><span className="inline-block rtl:-scale-x-100">←</span> {t("common.backToStore")}</Link></p>
     </div>
   );
 }

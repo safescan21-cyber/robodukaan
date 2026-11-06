@@ -5,7 +5,12 @@ import { ProductGridSkeleton, ProductRow, SectionHeading } from "@/components/Pr
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { HeroSlider } from "@/components/HeroSlider";
 import { SetupNotice } from "@/components/SetupNotice";
-import { getT } from "@/i18n/server";
+import type { Metadata } from "next";
+import { alternatesFor, getT } from "@/i18n/server";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return { alternates: await alternatesFor("/") };
+}
 
 export default async function HomePage() {
   const { t } = await getT();
@@ -28,14 +33,14 @@ export default async function HomePage() {
           <p className="text-xs font-semibold uppercase tracking-widest text-accent-400">{t("home.drivesTag")}</p>
           <p className="mt-2 text-2xl font-extrabold">{t("home.drivesTitle")}</p>
           <p className="mt-1 text-sm text-slate-300">{t("home.drivesText")}</p>
-          <span className="mt-4 inline-block text-sm font-semibold underline-offset-4 group-hover:underline">{t("common.shopNow")} →</span>
+          <span className="mt-4 inline-block text-sm font-semibold underline-offset-4 group-hover:underline">{t("common.shopNow")} <span className="inline-block rtl:-scale-x-100">→</span></span>
           <CategoryIcon name="motor" className="absolute -bottom-4 -right-4 h-36 w-36 text-white/10" />
         </Link>
         <Link href="/category/load-cells-weighing" className="group relative overflow-hidden rounded-md bg-gradient-to-r from-accent-600 to-amber-500 p-6 text-white">
           <p className="text-xs font-semibold uppercase tracking-widest text-amber-100">{t("home.weighTag")}</p>
           <p className="mt-2 text-2xl font-extrabold">{t("home.weighTitle")}</p>
           <p className="mt-1 text-sm text-amber-50">{t("home.weighText")}</p>
-          <span className="mt-4 inline-block text-sm font-semibold underline-offset-4 group-hover:underline">{t("common.shopNow")} →</span>
+          <span className="mt-4 inline-block text-sm font-semibold underline-offset-4 group-hover:underline">{t("common.shopNow")} <span className="inline-block rtl:-scale-x-100">→</span></span>
           <CategoryIcon name="scale" className="absolute -bottom-4 -right-4 h-36 w-36 text-white/15" />
         </Link>
       </div>
@@ -75,13 +80,13 @@ async function Hero() {
         <Link href="/pcb-repair" className="group relative overflow-hidden rounded-md bg-brand-50 p-5 ring-1 ring-brand-100">
           <p className="text-xs font-semibold uppercase text-brand-700">{t("home.freeQuote")}</p>
           <p className="mt-1 text-lg font-bold text-slate-900">{t("home.repairTitle")}</p>
-          <p className="mt-2 text-sm font-semibold text-accent-600 group-hover:underline">{t("home.sendPhotos")} →</p>
+          <p className="mt-2 text-sm font-semibold text-accent-600 group-hover:underline">{t("home.sendPhotos")} <span className="inline-block rtl:-scale-x-100">→</span></p>
           <CategoryIcon name="pcb" className="absolute -bottom-3 -right-3 h-24 w-24 text-brand-600/20" />
         </Link>
         <Link href="/category/plc-io-modules" className="group relative overflow-hidden rounded-md bg-accent-50 p-5 ring-1 ring-accent-400/30">
           <p className="text-xs font-semibold uppercase text-accent-600">{t("home.autoTag")}</p>
           <p className="mt-1 text-lg font-bold text-slate-900">{t("home.plcTitle")}</p>
-          <p className="mt-2 text-sm font-semibold text-brand-700 group-hover:underline">{t("home.shopPlc")} →</p>
+          <p className="mt-2 text-sm font-semibold text-brand-700 group-hover:underline">{t("home.shopPlc")} <span className="inline-block rtl:-scale-x-100">→</span></p>
           <CategoryIcon name="chip" className="absolute -bottom-3 -right-3 h-24 w-24 text-accent-500/25" />
         </Link>
       </div>

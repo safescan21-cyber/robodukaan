@@ -38,7 +38,7 @@ export function OrderDetail({ order, actions }: { order: Order; actions?: React.
       )}
       {order.tracking_url && (
         <a href={order.tracking_url} target="_blank" rel="noopener noreferrer" className="inline-block rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
-          {t("order.trackCourier")} →
+          {t("order.trackCourier")} <span className="inline-block rtl:-scale-x-100">→</span>
         </a>
       )}
 

@@ -5,15 +5,14 @@ import { ShopView, parseShopQuery } from "@/components/ShopView";
 import { ProductGridSkeleton } from "@/components/ProductCard";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { getT } from "@/i18n/server";
-import { languageAlternates } from "@/i18n/config";
+import { getT, alternatesFor } from "@/i18n/server";
 
 export async function generateMetadata(props: PageProps<"/[lang]/category/[slug]">) {
   const { slug } = await props.params;
   const category = await getCategory(slug);
   const { t } = await getT();
   return category
-    ? { title: category.name, description: category.description ?? undefined, alternates: { canonical: `/category/${category.slug}`, languages: languageAlternates(`/category/${category.slug}`) } }
+    ? { title: category.name, description: category.description ?? undefined, alternates: await alternatesFor(`/category/${category.slug}`) }
     : { title: t("category.notFound") };
 }
 

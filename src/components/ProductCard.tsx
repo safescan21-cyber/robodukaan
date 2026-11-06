@@ -94,7 +94,7 @@ export async function SectionHeading({ title, href, linkLabel }: { title: string
       </h2>
       {href && (
         <Link href={href} className="pb-2 text-sm font-semibold text-brand-700 hover:underline">
-          {linkLabel ?? t("common.viewAll")} →
+          {linkLabel ?? t("common.viewAll")} <span className="inline-block rtl:-scale-x-100">→</span>
         </Link>
       )}
     </div>

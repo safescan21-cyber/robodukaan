@@ -5,12 +5,11 @@ import { getAllProductLinks, getCategories, getOpenJobs } from "@/lib/data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { STATES, areasIn } from "@/lib/locations";
-import { getT } from "@/i18n/server";
-import { languageAlternates } from "@/i18n/config";
+import { getT, alternatesFor } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getT();
-  return { title: t("nav.sitemap"), description: t("sitemap.meta"), alternates: { canonical: "/site-map", languages: languageAlternates("/site-map") } };
+  return { title: t("nav.sitemap"), description: t("sitemap.meta"), alternates: await alternatesFor("/site-map") };
 }
 
 const MAIN = [

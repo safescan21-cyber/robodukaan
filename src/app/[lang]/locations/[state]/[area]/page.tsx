@@ -110,7 +110,7 @@ async function AreaContent({ params }: Pick<PageProps<"/[lang]/locations/[state]
                   <li key={o.slug}><Link href={`/locations/${s.slug}/${o.slug}`} className="text-brand-700 hover:underline">{o.name}</Link> <span className="text-slate-500">· {o.city}</span></li>
                 ))}
               </ul>
-              <Link href={`/locations/${s.slug}`} className="mt-3 inline-block font-semibold text-brand-700 hover:underline">All of {s.name} →</Link>
+              <Link href={`/locations/${s.slug}`} className="mt-3 inline-block font-semibold text-brand-700 hover:underline">All of {s.name} <span className="inline-block rtl:-scale-x-100">→</span></Link>
             </section>
           )}
         </aside>

@@ -55,7 +55,7 @@ export async function Header() {
               placeholder={t("search.placeholder")}
               className="w-full rounded-l-md border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-brand-600 md:rounded-none"
             />
-            <button type="submit" className="flex items-center gap-2 rounded-r-md bg-accent-500 px-5 text-sm font-semibold text-white hover:bg-accent-600" aria-label={t("search.button")}>
+            <button type="submit" className="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-r-md rtl:rounded-l-md rtl:rounded-r-none bg-accent-500 px-5 text-sm font-semibold text-white hover:bg-accent-600" aria-label={t("search.button")}>
               <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                 <circle cx="11" cy="11" r="7" />
                 <path strokeLinecap="round" d="m20 20-3.5-3.5" />

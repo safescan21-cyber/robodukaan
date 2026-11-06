@@ -3,12 +3,11 @@ import { Suspense } from "react";
 import { ShopView, parseShopQuery } from "@/components/ShopView";
 import { ProductGridSkeleton } from "@/components/ProductCard";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { getT } from "@/i18n/server";
-import { languageAlternates } from "@/i18n/config";
+import { getT, alternatesFor } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getT();
-  return { title: t("shop.title"), alternates: { canonical: "/products", languages: languageAlternates("/products") } };
+  return { title: t("shop.title"), alternates: await alternatesFor("/products") };
 }
 
 export default async function ProductsPage(props: PageProps<"/[lang]/products">) {

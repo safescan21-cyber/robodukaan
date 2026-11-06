@@ -151,7 +151,7 @@ export async function ShopView({
         {pages > 1 && (
           <nav className="mt-8 flex flex-wrap justify-center gap-1" aria-label={t("common.pages")}>
             {page > 1 && (
-              <Link href={hrefWith(basePath, query, fixedCategory, { page: String(page - 1) })} className="rounded border border-slate-300 bg-white px-3 py-1.5 text-sm hover:border-brand-600">← {t("common.prev")}</Link>
+              <Link href={hrefWith(basePath, query, fixedCategory, { page: String(page - 1) })} className="rounded border border-slate-300 bg-white px-3 py-1.5 text-sm hover:border-brand-600"><span className="inline-block rtl:-scale-x-100">←</span> {t("common.prev")}</Link>
             )}
             {Array.from({ length: pages }, (_, i) => i + 1).map((n) => (
               <Link key={n} href={hrefWith(basePath, query, fixedCategory, { page: n > 1 ? String(n) : undefined })}
@@ -161,7 +161,7 @@ export async function ShopView({
               </Link>
             ))}
             {page < pages && (
-              <Link href={hrefWith(basePath, query, fixedCategory, { page: String(page + 1) })} className="rounded border border-slate-300 bg-white px-3 py-1.5 text-sm hover:border-brand-600">{t("common.next")} →</Link>
+              <Link href={hrefWith(basePath, query, fixedCategory, { page: String(page + 1) })} className="rounded border border-slate-300 bg-white px-3 py-1.5 text-sm hover:border-brand-600">{t("common.next")} <span className="inline-block rtl:-scale-x-100">→</span></Link>
             )}
           </nav>
         )}

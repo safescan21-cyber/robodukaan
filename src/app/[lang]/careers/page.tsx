@@ -5,12 +5,11 @@ import { getOpenJobs } from "@/lib/data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { formatDate } from "@/lib/format";
 import { STORE } from "@/lib/constants";
-import { getT } from "@/i18n/server";
-import { languageAlternates } from "@/i18n/config";
+import { getT, alternatesFor } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getT();
-  return { title: t("nav.careers"), description: t("careers.meta"), alternates: { canonical: "/careers", languages: languageAlternates("/careers") } };
+  return { title: t("nav.careers"), description: t("careers.meta"), alternates: await alternatesFor("/careers") };
 }
 
 export default async function CareersPage() {
@@ -52,7 +51,7 @@ async function JobList() {
                   {[j.department, j.location, j.employment_type, j.experience && `${t("jobs.experience")}: ${j.experience}`].filter(Boolean).join(" · ")}
                 </p>
               </div>
-              <span className="rounded-md bg-accent-500 px-3 py-1.5 text-sm font-semibold text-white">{t("careers.applyBtn")} →</span>
+              <span className="rounded-md bg-accent-500 px-3 py-1.5 text-sm font-semibold text-white">{t("careers.applyBtn")} <span className="inline-block rtl:-scale-x-100">→</span></span>
             </div>
             <p className="mt-3 line-clamp-2 text-sm text-slate-700">{j.description}</p>
             <p className="mt-2 text-xs text-slate-400">{t("careers.posted", { date: formatDate(j.created_at) })}</p>

@@ -32,7 +32,7 @@ function MyOrderPage() {
 
   return (
     <>
-      <Link href="/account/orders" className="mb-3 inline-block text-sm font-semibold text-brand-700 hover:underline">← {t("orders.all")}</Link>
+      <Link href="/account/orders" className="mb-3 inline-block text-sm font-semibold text-brand-700 hover:underline"><span className="inline-block rtl:-scale-x-100">←</span> {t("orders.all")}</Link>
       {error && <p className="mb-3 rounded bg-red-50 p-3 text-sm text-red-700" role="alert">{error}</p>}
       <OrderDetail
         order={order}

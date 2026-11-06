@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { InfoPage } from "@/components/InfoPage";
-import { getT } from "@/i18n/server";
-import { languageAlternates } from "@/i18n/config";
+import { getT, alternatesFor } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getT();
-  return { title: t("nav.privacy"), alternates: { canonical: "/privacy", languages: languageAlternates("/privacy") } };
+  return { title: t("nav.privacy"), alternates: await alternatesFor("/privacy") };
 }
 
 export default async function PrivacyPage() {

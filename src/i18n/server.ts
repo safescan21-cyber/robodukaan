@@ -1,5 +1,5 @@
 import { lang } from "next/root-params";
-import { DEFAULT_LOCALE, isLocale, type Locale } from "./config";
+import { DEFAULT_LOCALE, isLocale, languageAlternates, localizePath, type Locale } from "./config";
 import { makeT, type Dict } from "./translate";
 import en from "./dictionaries/en";
 
@@ -27,4 +27,10 @@ export async function getT() {
   const locale = await getLocale();
   const dict = await getDictionary(locale);
   return { t: makeT(dict, en), locale, dict };
+}
+
+// canonical (in the current language) + hreflang links for a page's English path.
+export async function alternatesFor(path: string) {
+  const locale = await getLocale();
+  return { canonical: localizePath(path, locale), languages: languageAlternates(path) };
 }

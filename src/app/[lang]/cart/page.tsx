@@ -60,7 +60,7 @@ export default function CartPage() {
             ))}
           </ul>
           <div className="border-t border-slate-200 p-4">
-            <Link href="/products" className="text-sm font-semibold text-brand-700 hover:underline">← {t("cart.continue")}</Link>
+            <Link href="/products" className="text-sm font-semibold text-brand-700 hover:underline"><span className="inline-block rtl:-scale-x-100">←</span> {t("cart.continue")}</Link>
           </div>
         </div>
 

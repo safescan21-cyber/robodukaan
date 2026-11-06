@@ -185,7 +185,7 @@ export function ChatWidget() {
         <div className="relative max-w-[260px] rounded-2xl rounded-br-sm bg-white p-3 text-sm text-slate-800 shadow-xl ring-1 ring-slate-200">
           <button onClick={markGreeted} className="absolute right-1.5 top-1 text-slate-400 hover:text-slate-700" aria-label={t("chat.dismiss")}>×</button>
           <p className="pe-3">{t("chat.teaser")}</p>
-          <button onClick={() => { markGreeted(); setOpen(true); }} className="mt-2 text-xs font-semibold text-brand-700 hover:underline">{t("chat.chatWithUs")} →</button>
+          <button onClick={() => { markGreeted(); setOpen(true); }} className="mt-2 text-xs font-semibold text-brand-700 hover:underline">{t("chat.chatWithUs")} <span className="inline-block rtl:-scale-x-100">→</span></button>
         </div>
       )}
 
