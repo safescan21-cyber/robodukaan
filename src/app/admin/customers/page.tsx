@@ -51,7 +51,7 @@ export default function AdminCustomersPage() {
                 <td className="px-4 py-3">{p.orders}</td>
                 <td className="px-4 py-3">{formatINR(p.spent)}</td>
                 <td className="px-4 py-3">{p.repairs}</td>
-                <td className="px-4 py-3">{p.role === "admin" ? <span className="rounded bg-slate-900 px-2 py-0.5 text-xs font-semibold text-white">Admin</span> : <span className="text-xs text-slate-500">Customer</span>}</td>
+                <td className="px-4 py-3">{p.is_blocked ? <span className="rounded bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">Blocked</span> : p.role === "admin" ? <span className="rounded bg-slate-900 px-2 py-0.5 text-xs font-semibold text-white">Admin</span> : <span className="text-xs text-slate-500">Customer</span>}</td>
               </tr>
             ))}
           </tbody>

@@ -154,3 +154,21 @@ export async function getRelatedProducts(product: Product, limit = 5): Promise<P
   logError("getRelatedProducts", error);
   return normalize(data);
 }
+
+export async function getOpenJobs(): Promise<import("./types").Job[]> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("catalog");
+  const { data, error } = await supabase.from("jobs").select("*").eq("is_open", true).order("created_at", { ascending: false });
+  logError("getOpenJobs", error);
+  return data ?? [];
+}
+
+export async function getJob(slug: string): Promise<import("./types").Job | null> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("catalog");
+  const { data, error } = await supabase.from("jobs").select("*").eq("slug", slug).eq("is_open", true).maybeSingle();
+  logError("getJob", error);
+  return data ?? null;
+}

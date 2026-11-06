@@ -2,7 +2,7 @@ import "server-only";
 import nodemailer from "nodemailer";
 import { formatINR } from "./format";
 import { REPAIR_STATUS_LABEL } from "./constants";
-import type { Order, OrderItem, RepairRequest } from "./types";
+import type { Job, JobApplication, Order, OrderItem, RepairRequest } from "./types";
 
 // Emails are sent from this server with the SMTP mailbox set in .env.local
 // (deploy/set-email.sh). If SMTP isn't configured, emails are skipped and logged.
@@ -191,4 +191,42 @@ export async function sendRepairUpdateEmail(r: RepairRequest) {
     ),
     adminEmail() || undefined,
   );
+}
+
+export async function sendJobApplicationEmails(app: JobApplication, job: Pick<Job, "title" | "slug">) {
+  const results: boolean[] = [];
+  results.push(
+    await send(
+      app.email,
+      `Application received: ${job.title}`,
+      layout(
+        "Thanks for applying!",
+        `<p>Hi ${esc(app.name.split(" ")[0])}, we’ve received your application for <b>${esc(job.title)}</b>. Our team will review it and contact you if your profile matches.</p>`,
+        { label: "See other openings", href: `${SITE}/careers` },
+      ),
+      adminEmail() || undefined,
+    ),
+  );
+  const admin = adminEmail();
+  if (admin) {
+    results.push(
+      await send(
+        admin,
+        `💼 New job application: ${job.title} – ${app.name}`,
+        layout(
+          `New application for ${job.title}`,
+          `<table style="width:100%;font-size:14px;border-collapse:collapse">
+<tr><td style="padding:4px 0;color:#64748b;width:120px">Name</td><td>${esc(app.name)}</td></tr>
+<tr><td style="padding:4px 0;color:#64748b">Email</td><td>${esc(app.email)}</td></tr>
+<tr><td style="padding:4px 0;color:#64748b">Phone</td><td>${esc(app.phone)}</td></tr>
+${app.experience ? `<tr><td style="padding:4px 0;color:#64748b">Experience</td><td>${esc(app.experience)}</td></tr>` : ""}
+<tr><td style="padding:4px 0;color:#64748b">CV</td><td>${app.resume_path ? "Attached in admin" : "Not uploaded"}</td></tr></table>
+${app.message ? `<p style="margin-top:12px;padding:12px;background:#f8fafc;border-radius:6px">${esc(app.message).replace(/\n/g, "<br>")}</p>` : ""}`,
+          { label: "Open in admin", href: `${SITE}/admin/jobs/${app.job_id}` },
+        ),
+        app.email,
+      ),
+    );
+  }
+  return results.some(Boolean);
 }

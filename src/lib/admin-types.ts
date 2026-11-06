@@ -10,4 +10,5 @@ export type AdminCustomer = {
   orders: number;
   spent: number;
   repairs: number;
+  is_blocked: boolean;
 };

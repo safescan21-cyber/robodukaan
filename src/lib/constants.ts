@@ -1,4 +1,4 @@
-import type { OrderStatus, RepairStatus } from "./types";
+import type { JobApplicationStatus, OrderStatus, RepairStatus } from "./types";
 
 export const INDIAN_STATES = [
   "Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chandigarh",
@@ -78,3 +78,19 @@ export const BOARD_TYPES = [
   "Arduino / ESP / custom PCB",
   "Other",
 ];
+
+export const APPLICATION_STATUS_LABEL: Record<JobApplicationStatus, string> = {
+  new: "New",
+  shortlisted: "Shortlisted",
+  interview: "Interview",
+  rejected: "Not selected",
+  hired: "Hired",
+};
+
+export const APPLICATION_STATUS_STYLE: Record<JobApplicationStatus, string> = {
+  new: "bg-amber-100 text-amber-800",
+  shortlisted: "bg-sky-100 text-sky-800",
+  interview: "bg-violet-100 text-violet-800",
+  rejected: "bg-slate-200 text-slate-700",
+  hired: "bg-emerald-100 text-emerald-800",
+};

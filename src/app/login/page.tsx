@@ -19,6 +19,7 @@ export default function LoginPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [blocked] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("blocked") === "1");
 
   async function sendCode(e?: React.FormEvent) {
     e?.preventDefault();
@@ -90,6 +91,11 @@ export default function LoginPage() {
       subtitle="Log in to buy, track orders and send PCBs for repair."
       footer={<>New to PCBDukaan? <Link href="/register" className="font-semibold text-brand-700 hover:underline">Create an account</Link></>}
     >
+      {blocked && (
+        <p className="-mt-2 mb-4 rounded bg-red-50 p-3 text-sm text-red-700" role="alert">
+          This account has been blocked. If you think this is a mistake, please email support.
+        </p>
+      )}
       <div className="-mt-2 mb-5 flex">{tab("code", "Email code")}{tab("password", "Password")}</div>
 
       {mode === "code" ? (

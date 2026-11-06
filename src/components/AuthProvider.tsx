@@ -29,6 +29,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     const { data } = await getSupabase().from("profiles").select("*").eq("id", userId).maybeSingle();
+    if (data?.is_blocked) {
+      await getSupabase().auth.signOut();
+      setProfile(null);
+      window.location.replace("/login?blocked=1");
+      return;
+    }
     setProfile((data as Profile) ?? null);
     // Customers who confirmed by clicking the email link still get their welcome email (sent once).
     if (data && !data.welcome_sent_at) postAsUser("/api/email/welcome");

@@ -16,6 +16,7 @@ const ITEMS = [
   { href: "/admin/coupons", label: "Coupons", icon: "🏷️" },
   { href: "/admin/reviews", label: "Reviews", icon: "⭐" },
   { href: "/admin/banners", label: "Home banners", icon: "🖼️" },
+  { href: "/admin/jobs", label: "Jobs", icon: "💼" },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

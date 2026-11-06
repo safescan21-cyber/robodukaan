@@ -137,6 +137,7 @@ export type Profile = {
   full_name: string | null;
   phone: string | null;
   role: "user" | "admin";
+  is_blocked: boolean;
   welcome_sent_at: string | null;
   created_at: string;
 };
@@ -172,4 +173,37 @@ export type RepairRequest = {
   admin_notes: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type Job = {
+  id: string;
+  slug: string;
+  title: string;
+  department: string | null;
+  location: string;
+  employment_type: string;
+  experience: string | null;
+  salary: string | null;
+  description: string;
+  requirements: string | null;
+  is_open: boolean;
+  created_at: string;
+};
+
+export type JobApplicationStatus = "new" | "shortlisted" | "interview" | "rejected" | "hired";
+
+export type JobApplication = {
+  id: string;
+  job_id: string;
+  user_id: string;
+  name: string;
+  email: string;
+  phone: string;
+  experience: string | null;
+  message: string | null;
+  resume_path: string | null;
+  status: JobApplicationStatus;
+  admin_notes: string | null;
+  created_at: string;
+  job?: Pick<Job, "title" | "slug"> | null;
 };

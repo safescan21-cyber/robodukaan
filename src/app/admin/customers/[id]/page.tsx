@@ -38,6 +38,14 @@ function CustomerDetail() {
     load();
   }, [load]);
 
+  async function setBlocked(blocked: boolean) {
+    if (!c) return;
+    if (!confirm(blocked ? `Block ${c.email}? They will be logged out and can't order, request repairs, review or apply for jobs.` : `Unblock ${c.email}?`)) return;
+    const { error } = await getSupabase().from("profiles").update({ is_blocked: blocked }).eq("id", c.id);
+    setMsg(error ? error.message : blocked ? "Blocked. They'll be logged out on their next page load." : "Unblocked.");
+    load();
+  }
+
   async function setRole(role: "user" | "admin") {
     if (!c) return;
     if (!confirm(role === "admin" ? `Give ${c.email} full admin access? They will be able to see all orders and customers and change products.` : `Remove admin access from ${c.email}?`)) return;
@@ -61,7 +69,10 @@ function CustomerDetail() {
               <p className="text-slate-600">{c.email} {c.email_confirmed ? <span className="ml-1 rounded bg-emerald-100 px-1.5 text-xs font-semibold text-emerald-800">Email confirmed</span> : <span className="ml-1 rounded bg-amber-100 px-1.5 text-xs font-semibold text-amber-800">Not confirmed</span>}</p>
               {c.phone && <p className="text-slate-600">📞 {c.phone}</p>}
             </div>
-            {c.role === "admin" ? <span className="rounded bg-slate-900 px-2 py-1 text-xs font-semibold text-white">Admin</span> : <span className="rounded bg-slate-100 px-2 py-1 text-xs font-semibold">Customer</span>}
+            <span className="flex gap-2">
+              {c.is_blocked && <span className="rounded bg-red-600 px-2 py-1 text-xs font-semibold text-white">Blocked</span>}
+              {c.role === "admin" ? <span className="rounded bg-slate-900 px-2 py-1 text-xs font-semibold text-white">Admin</span> : <span className="rounded bg-slate-100 px-2 py-1 text-xs font-semibold">Customer</span>}
+            </span>
           </div>
           <dl className="mt-5 grid grid-cols-2 gap-4 text-sm sm:grid-cols-5">
             {[["Joined", formatDate(c.created_at)], ["Last login", c.last_sign_in_at ? formatDate(c.last_sign_in_at) : "Never"], ["Orders", String(c.orders)], ["Total spent", formatINR(c.spent)], ["PCB repairs", String(c.repairs)]].map(([k, v]) => (
@@ -84,8 +95,15 @@ function CustomerDetail() {
           ) : (
             <button onClick={() => setRole("admin")} className="w-full rounded-md bg-slate-900 px-3 py-2 font-semibold text-white hover:bg-slate-700">Make admin</button>
           )}
+          {c.id !== user?.id && (
+            c.is_blocked ? (
+              <button onClick={() => setBlocked(false)} className="w-full rounded-md bg-emerald-600 px-3 py-2 font-semibold text-white hover:bg-emerald-700">Unblock user</button>
+            ) : (
+              <button onClick={() => setBlocked(true)} className="w-full rounded-md px-3 py-2 font-semibold text-red-600 ring-1 ring-red-300 hover:bg-red-50">🚫 Block user</button>
+            )
+          )}
           {msg && <p className="text-slate-700">{msg}</p>}
-          <p className="text-xs text-slate-500">Admins can manage products, orders, repairs, banners, coupons and customers.</p>
+          <p className="text-xs text-slate-500">Admins can manage products, orders, repairs, banners, coupons and customers. Blocked users are logged out and can only browse.</p>
         </aside>
       </div>
 

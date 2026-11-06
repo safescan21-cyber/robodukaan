@@ -58,6 +58,7 @@ export async function Footer() {
             <li><Link href="/pcb-repair" className="hover:text-white">PCB repair service</Link></li>
             <li><Link href="/contact" className="hover:text-white">Contact us</Link></li>
             <li><Link href="/about" className="hover:text-white">About us</Link></li>
+            <li><Link href="/careers" className="hover:text-white">Careers</Link></li>
             <li><Link href="/shipping-returns" className="hover:text-white">Shipping &amp; returns</Link></li>
             <li><Link href="/privacy" className="hover:text-white">Privacy policy</Link></li>
           </ul>

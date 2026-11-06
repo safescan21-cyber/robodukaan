@@ -19,11 +19,13 @@ export default function AdminDashboard() {
   const [lowStock, setLowStock] = useState<{ id: string; name: string; stock: number }[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [openRepairs, setOpenRepairs] = useState<number | null>(null);
+  const [users, setUsers] = useState<{ total: number; this_week: number; today: number; admins: number; blocked: number } | null>(null);
 
   useEffect(() => {
     const supabase = getSupabase();
     supabase.rpc("admin_stats").then(({ data, error }) => (error ? setError(error.message) : setStats(data as Stats)));
     supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(8).then(({ data }) => setRecent((data as Order[]) ?? []));
+    supabase.rpc("admin_user_counts").then(({ data }) => setUsers(data));
     supabase.from("repair_requests").select("id", { count: "exact", head: true }).in("status", ["new", "reviewing", "approved", "in_repair"])
       .then(({ count }) => setOpenRepairs(count ?? 0));
     supabase.from("products").select("id, name, stock").eq("is_active", true).lte("stock", 5).order("stock").limit(8)
@@ -35,6 +37,15 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Dashboard</h1>
+      <Link href="/admin/customers" className="grid gap-4 rounded-md bg-gradient-to-r from-brand-800 to-brand-600 p-5 text-white sm:grid-cols-5">
+        <div className="sm:col-span-2">
+          <p className="text-xs font-semibold uppercase tracking-wide text-brand-100">Registered users</p>
+          <p className="text-4xl font-extrabold">{users?.total ?? "–"}</p>
+        </div>
+        {[["Today", users?.today], ["This week", users?.this_week], ["Admins", users?.admins]].map(([k, v]) => (
+          <div key={String(k)}><p className="text-xs uppercase text-brand-100">{k}</p><p className="text-2xl font-bold">{v ?? "–"}</p></div>
+        ))}
+      </Link>
       {error && <p className="rounded bg-red-50 p-3 text-sm text-red-700">{error}</p>}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[
