@@ -23,7 +23,18 @@ export async function generateMetadata(): Promise<Metadata> {
   const { t, locale } = await getT();
   return {
     metadataBase: new URL(SITE),
-    icons: { icon: "/favicon.svg" },
+    // Google search shows the PNG/ICO favicon (multiple of 48 px) next to results.
+    icons: {
+      icon: [
+        { url: "/favicon.ico", sizes: "16x16 32x32 48x48" },
+        { url: "/icon-48.png", sizes: "48x48", type: "image/png" },
+        { url: "/icon-96.png", sizes: "96x96", type: "image/png" },
+        { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+        { url: "/favicon.svg", type: "image/svg+xml" },
+      ],
+      apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
+    },
+    manifest: "/manifest.webmanifest",
     openGraph: {
       type: "website",
       siteName: "PCBDukaan",
