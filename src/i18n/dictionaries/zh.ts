@@ -559,6 +559,11 @@ const dict: Record<string, string> = {
   "product.techData": "技术资料",
   "product.download": "下载",
   "product.newBadge": "新品",
+  "reviews.helpful": "有帮助吗？",
+  "reviews.like": "赞",
+  "reviews.dislike": "踩",
+  "reviews.loginToVote": "登录后投票",
+  "reviews.reply": "PCBDukaan 回复",
 };
 
 export default dict;

@@ -3,6 +3,7 @@
 import Link from "@/i18n/client";
 import { useCallback, useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase-browser";
+import { postAsUser } from "@/lib/api-client";
 import type { Review } from "@/lib/types";
 import { formatDate } from "@/lib/format";
 import { useAuth } from "./AuthProvider";
@@ -10,13 +11,15 @@ import { Stars } from "./Stars";
 import { useI18n } from "@/i18n/client";
 
 export function ProductReviews({ productId, slug }: { productId: string; slug: string }) {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [reviews, setReviews] = useState<Review[] | null>(null);
   const { t } = useI18n();
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [myVotes, setMyVotes] = useState<Record<string, number>>({});
+  const [voteError, setVoteError] = useState<{ id: string; text: string } | null>(null);
 
   const load = useCallback(async () => {
     const { data } = await getSupabase()
@@ -28,6 +31,38 @@ export function ProductReviews({ productId, slug }: { productId: string; slug: s
       .limit(50);
     setReviews((data as Review[]) ?? []);
   }, [productId]);
+
+  // Which reviews this customer already liked (1) or disliked (-1).
+  useEffect(() => {
+    if (!user || !reviews?.length) return;
+    getSupabase().from("review_votes").select("review_id, vote").in("review_id", reviews.map((r) => r.id))
+      .then(({ data }) => setMyVotes(Object.fromEntries((data ?? []).map((v) => [v.review_id as string, v.vote as number]))));
+  }, [user, reviews]);
+
+  async function vote(r: Review, value: 1 | -1) {
+    setVoteError(null);
+    const next = myVotes[r.id] === value ? 0 : value; // clicking the same button again removes the vote
+    const { data, error } = await getSupabase().rpc("vote_review", { p_review: r.id, p_vote: next });
+    if (error) {
+      setVoteError({ id: r.id, text: error.message.includes("vote_review") ? t("common.error") : error.message });
+      return;
+    }
+    setMyVotes((m) => ({ ...m, [r.id]: next }));
+    setReviews((list) => list?.map((x) => (x.id === r.id ? { ...x, likes: data.likes, dislikes: data.dislikes } : x)) ?? null);
+  }
+
+  // Admin tools on the product page: reply and hide.
+  async function saveReply(r: Review, reply: string) {
+    const { error } = await getSupabase().from("reviews").update({ admin_reply: reply.trim() || null }).eq("id", r.id);
+    if (error) alert(error.message);
+    else load();
+  }
+  async function hide(r: Review) {
+    if (!confirm("Hide this review from the shop?")) return;
+    const { error } = await getSupabase().from("reviews").update({ is_hidden: true }).eq("id", r.id);
+    if (error) alert(error.message);
+    else { load(); postAsUser("/api/revalidate"); }
+  }
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch on mount
@@ -57,6 +92,7 @@ export function ProductReviews({ productId, slug }: { productId: string; slug: s
     else {
       setMessage(t("reviews.saved"));
       load();
+      postAsUser("/api/revalidate", { reason: "review" }); // update the review count and stars on the page
     }
   }
 
@@ -140,11 +176,66 @@ export function ProductReviews({ productId, slug }: { productId: string; slug: s
                   <span className="text-xs text-slate-400">{formatDate(r.created_at)}</span>
                 </div>
                 <p className="mt-1.5 whitespace-pre-line text-sm text-slate-700">{r.comment}</p>
+
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                  <span className="text-slate-500">{t("reviews.helpful")}</span>
+                  {([[1, "👍", r.likes ?? 0, "reviews.like"], [-1, "👎", r.dislikes ?? 0, "reviews.dislike"]] as const).map(([value, icon, n, label]) => {
+                    const own = r.user_id === user?.id;
+                    const active = myVotes[r.id] === value;
+                    const cls = `inline-flex items-center gap-1 rounded-full px-2.5 py-1 ring-1 ${active ? "bg-brand-600 text-white ring-brand-600" : "bg-white text-slate-700 ring-slate-300 hover:ring-brand-600"}`;
+                    return user && !own ? (
+                      <button key={value} type="button" onClick={() => vote(r, value)} aria-pressed={active} aria-label={`${t(label)} (${n})`} className={cls}>
+                        <span aria-hidden="true">{icon}</span>{n}
+                      </button>
+                    ) : user ? (
+                      <span key={value} className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1 text-slate-500 ring-1 ring-slate-200" aria-label={`${t(label)} (${n})`}><span aria-hidden="true">{icon}</span>{n}</span>
+                    ) : (
+                      <Link key={value} href={`/login?next=/products/${slug}`} className={cls} aria-label={`${t("reviews.loginToVote")} – ${t(label)} (${n})`}><span aria-hidden="true">{icon}</span>{n}</Link>
+                    );
+                  })}
+                  {voteError?.id === r.id && <span className="text-red-600" role="alert">{voteError.text}</span>}
+                </div>
+
+                {r.admin_reply && (
+                  <div className="mt-3 rounded-md border-s-4 border-brand-600 bg-brand-50 px-3 py-2 text-sm">
+                    <p className="text-xs font-bold text-brand-800">{t("reviews.reply")}{r.admin_reply_at ? ` · ${formatDate(r.admin_reply_at)}` : ""}</p>
+                    <p className="mt-0.5 whitespace-pre-line text-slate-700">{r.admin_reply}</p>
+                  </div>
+                )}
+
+                {isAdmin && <AdminReviewTools review={r} onReply={saveReply} onHide={hide} />}
               </li>
             ))}
           </ul>
         )}
       </div>
+    </div>
+  );
+}
+
+// Admin only: reply (shown under the review as "Reply from PCBDukaan") and hide.
+function AdminReviewTools({ review, onReply, onHide }: { review: Review; onReply: (r: Review, text: string) => Promise<void>; onHide: (r: Review) => void }) {
+  const [open, setOpen] = useState(false);
+  const [text, setText] = useState(review.admin_reply ?? "");
+  const [saving, setSaving] = useState(false);
+  return (
+    <div className="mt-2 text-xs">
+      {!open ? (
+        <div className="flex gap-3">
+          <button type="button" onClick={() => setOpen(true)} className="font-semibold text-brand-700 hover:underline">{review.admin_reply ? "Edit reply" : "Reply"}</button>
+          <button type="button" onClick={() => onHide(review)} className="font-semibold text-red-600 hover:underline">Hide review</button>
+          <span className="text-slate-400">(admin only)</span>
+        </div>
+      ) : (
+        <form onSubmit={async (e) => { e.preventDefault(); setSaving(true); await onReply(review, text); setSaving(false); setOpen(false); }} className="space-y-2">
+          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} maxLength={1500} placeholder="Reply as PCBDukaan (leave empty to remove the reply)"
+            className="w-full rounded border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600" />
+          <div className="flex gap-2">
+            <button disabled={saving} className="rounded bg-brand-600 px-3 py-1.5 font-semibold text-white disabled:opacity-60">{saving ? "Saving…" : "Save reply"}</button>
+            <button type="button" onClick={() => setOpen(false)} className="rounded px-3 py-1.5 font-semibold ring-1 ring-slate-300">Cancel</button>
+          </div>
+        </form>
+      )}
     </div>
   );
 }

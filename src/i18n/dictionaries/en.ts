@@ -560,6 +560,11 @@ const dict: Record<string, string> = {
   "product.techData": "Technical data",
   "product.download": "Download",
   "product.newBadge": "New",
+  "reviews.helpful": "Helpful?",
+  "reviews.like": "Like",
+  "reviews.dislike": "Dislike",
+  "reviews.loginToVote": "Log in to vote",
+  "reviews.reply": "Reply from PCBDukaan",
 };
 
 export default dict;

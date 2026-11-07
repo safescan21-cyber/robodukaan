@@ -67,6 +67,10 @@ export type Review = {
   comment: string;
   verified: boolean;
   is_hidden: boolean;
+  likes?: number;
+  dislikes?: number;
+  admin_reply?: string | null;
+  admin_reply_at?: string | null;
   created_at: string;
 };
 

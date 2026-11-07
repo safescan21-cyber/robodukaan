@@ -559,6 +559,11 @@ const dict: Record<string, string> = {
   "product.techData": "기술 자료",
   "product.download": "다운로드",
   "product.newBadge": "신상품",
+  "reviews.helpful": "도움이 되었나요?",
+  "reviews.like": "좋아요",
+  "reviews.dislike": "싫어요",
+  "reviews.loginToVote": "투표하려면 로그인하세요",
+  "reviews.reply": "PCBDukaan 답변",
 };
 
 export default dict;

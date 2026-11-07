@@ -40,6 +40,13 @@ export default function AdminReviewsPage() {
     revalidateCatalog();
     load();
   }
+  async function saveReply(r: Row, form: HTMLFormElement) {
+    const reply = String(new FormData(form).get("reply") ?? "").trim();
+    const { error } = await getSupabase().from("reviews").update({ admin_reply: reply || null }).eq("id", r.id);
+    if (error) return alert(error.message.includes("admin_reply") ? "Run supabase/migrations/RUN-IN-SUPABASE.sql (update 011) in Supabase first." : error.message);
+    revalidateCatalog();
+    load();
+  }
   async function remove(r: Row) {
     if (!confirm("Delete this review permanently?")) return;
     await getSupabase().from("reviews").delete().eq("id", r.id);
@@ -71,6 +78,13 @@ export default function AdminReviewsPage() {
               </div>
               {r.product && <Link href={`/products/${r.product.slug}`} target="_blank" className="text-xs text-brand-700 hover:underline">{r.product.name}</Link>}
               <p className="mt-1 whitespace-pre-line text-slate-700">{r.comment}</p>
+              <p className="mt-1 text-xs text-slate-500">👍 {r.likes ?? 0} · 👎 {r.dislikes ?? 0}</p>
+              <form key={r.admin_reply ?? ""} onSubmit={(e) => { e.preventDefault(); saveReply(r, e.currentTarget); }} className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-start">
+                <textarea name="reply" defaultValue={r.admin_reply ?? ""} rows={2} maxLength={1500} placeholder="Reply as PCBDukaan (shown under the review; empty = no reply)"
+                  className={`${adminField} mt-0 flex-1`} aria-label="Reply" />
+                <button className="shrink-0 rounded-md bg-brand-600 px-3 py-2 text-xs font-semibold text-white hover:bg-brand-700">{r.admin_reply ? "Update reply" : "Reply"}</button>
+              </form>
+              {r.admin_reply_at && <p className="mt-1 text-[11px] text-slate-400">Replied {formatDate(r.admin_reply_at)}</p>}
             </div>
             <div className="flex items-start gap-3 text-xs font-semibold">
               <button onClick={() => setHidden(r, !r.is_hidden)} className="text-brand-700 hover:underline">{r.is_hidden ? "Show" : "Hide"}</button>

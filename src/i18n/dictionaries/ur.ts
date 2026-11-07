@@ -559,6 +559,11 @@ const dict: Record<string, string> = {
   "product.techData": "تکنیکی ڈیٹا",
   "product.download": "ڈاؤن لوڈ",
   "product.newBadge": "نیا",
+  "reviews.helpful": "کیا یہ مددگار تھا؟",
+  "reviews.like": "پسند",
+  "reviews.dislike": "ناپسند",
+  "reviews.loginToVote": "ووٹ دینے کے لیے لاگ اِن کریں",
+  "reviews.reply": "PCBDukaan کا جواب",
 };
 
 export default dict;
