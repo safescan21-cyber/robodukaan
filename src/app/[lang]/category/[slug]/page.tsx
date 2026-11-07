@@ -12,7 +12,7 @@ export async function generateMetadata(props: PageProps<"/[lang]/category/[slug]
   const category = await getCategory(slug);
   const { t } = await getT();
   return category
-    ? { title: category.name, description: category.description ?? undefined, alternates: await alternatesFor(`/category/${category.slug}`) }
+    ? { title: t("meta.categoryTitle", { name: category.name }), description: [category.description, t("meta.categoryTail")].filter(Boolean).join(" "), alternates: await alternatesFor(`/category/${category.slug}`) }
     : { title: t("category.notFound") };
 }
 

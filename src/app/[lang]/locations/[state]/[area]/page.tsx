@@ -23,8 +23,8 @@ export async function generateMetadata(props: PageProps<"/[lang]/locations/[stat
   const s = getState(state);
   if (!x || !s) return { title: "Not found" };
   return {
-    title: `PCB repair & industrial electronics in ${x.name}, ${x.city}`,
-    description: `Industrial PCB repair and supply for ${listText(x.industries.map((i) => INDUSTRY_LABEL[i]))} units in ${x.name}, ${x.city} (${s.name}). SMPS, drive boards, PLC modules, sensors. Free repair quote.`,
+    title: `PCB repair & electronics in ${x.name}, ${x.city}`,
+    description: clip(`Industrial PCB repair and supply for ${listText(x.industries.map((i) => INDUSTRY_LABEL[i]))} units in ${x.name}, ${x.city} (${s.name}). SMPS, drive boards, PLC modules, sensors. Free repair quote.`),
     alternates: { canonical: `/locations/${s.slug}/${x.slug}` },
   };
 }
@@ -117,4 +117,10 @@ async function AreaContent({ params }: Pick<PageProps<"/[lang]/locations/[state]
       </div>
     </>
   );
+}
+
+// Search engines show about 160 characters; cut at a word boundary.
+function clip(text: string, max = 158) {
+  if (text.length <= max) return text;
+  return `${text.slice(0, text.lastIndexOf(" ", max - 1)).replace(/[,.;:–-]+$/, "")}…`;
 }

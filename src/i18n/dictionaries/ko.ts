@@ -497,6 +497,13 @@ const dict: Record<string, string> = {
   "wishlist.mine": "내 위시리스트",
   "wishlist.remove": "위시리스트에서 삭제",
   "wishlist.title": "위시리스트",
+  "meta.products": "산업용 PCB 온라인 구매: 제어 보드, SMPS, VFD 드라이브 보드, PLC 모듈, 로드셀 및 센서. GST 인보이스, 착불 결제, 인도 전역 배송.",
+  "meta.about": "PCBDukaan은 인도 전역의 공장, OEM, 패널 제작업체에 검증된 산업용 전자 부품을 공급하고 고장 난 PCB를 부품 단위로 수리합니다.",
+  "meta.contact": "산업용 PCB, 전원 공급 장치, 드라이브 보드 선택, 주문 문의 또는 PCB 수리는 PCBDukaan에 문의하세요. 월요일–토요일 상담.",
+  "meta.privacy": "쇼핑하거나 PCB 수리를 맡길 때 PCBDukaan이 개인정보를 수집, 이용, 보호하는 방법.",
+  "meta.shipping": "PCBDukaan 배송, 반품 및 취소: ₹499 이상 무료 배송, 24시간 내 출고, 2–7일 내 배송, 7일 이내 교환.",
+  "meta.categoryTitle": "{name} – 인도 온라인 구매",
+  "meta.categoryTail": "GST 인보이스, 착불 결제, 인도 전역 배송으로 온라인 구매하세요.",
 };
 
 export default dict;

@@ -7,7 +7,7 @@ import { getT, alternatesFor } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getT();
-  return { title: t("shop.title"), alternates: await alternatesFor("/products") };
+  return { title: t("shop.title"), description: t("meta.products"), alternates: await alternatesFor("/products") };
 }
 
 export default async function ProductsPage(props: PageProps<"/[lang]/products">) {

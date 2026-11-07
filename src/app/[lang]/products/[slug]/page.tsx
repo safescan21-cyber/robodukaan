@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Link from "@/i18n/client";
 import { getProduct, getRelatedProducts } from "@/lib/data";
-import { discountPercent, formatINR, FREE_SHIPPING_FROM, GST_RATE, gstFor, productImage } from "@/lib/format";
+import { discountPercent, formatINR, FREE_SHIPPING_FROM, GST_RATE, gstFor, productImage, shippingFor } from "@/lib/format";
 import { JsonLd } from "@/components/JsonLd";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://pcbdukaan.com";
@@ -148,6 +148,25 @@ async function ProductDetail({ params }: Pick<PageProps<"/[lang]/products/[slug]
       availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       itemCondition: "https://schema.org/NewCondition",
       seller: { "@type": "Organization", name: "PCBDukaan" },
+      // Shipping & returns as on /shipping-returns: free over ₹499 (else ₹49), dispatch in 1 day, 2–7 days in transit,
+      // replacement within 7 days for damaged or defective items.
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: { "@type": "MonetaryAmount", value: shippingFor(product.price), currency: "INR" },
+        shippingDestination: { "@type": "DefinedRegion", addressCountry: "IN" },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 1, unitCode: "DAY" },
+          transitTime: { "@type": "QuantitativeValue", minValue: 2, maxValue: 7, unitCode: "DAY" },
+        },
+      },
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "IN",
+        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: 7,
+        returnMethod: "https://schema.org/ReturnByMail",
+      },
     },
     ...(product.rating_count > 0 ? { aggregateRating: { "@type": "AggregateRating", ratingValue: product.rating_avg.toFixed(1), reviewCount: product.rating_count } } : {}),
   };

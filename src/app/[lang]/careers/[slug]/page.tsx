@@ -4,13 +4,20 @@ import { getJob } from "@/lib/data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JobApplyForm } from "@/components/JobApplyForm";
 import { formatDate } from "@/lib/format";
-import { getT } from "@/i18n/server";
+import { alternatesFor, getT } from "@/i18n/server";
+import { JsonLd } from "@/components/JsonLd";
+import { SELLER, STORE } from "@/lib/constants";
+
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://pcbdukaan.com";
+const EMPLOYMENT: Record<string, string> = { "full-time": "FULL_TIME", "part-time": "PART_TIME", contract: "CONTRACTOR", internship: "INTERN", temporary: "TEMPORARY" };
 
 export async function generateMetadata(props: PageProps<"/[lang]/careers/[slug]">) {
   const { slug } = await props.params;
   const job = await getJob(slug);
   const { t } = await getT();
-  return job ? { title: `${job.title} – ${t("nav.careers")}`, description: job.description.slice(0, 155) } : { title: t("careers.notFound") };
+  return job
+    ? { title: `${job.title} – ${t("nav.careers")}`, description: job.description.slice(0, 155), alternates: await alternatesFor(`/careers/${job.slug}`) }
+    : { title: t("careers.notFound") };
 }
 
 export default function JobPage(props: PageProps<"/[lang]/careers/[slug]">) {
@@ -32,6 +39,21 @@ async function JobDetail({ params }: Pick<PageProps<"/[lang]/careers/[slug]">, "
   return (
     <>
       <Breadcrumbs items={[{ label: t("nav.careers"), href: "/careers" }, { label: job.title }]} />
+      {job.is_open && (
+        // Google for Jobs listing
+        <JsonLd data={{
+          "@context": "https://schema.org",
+          "@type": "JobPosting",
+          title: job.title,
+          description: [job.description, reqs.length ? `Requirements: ${reqs.join("; ")}` : ""].filter(Boolean).join("\n\n"),
+          datePosted: job.created_at.slice(0, 10),
+          employmentType: EMPLOYMENT[job.employment_type.toLowerCase()] ?? job.employment_type,
+          hiringOrganization: { "@type": "Organization", name: SELLER.companyName || STORE.name, sameAs: SITE, logo: `${SITE}/logo-mark.svg` },
+          jobLocation: { "@type": "Place", address: { "@type": "PostalAddress", addressLocality: job.location, addressCountry: "IN" } },
+          ...(job.experience ? { experienceRequirements: job.experience } : {}),
+          url: `${SITE}/careers/${job.slug}`,
+        }} />
+      )}
       <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
         <article className="rounded-md bg-white p-6 ring-1 ring-slate-200">
           <h1 className="text-2xl font-bold">{job.title}</h1>

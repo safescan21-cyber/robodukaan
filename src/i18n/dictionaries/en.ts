@@ -498,6 +498,13 @@ const dict: Record<string, string> = {
   "wishlist.mine": "My wishlist",
   "wishlist.remove": "Remove from wishlist",
   "wishlist.title": "Your wishlist",
+  "meta.products": "Shop industrial PCBs online: control boards, SMPS, VFD drive boards, PLC modules, load cells and sensors. GST invoice, cash on delivery, delivery across India.",
+  "meta.about": "PCBDukaan supplies tested industrial electronics to factories, OEMs and panel builders across India and repairs faulty PCBs at component level.",
+  "meta.contact": "Contact PCBDukaan for help choosing industrial PCBs, power supplies and drive boards, order questions or PCB repair. Support Monday to Saturday.",
+  "meta.privacy": "How PCBDukaan collects, uses and protects your personal information when you shop or send PCBs for repair.",
+  "meta.shipping": "PCBDukaan shipping, returns and cancellations: free shipping over ₹499, dispatch in 24 hours, delivery in 2–7 days, 7-day replacement.",
+  "meta.categoryTitle": "{name} – buy online in India",
+  "meta.categoryTail": "Buy online with GST invoice, cash on delivery and delivery across India.",
 };
 
 export default dict;

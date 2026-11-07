@@ -5,7 +5,7 @@ import { getT, alternatesFor } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getT();
-  return { title: t("nav.contact"), alternates: await alternatesFor("/contact") };
+  return { title: t("nav.contact"), description: t("meta.contact"), alternates: await alternatesFor("/contact") };
 }
 
 export default async function ContactPage() {

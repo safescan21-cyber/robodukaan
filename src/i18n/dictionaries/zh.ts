@@ -497,6 +497,13 @@ const dict: Record<string, string> = {
   "wishlist.mine": "我的收藏夹",
   "wishlist.remove": "从收藏夹移除",
   "wishlist.title": "您的收藏夹",
+  "meta.products": "在线选购工业 PCB：控制板、SMPS、VFD 驱动板、PLC 模块、称重传感器和传感器。GST 发票，货到付款，全印度配送。",
+  "meta.about": "PCBDukaan 为全印度的工厂、OEM 和配电柜制造商供应经过测试的工业电子产品，并对故障 PCB 进行元件级维修。",
+  "meta.contact": "选择工业 PCB、电源和驱动板，咨询订单或 PCB 维修，请联系 PCBDukaan。周一至周六提供服务。",
+  "meta.privacy": "您购物或送修 PCB 时，PCBDukaan 如何收集、使用和保护您的个人信息。",
+  "meta.shipping": "PCBDukaan 配送、退货与取消：满 ₹499 免运费，24 小时内发货，2–7 天送达，7 天换货。",
+  "meta.categoryTitle": "{name} – 印度在线选购",
+  "meta.categoryTail": "在线选购，提供 GST 发票、货到付款和全印度配送。",
 };
 
 export default dict;

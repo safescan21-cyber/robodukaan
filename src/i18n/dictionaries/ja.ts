@@ -497,6 +497,13 @@ const dict: Record<string, string> = {
   "wishlist.mine": "ほしい物リスト",
   "wishlist.remove": "ほしい物リストから削除",
   "wishlist.title": "ほしい物リスト",
+  "meta.products": "産業用PCBをオンラインで購入：制御基板、SMPS、VFDドライブ基板、PLCモジュール、ロードセル、センサー。GSTインボイス、代金引換、インド全土に配送。",
+  "meta.about": "PCBDukaanはインド全土の工場、OEM、制御盤メーカーに検査済みの産業用電子機器を供給し、故障したPCBを部品レベルで修理します。",
+  "meta.contact": "産業用PCB、電源、ドライブ基板の選定、ご注文、PCB修理についてはPCBDukaanへお問い合わせください。月曜〜土曜対応。",
+  "meta.privacy": "お買い物やPCB修理の依頼の際に、PCBDukaanが個人情報をどのように収集・利用・保護するか。",
+  "meta.shipping": "PCBDukaanの配送・返品・キャンセル：₹499以上で送料無料、24時間以内に発送、2〜7日でお届け、7日以内の交換。",
+  "meta.categoryTitle": "{name} – インドでオンライン購入",
+  "meta.categoryTail": "GSTインボイス、代金引換、インド全土配送でオンライン購入。",
 };
 
 export default dict;

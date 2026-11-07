@@ -497,6 +497,13 @@ const dict: Record<string, string> = {
   "wishlist.mine": "Ma liste d’envies",
   "wishlist.remove": "Retirer de la liste d’envies",
   "wishlist.title": "Votre liste d’envies",
+  "meta.products": "PCB industriels en ligne : cartes de commande, SMPS, cartes VFD, modules PLC, capteurs. Facture GST, paiement à la livraison, livraison dans toute l’Inde.",
+  "meta.about": "PCBDukaan fournit de l’électronique industrielle testée aux usines, OEM et intégrateurs dans toute l’Inde et répare les PCB défectueux au niveau composant.",
+  "meta.contact": "Contactez PCBDukaan pour choisir un PCB industriel, une alimentation ou une carte de variateur, une commande ou une réparation. Du lundi au samedi.",
+  "meta.privacy": "Comment PCBDukaan collecte, utilise et protège vos informations personnelles lorsque vous achetez ou envoyez des PCB en réparation.",
+  "meta.shipping": "Livraison, retours et annulations PCBDukaan : livraison gratuite dès ₹499, expédition sous 24 h, livraison en 2 à 7 jours, remplacement sous 7 jours.",
+  "meta.categoryTitle": "{name} – achat en ligne en Inde",
+  "meta.categoryTail": "Achat en ligne avec facture GST, paiement à la livraison et livraison dans toute l’Inde.",
 };
 
 export default dict;

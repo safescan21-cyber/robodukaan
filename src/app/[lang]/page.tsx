@@ -16,6 +16,7 @@ export default async function HomePage() {
   const { t } = await getT();
   return (
     <div className="mx-auto max-w-7xl space-y-10 px-4 py-5">
+      <h1 className="sr-only">{t("meta.title")}</h1>
       <Suspense fallback={<div className="h-56 animate-pulse rounded-md bg-slate-200 sm:h-72 lg:h-[340px]" />}>
         <Hero />
       </Suspense>
@@ -71,7 +72,7 @@ async function Hero() {
       ) : (
         <div className="flex h-56 items-center rounded-md bg-gradient-to-r from-brand-800 to-brand-600 px-8 text-white sm:h-72 lg:h-[340px]">
           <div>
-            <h1 className="text-3xl font-extrabold sm:text-4xl">{t("home.heroFallback")}</h1>
+            <p className="text-3xl font-extrabold sm:text-4xl">{t("home.heroFallback")}</p>
             <Link href="/products" className="mt-6 inline-block rounded-md bg-white px-6 py-2.5 font-bold text-slate-900">{t("common.shopNow")}</Link>
           </div>
         </div>

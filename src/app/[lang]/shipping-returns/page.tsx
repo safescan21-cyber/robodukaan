@@ -4,7 +4,7 @@ import { getT, alternatesFor } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getT();
-  return { title: t("nav.shipping"), alternates: await alternatesFor("/shipping-returns") };
+  return { title: t("nav.shipping"), description: t("meta.shipping"), alternates: await alternatesFor("/shipping-returns") };
 }
 
 export default async function ShippingReturnsPage() {

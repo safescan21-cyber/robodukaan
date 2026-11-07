@@ -4,7 +4,7 @@ import { getT, alternatesFor } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getT();
-  return { title: t("nav.privacy"), alternates: await alternatesFor("/privacy") };
+  return { title: t("nav.privacy"), description: t("meta.privacy"), alternates: await alternatesFor("/privacy") };
 }
 
 export default async function PrivacyPage() {

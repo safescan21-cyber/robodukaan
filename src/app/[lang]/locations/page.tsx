@@ -5,7 +5,7 @@ import { getT } from "@/i18n/server";
 import { AREAS, STATES, areasIn } from "@/lib/locations";
 
 export const metadata: Metadata = {
-  title: "Areas we serve – industrial PCB repair & supply across India",
+  title: "Areas we serve – PCB repair & supply across India",
   description: "PCBDukaan supplies industrial PCBs, SMPS, drive boards and PLC modules and repairs faulty boards for factories in every Indian state and major industrial area.",
   alternates: { canonical: "/locations" },
 };
