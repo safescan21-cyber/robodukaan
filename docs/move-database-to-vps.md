@@ -60,7 +60,18 @@ It must show your VPS IP. If it shows nothing, wait a few more minutes.
 
 ## Part C – Move the database
 
-### Option 1 – everything in one command (easiest)
+### Option 0 – fully automatic (run once, then close the terminal)
+
+```bash
+sudo bash /opt/robodukaan/deploy/vps-db/auto-move.sh
+```
+
+Enter the connection string and storage keys once. The server then waits until the DNS record works,
+installs Supabase, waits for the night (1–5 AM), copies everything, checks the counts, switches the website,
+tests it (and switches back by itself if something fails), and **emails you the result**.
+Progress: `sudo tail -f /var/log/pcbdukaan-move.log` · Cancel: `sudo systemctl stop pcbdukaan-move`
+
+### Option 1 – everything in one command (you watch it)
 
 ```bash
 sudo bash /opt/robodukaan/deploy/vps-db/move-all.sh
