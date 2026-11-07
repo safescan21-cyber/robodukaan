@@ -1,56 +1,143 @@
-# Move the database from Supabase cloud to your VPS
+# Move the database from Supabase cloud to your VPS – step by step
 
-Everything can be done from a phone: open **Hostinger → VPS → Browser terminal** and paste one line per step.
-The website keeps working on Supabase cloud until step 3, and step 3 can be undone with one command.
+Do this whenever you are ready. Everything works from a phone:
+**Hostinger → VPS → Browser terminal**, then copy-paste one line at a time.
+The website keeps using Supabase cloud until the last step, and that step can be undone.
 
-## Before you start (5 minutes, in a phone browser)
+Never paste passwords or keys into a chat – only into the server terminal.
 
-1. **DNS record** – Hostinger → Domains → pcbdukaan.com → DNS → *Add record*:
-   Type **A**, Name **api**, Points to **your VPS IP**, TTL default. (Using Cloudflare? Add it there, grey cloud.)
-2. **Database connection string** – Supabase → your project → **Connect** → *Session pooler* → copy.
-   Replace `[YOUR-PASSWORD]` with your database password (forgot it? Project Settings → Database → Reset).
-   *Skip this if you already set up the daily backup – it is reused.*
-3. **Storage keys** – Supabase → Project Settings → **Storage** → *S3 Connection* → **New access key**.
-   Keep the *Access key ID* and *Secret access key* (the secret is shown only once).
+---
 
-Paste passwords and keys only into the server terminal – never into chat.
+## Part A – Get ready (phone browser, 10 minutes)
 
-## Step 1 – install Supabase on the VPS (10–20 minutes)
+### A1. Add the DNS record
+Hostinger → **Domains** → pcbdukaan.com → **DNS / Nameservers** → **Add record**
 
+| Type | Name | Points to | TTL |
+|---|---|---|---|
+| A | api | your VPS IP (e.g. 201.18.216.159) | default |
+
+(If your domain uses Cloudflare, add the same record in Cloudflare with the cloud **grey / DNS only**.)
+Wait 10 minutes.
+
+### A2. Copy the database connection string
+Supabase → your project → **Connect** (top) → **Session pooler** → copy the URI.
+Replace `[YOUR-PASSWORD]` with your database password.
+Forgot it? Project Settings → Database → **Reset database password**.
+
+### A3. Create storage keys (for photos and documents)
+Supabase → **Project Settings** → **Storage** → **S3 Connection** → **New access key**.
+Note the **Access key ID** and **Secret access key** (the secret is shown only once).
+
+---
+
+## Part B – On the server (Hostinger browser terminal)
+
+### B1. Check the server and get the newest scripts
+
+```bash
+free -h; df -h /
+```
+You need **4 GB RAM or more** (the "total" column) and **10 GB free disk** ("Avail").
+
+```bash
+sudo bash /opt/robodukaan/deploy/update.sh
+```
+
+```bash
+ls /opt/robodukaan/deploy/vps-db/
+```
+You should see: `1-install.sh  2-copy-data.sh  3-switch.sh  move-all.sh`
+
+### B2. Check the DNS record works
+
+```bash
+getent hosts api.pcbdukaan.com
+```
+It must show your VPS IP. If it shows nothing, wait a few more minutes.
+
+---
+
+## Part C – Move the database
+
+### Option 1 – everything in one command (easiest)
+
+```bash
+sudo bash /opt/robodukaan/deploy/vps-db/move-all.sh
+```
+
+It asks for the connection string (A2) and the two storage keys (A3), copies everything, and at the end asks
+**"Switch the website now?"** – type `yes` to switch, or anything else to stay on the cloud.
+
+### Option 2 – one step at a time
+
+**Step 1 – install Supabase on the VPS (10–20 minutes)**
 ```bash
 sudo bash /opt/robodukaan/deploy/vps-db/1-install.sh
 ```
+Write down the dashboard password shown at the end (dashboard: https://api.pcbdukaan.com, user `admin`).
 
-At the end it shows the dashboard address `https://api.pcbdukaan.com` with user `admin` and a password – write it down.
-
-## Step 2 – copy all data and files (a few minutes)
-
+**Step 2 – copy all data and files (safe to repeat)**
 ```bash
 sudo bash /opt/robodukaan/deploy/vps-db/2-copy-data.sh
 ```
+Check that the "cloud" and "VPS" numbers at the end match.
 
-It asks for the connection string and the two storage keys, copies customers (with their passwords), products,
-orders, reviews, repairs, quotes and all photos/documents, and shows cloud vs VPS counts. Safe to run again.
-
-## Step 3 – switch the website (best at night)
-
-Run step 2 once more (for the newest orders), then straight away:
-
+**Step 3 – switch the website (best at night)**
+Run step 2 once more for the newest orders, then:
 ```bash
 sudo bash /opt/robodukaan/deploy/vps-db/3-switch.sh
 ```
 
-Then test: log in, open a product, place a test order, open the admin panel.
+---
 
-**Undo** (back to Supabase cloud):
+## Part D – Test after switching
+
+1. Open https://pcbdukaan.com – products and photos show.
+2. Log in with your account (same password as before).
+3. Open the admin panel – orders and products are there.
+4. Place a small test order, then cancel it in admin.
+5. Log out and use "login with code" – the email code arrives.
+
+### Something wrong? Go back to the cloud
 
 ```bash
 sudo bash /opt/robodukaan/deploy/vps-db/3-switch.sh --back
 ```
 
-## After the move
+---
 
-- Nightly backup at 2:30 AM of the database and files → `/var/backups/pcbdukaan` (14 days).
-- Keep the cloud project for a few weeks as a fallback; it pauses by itself and costs nothing.
-- Login codes and password emails are sent from your own mailbox with the PCBDukaan design.
-- Check disk space now and then: `df -h /`
+## Part E – Useful commands later
+
+Is Supabase running?
+```bash
+cd /opt/supabase && sudo docker compose ps
+```
+
+Restart Supabase:
+```bash
+cd /opt/supabase && sudo docker compose restart
+```
+
+Backups (made every night at 2:30 AM, kept 14 days):
+```bash
+sudo ls -lh /var/backups/pcbdukaan
+```
+
+Make a backup now:
+```bash
+sudo systemctl start robodukaan-backup
+```
+
+Disk space:
+```bash
+df -h /
+```
+
+Dashboard password (if you lost it):
+```bash
+sudo grep ^DASHBOARD_PASSWORD /opt/supabase/.env
+```
+
+If any step stops with a line starting with `!!`, that line says what is wrong.
+Keep the Supabase cloud project for a few weeks after switching as a fallback – it costs nothing.
