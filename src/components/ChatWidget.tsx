@@ -12,8 +12,10 @@ const QUICK = ["chat.q1", "chat.q2", "chat.q3", "chat.q4"];
 const SEEN_KEY = "pcbdukaan-chat-greeted";
 
 // Turns links like /products/x and [text](/products/x) into clickable links.
-function RichText({ text }: { text: string }) {
+function RichText({ text: raw }: { text: string }) {
   const { t } = useI18n();
+  // The model sometimes writes full addresses (https://www.pcbdukaan.com/products/x); keep just the path.
+  const text = raw.replace(/https?:\/\/(?:www\.)?pcbdukaan\.(?:com|in)(?=\/)/gi, "");
   const parts: React.ReactNode[] = [];
   const re = /\[([^\]]+)\]\((\/[a-z0-9/_-]+)\)|(\/(?:products|category)\/[a-z0-9_-]+|\/pcb-repair)\b|\*\*([^*]+)\*\*/gi;
   let last = 0;

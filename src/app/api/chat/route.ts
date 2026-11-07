@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { STORE } from "@/lib/constants";
+import { clientIp } from "@/lib/client-ip";
 import { formatINR, productImage } from "@/lib/format";
 
 // Website chat assistant. Answers with a small AI model running on this server
@@ -91,7 +92,7 @@ function fallbackReply(products: FoundProduct[], categories: { name: string; slu
 }
 
 export async function POST(request: Request) {
-  const ip = request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
+  const ip = clientIp(request.headers);
   if (!allowed(ip)) {
     return new Response("You're sending messages very quickly — please wait a few minutes and try again.", { status: 429 });
   }
