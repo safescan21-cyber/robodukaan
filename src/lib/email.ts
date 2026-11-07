@@ -26,7 +26,20 @@ export function adminEmail() {
   return process.env.ADMIN_EMAIL || process.env.SMTP_USER || "";
 }
 
+// Only plain addresses like name@example.com: customers type these into forms, and odd characters
+// (quotes, ; , < > ( )) could otherwise trick a mail library into extra recipients.
+const PLAIN_EMAIL = /^[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,24}$/;
+export function isPlainEmail(value: string | null | undefined): value is string {
+  return !!value && value.length <= 254 && PLAIN_EMAIL.test(value);
+}
+
 async function send(to: string, subject: string, html: string, replyTo?: string) {
+  if (!isPlainEmail(to)) {
+    console.warn(`[email] refused unusual address for "${subject}"`);
+    return false;
+  }
+  if (replyTo && !isPlainEmail(replyTo)) replyTo = undefined;
+  subject = subject.replace(/[\r\n]+/g, " ").slice(0, 200);
   const t = transport();
   if (!t) {
     console.warn(`[email] SMTP not configured; skipped "${subject}" to ${to}`);

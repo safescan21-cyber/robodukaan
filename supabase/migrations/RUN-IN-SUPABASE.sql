@@ -1,46 +1,18 @@
--- PCBDukaan update 014: "Notify me when back in stock".
+-- PCBDukaan update 015: security tightening from the site security check.
 -- Paste into Supabase → SQL Editor → Run. Safe to run more than once.
 
-create table if not exists public.stock_alerts (
-  id          uuid primary key default gen_random_uuid(),
-  product_id  uuid not null references public.products(id) on delete cascade,
-  email       text not null check (email ~ '^[^@\s]+@[^@\s]+\.[^@\s]+$' and length(email) <= 200),
-  user_id     uuid references auth.users(id) on delete set null,
-  created_at  timestamptz not null default now(),
-  notified_at timestamptz
-);
--- One open request per email per product.
-create unique index if not exists stock_alerts_open_key on public.stock_alerts(product_id, lower(email)) where notified_at is null;
-create index if not exists stock_alerts_pending_idx on public.stock_alerts(product_id) where notified_at is null;
-alter table public.stock_alerts enable row level security;
-drop policy if exists "stock alerts: admin read" on public.stock_alerts;
-drop policy if exists "stock alerts: admin update" on public.stock_alerts;
-drop policy if exists "stock alerts: admin delete" on public.stock_alerts;
-create policy "stock alerts: admin read" on public.stock_alerts for select using (public.is_admin());
-create policy "stock alerts: admin update" on public.stock_alerts for update using (public.is_admin());
-create policy "stock alerts: admin delete" on public.stock_alerts for delete using (public.is_admin());
--- No insert policy: requests come in through request_stock_alert() (checks + spam limits).
+-- Internal helper (used by the review trigger) – not callable from the website API.
+revoke all on function public.review_display_name(uuid) from public, anon, authenticated;
 
-create or replace function public.request_stock_alert(p_product uuid, p_email text)
-returns boolean language plpgsql security definer set search_path = public as $$
-declare v_email text := lower(trim(coalesce(p_email, '')));
-begin
-  if v_email !~ '^[^@\s]+@[^@\s]+\.[^@\s]+$' or length(v_email) > 200 then
-    raise exception 'Please enter a valid email';
-  end if;
-  if not exists (select 1 from public.products where id = p_product and is_active) then
-    raise exception 'Product not found';
-  end if;
-  -- Spam limits: 20 requests per email per day, 300 per hour overall.
-  if (select count(*) from public.stock_alerts where lower(email) = v_email and created_at > now() - interval '1 day') >= 20
-     or (select count(*) from public.stock_alerts where created_at > now() - interval '1 hour') >= 300 then
-    raise exception 'Too many requests – please try again later';
-  end if;
-  insert into public.stock_alerts (product_id, email, user_id)
-  values (p_product, v_email, auth.uid())
-  on conflict (product_id, lower(email)) where notified_at is null do nothing;
-  return true;
-end;
-$$;
-revoke all on function public.request_stock_alert(uuid, text) from public;
-grant execute on function public.request_stock_alert(uuid, text) to anon, authenticated;
+-- Size and file-type limits on upload areas that had none (the website already checks
+-- these; the database now enforces them too, so nobody can bypass the website to upload
+-- huge or unexpected files).
+update storage.buckets set file_size_limit = 10485760,
+  allowed_mime_types = array['image/jpeg','image/png','image/webp','image/gif','image/heic','image/heif']
+  where id = 'pcb-repairs';      -- repair photos: 10 MB, images only
+update storage.buckets set file_size_limit = 5242880,
+  allowed_mime_types = array['application/pdf','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+  where id = 'resumes';          -- CVs: 5 MB, PDF / Word only
+update storage.buckets set file_size_limit = 52428800,
+  allowed_mime_types = array['image/jpeg','image/png','image/webp','image/gif','image/svg+xml','video/mp4','video/webm','video/quicktime']
+  where id = 'product-images';   -- product/banner photos and videos (admin only): 50 MB

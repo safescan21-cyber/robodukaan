@@ -6,6 +6,9 @@ const securityHeaders = [
   { key: "X-Frame-Options", value: "SAMEORIGIN" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
+  // Browser rules that don't affect how the site works: no embedding on other sites (clickjacking),
+  // no plugins, no changing the base URL, forms only submit to this site.
+  { key: "Content-Security-Policy", value: "frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" },
 ];
 
 // English lives at the plain address (/products); other languages at /hi/products etc.
