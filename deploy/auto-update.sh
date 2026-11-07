@@ -28,6 +28,15 @@ ensure_report() {
   APP_DIR="$APP_DIR" bash "$APP_DIR/deploy/ensure-report.sh" || log "Could not install the daily report timer"
 }
 
+# Admin panel → "Server move": a folder the website can write the move details into; this root job
+# picks them up and starts deploy/vps-db/auto-move.sh (the details file is deleted right away).
+db_move_pickup() {
+  install -d -m 700 -o "$APP_USER" -g "$APP_USER" /var/lib/robodukaan-move
+  [ -f /var/lib/robodukaan-move/request.json ] && [ -f "$APP_DIR/deploy/vps-db/auto-move.sh" ] || return 0
+  APP_DIR="$APP_DIR" bash "$APP_DIR/deploy/vps-db/auto-move.sh" --pickup >/dev/null 2>&1 || log "Server move pickup failed"
+}
+db_move_pickup
+
 as_app "git fetch -q origin main" || { log "git fetch failed"; exit 1; }
 current=$(as_app "git rev-parse HEAD")
 latest=$(as_app "git rev-parse origin/main")

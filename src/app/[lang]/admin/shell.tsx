@@ -13,6 +13,7 @@ const ITEMS = [
   { href: "/admin/repairs", label: "PCB repairs", icon: "🔧" },
   { href: "/admin/quotes", label: "Bulk quotes", icon: "📑" },
   { href: "/admin/partners", label: "Partners", icon: "🤝" },
+  { href: "/admin/server", label: "Server move", icon: "🖥️" },
   { href: "/admin/products", label: "Products", icon: "🧩" },
   { href: "/admin/categories", label: "Categories", icon: "🗂️" },
   { href: "/admin/customers", label: "Customers", icon: "👥" },

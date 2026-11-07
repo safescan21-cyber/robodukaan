@@ -16,7 +16,12 @@ SECRETS=/etc/robodukaan/move.env
 LOG=/var/log/pcbdukaan-move.log
 [ "$(id -u)" -eq 0 ] || { echo "Please run with sudo."; exit 1; }
 
-log() { echo "$(TZ=Asia/Kolkata date '+%d %b %H:%M') $*" | tee -a "$LOG"; }
+MOVE_DIR=/var/lib/robodukaan-move   # admin panel "Server move" page reads status.log from here
+log() {
+  local line; line="$(TZ=Asia/Kolkata date '+%d %b %H:%M') $*"
+  echo "$line" | tee -a "$LOG"
+  if [ -d "$MOVE_DIR" ]; then echo "$line" >> "$MOVE_DIR/status.log"; chmod 644 "$MOVE_DIR/status.log"; fi
+}
 mail_admin() {  # mail_admin SUBJECT BODY
   [ -f /etc/robodukaan/email.env ] || return 0
   SUBJ="$1" BODY="$2" python3 - <<'PY' || true
@@ -37,6 +42,44 @@ else: s = smtplib.SMTP(e["SMTP_HOST"], port, timeout=30); s.starttls(context=ssl
 s.login(e["SMTP_USER"], e["SMTP_PASS"]); s.send_message(m); s.quit()
 PY
 }
+
+start_background() {
+  systemctl stop pcbdukaan-move 2>/dev/null || true
+  systemd-run --unit=pcbdukaan-move --collect --quiet -p TimeoutStartSec=infinity \
+    --setenv=APP_DIR="$APP_DIR" /bin/bash "$D/auto-move.sh" --run
+  log "Automatic move started."
+}
+
+# ── Called by deploy/auto-update.sh: details entered in the admin panel ("Server move") ─
+if [ "${1:-}" = "--pickup" ]; then
+  REQ="$MOVE_DIR/request.json"
+  [ -f "$REQ" ] || exit 0
+  action=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("action",""))' "$REQ" 2>/dev/null || true)
+  if [ "$action" = cancel ]; then
+    rm -f "$REQ" "$SECRETS"; systemctl stop pcbdukaan-move 2>/dev/null || true
+    log "Cancelled from the admin panel."
+    exit 0
+  fi
+  mkdir -p /etc/robodukaan; umask 077
+  python3 - "$REQ" > "$SECRETS" <<'PY' || { rm -f "$REQ"; log "Could not read the details from the admin panel – please send them again."; exit 0; }
+import json, shlex, sys
+d = json.load(open(sys.argv[1]))
+url = d["cloud_url"]
+region = d.get("s3_region") or ""
+if not region:
+    import re
+    m = re.search(r"@aws-\d+-([a-z0-9-]+)\.pooler\.supabase\.com", url)
+    region = m.group(1) if m else "ap-south-1"
+for k, v in [("CLOUD_URL", url), ("S3_KEY", d["s3_key"]), ("S3_SECRET", d["s3_secret"]),
+             ("S3_REGION", region), ("NIGHT", "1" if d.get("night", True) else "0")]:
+    print(f"{k}={shlex.quote(v)}")
+PY
+  chmod 600 "$SECRETS"; rm -f "$REQ"
+  : > "$MOVE_DIR/status.log"
+  log "Details received from the admin panel."
+  start_background
+  exit 0
+fi
 
 # ── Part 1 (you): collect the details, then hand over to the server ─────────────────
 if [ "${1:-}" != "--run" ]; then
@@ -61,10 +104,7 @@ if [ "${1:-}" != "--run" ]; then
   mkdir -p /etc/robodukaan; umask 077
   printf 'CLOUD_URL=%q\nS3_KEY=%q\nS3_SECRET=%q\nS3_REGION=%q\nNIGHT=%q\n' "$CLOUD_URL" "$S3_KEY" "$S3_SECRET" "$S3_REGION" "$NIGHT" > "$SECRETS"
   chmod 600 "$SECRETS"
-  systemctl stop pcbdukaan-move 2>/dev/null || true
-  systemd-run --unit=pcbdukaan-move --collect --quiet -p TimeoutStartSec=infinity \
-    --setenv=APP_DIR="$APP_DIR" /bin/bash "$D/auto-move.sh" --run
-  log "Automatic move started."
+  start_background
   echo
   echo "Done – you can close this terminal now. The server does the rest and emails you the result."
   echo "Watch progress:  sudo tail -f $LOG"
