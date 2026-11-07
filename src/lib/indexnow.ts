@@ -8,9 +8,25 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://pcbdukaan.com";
 
 // Sends the given paths (e.g. "/products/x") in every language. Never throws.
 export async function pingIndexNow(paths: string[]) {
-  if (!paths.length || !SITE.startsWith("https://")) return false;
+  return submitUrls(paths.flatMap((p) => LOCALES.map((l) => `${SITE}${localizePath(p, l) === "/" ? "" : localizePath(p, l)}`)));
+}
+
+// Every page in the sitemap, including each language version. Returns how many were sent (0 = failed).
+export async function submitWholeSite() {
+  try {
+    const xml = await (await fetch(`${SITE}/sitemap.xml`, { signal: AbortSignal.timeout(20000) })).text();
+    const urls = [...xml.matchAll(/(?:<loc>|hreflang="[^"]+" href=")([^<"]+)/g)].map((m) => m[1]).filter((u) => u.startsWith(SITE));
+    const unique = [...new Set(urls)];
+    return (await submitUrls(unique)) ? unique.length : 0;
+  } catch {
+    return 0;
+  }
+}
+
+async function submitUrls(urls: string[]) {
+  if (!urls.length || !SITE.startsWith("https://")) return false;
   const host = new URL(SITE).host;
-  const urlList = [...new Set(paths.flatMap((p) => LOCALES.map((l) => `${SITE}${localizePath(p, l) === "/" ? "" : localizePath(p, l)}`)))].slice(0, 10000);
+  const urlList = [...new Set(urls)].slice(0, 10000);
   try {
     const res = await fetch("https://api.indexnow.org/indexnow", {
       method: "POST",

@@ -1,5 +1,6 @@
 "use client";
 
+import { SubmitToSearchEngines } from "@/components/admin/SubmitToSearchEngines";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase-browser";
@@ -37,6 +38,7 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Dashboard</h1>
+      <SubmitToSearchEngines />
       <Link href="/admin/customers" className="grid gap-4 rounded-md bg-gradient-to-r from-brand-800 to-brand-600 p-5 text-white sm:grid-cols-5">
         <div className="sm:col-span-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-brand-100">Registered users</p>
