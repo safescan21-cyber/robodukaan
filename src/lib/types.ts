@@ -272,3 +272,53 @@ export type PartnerApplication = {
   admin_notes: string | null;
   created_at: string;
 };
+
+export type Vendor = {
+  id: string;
+  company_name: string;
+  contact_name: string | null;
+  email: string | null;
+  whatsapp: string | null;
+  city: string | null;
+  notes: string | null;
+  is_active: boolean;
+  created_at: string;
+};
+export type VendorAssignmentStatus = "assigned" | "accepted" | "declined" | "dispatched";
+export type VendorAssignment = {
+  id: string;
+  order_id: string;
+  vendor_id: string;
+  token: string;
+  status: VendorAssignmentStatus;
+  admin_note: string | null;
+  assigned_at: string;
+  accepted_at: string | null;
+  dispatched_at: string | null;
+  courier: string | null;
+  tracking_number: string | null;
+  tracking_url: string | null;
+  vendor_note: string | null;
+  notified_at: string | null;
+  vendor?: Vendor | null;
+};
+// What a vendor sees on their private link (database function vendor_order).
+export type VendorOrderView = {
+  status: VendorAssignmentStatus;
+  assigned_at: string;
+  accepted_at: string | null;
+  dispatched_at: string | null;
+  courier: string | null;
+  tracking_number: string | null;
+  tracking_url: string | null;
+  vendor_note: string | null;
+  admin_note: string | null;
+  vendor: string;
+  order_number: string;
+  order_date: string;
+  order_status: OrderStatus;
+  ship_to: { name: string; phone: string; address: string; city: string; state: string; pincode: string; company: string | null; gstin: string | null };
+  notes: string | null;
+  cod_amount: number | null;
+  items: { name: string; sku: string; quantity: number }[];
+};

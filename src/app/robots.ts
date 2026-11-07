@@ -6,7 +6,7 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://pcbdukaan.com";
 // Private areas, blocked in every language (/cart, /hi/cart, /fr/cart …).
 // Login, register, wishlist etc. are not blocked here: they carry a "noindex" tag instead,
 // which search engines can only see if they're allowed to fetch the page.
-const PRIVATE = ["/admin", "/account", "/checkout", "/cart", "/order-success", "/reset-password"];
+const PRIVATE = ["/admin", "/account", "/checkout", "/cart", "/order-success", "/reset-password", "/vendor"];
 
 export default function robots(): MetadataRoute.Robots {
   return {

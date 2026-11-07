@@ -1,8 +1,8 @@
 import "server-only";
 import nodemailer from "nodemailer";
-import { formatINR } from "./format";
+import { formatINR, formatINR2 } from "./format";
 import { REPAIR_STATUS_LABEL } from "./constants";
-import type { Job, JobApplication, Order, OrderItem, PartnerApplication, QuoteRequest, RepairRequest } from "./types";
+import type { Job, JobApplication, Order, OrderItem, PartnerApplication, QuoteRequest, RepairRequest, Vendor, VendorOrderView } from "./types";
 
 // Emails are sent from this server with the SMTP mailbox set in .env.local
 // (deploy/set-email.sh). If SMTP isn't configured, emails are skipped and logged.
@@ -308,4 +308,60 @@ ${[["Name", a.name], ["Business", a.business_name], ["Mobile", a.phone], ["Email
       admin || undefined));
   }
   return results.some(Boolean);
+}
+
+// ── Vendors (suppliers who dispatch orders) ─────────────────────────────────────────────────────
+function vendorItems(items: { name: string; sku: string; quantity: number }[]) {
+  return `<table style="width:100%;border-collapse:collapse;font-size:14px;margin:12px 0">
+<tr><th style="text-align:left;padding:6px 0;border-bottom:2px solid #e2e8f0">Item</th><th style="text-align:right;padding:6px 0;border-bottom:2px solid #e2e8f0">Qty</th></tr>
+${items.map((i) => `<tr><td style="padding:6px 0;border-bottom:1px solid #f1f5f9">${esc(i.name)}<br><span style="color:#64748b;font-size:12px">SKU ${esc(i.sku)}</span></td><td style="padding:6px 0;border-bottom:1px solid #f1f5f9;text-align:right;font-weight:700">${i.quantity}</td></tr>`).join("")}
+</table>`;
+}
+
+function vendorShipTo(v: VendorOrderView) {
+  const s = v.ship_to;
+  return `<p style="margin:12px 0;padding:12px;background:#f8fafc;border-radius:6px;font-size:14px"><b>Ship to:</b><br><b>${esc(s.name)}</b>${s.company ? ` (${esc(s.company)})` : ""}<br>${esc(s.address)}<br>${esc(s.city)}, ${esc(s.state)} – ${esc(s.pincode)}<br>📞 ${esc(s.phone)}</p>`;
+}
+
+// Admin assigned an order to a vendor: the vendor gets the order and their private link.
+export async function sendVendorAssignmentEmail(vendor: Pick<Vendor, "company_name" | "contact_name" | "email">, v: VendorOrderView, link: string) {
+  if (!vendor.email) return false;
+  const cod = v.cod_amount ? `<p style="margin:12px 0;padding:10px 12px;background:#fff7ed;border-radius:6px"><b>Cash on delivery:</b> collect ${formatINR2(v.cod_amount)} from the customer.</p>` : "";
+  return send(vendor.email, `New order to dispatch: ${v.order_number} – PCBDukaan`,
+    layout(`New order ${v.order_number} to dispatch`,
+      `<p>Hello ${esc(vendor.contact_name || vendor.company_name)},</p>
+<p>PCBDukaan has assigned this order to <b>${esc(vendor.company_name)}</b>. Please pack and dispatch it, then mark it dispatched with the courier and tracking number using the button below.</p>
+${vendorItems(v.items)}${vendorShipTo(v)}${cod}
+${v.admin_note ? `<p style="font-size:14px"><b>Note from PCBDukaan:</b> ${esc(v.admin_note)}</p>` : ""}
+${v.notes ? `<p style="font-size:14px"><b>Customer note:</b> ${esc(v.notes)}</p>` : ""}
+<p style="font-size:13px;color:#64748b">Keep this email private – the button is your personal link for this order.</p>`,
+      { label: "Open order & mark dispatched", href: link }),
+    adminEmail() || undefined);
+}
+
+// The vendor accepted / declined / dispatched: tell the admin.
+export async function sendVendorUpdateToAdmin(v: VendorOrderView, orderId: string | null) {
+  const admin = adminEmail();
+  if (!admin) return false;
+  const what = v.status === "dispatched" ? "dispatched" : v.status === "accepted" ? "accepted" : "DECLINED";
+  const body = v.status === "dispatched"
+    ? `<p><b>${esc(v.vendor)}</b> has dispatched order <b>${esc(v.order_number)}</b>.</p>
+<p style="padding:12px;background:#f0fdf4;border-radius:6px">🚚 Courier: <b>${esc(v.courier)}</b><br>Tracking / AWB: <b>${esc(v.tracking_number)}</b>${v.tracking_url ? `<br><a href="${esc(v.tracking_url)}">Track shipment</a>` : ""}</p>
+<p>The order is now marked <b>Shipped</b>.</p>`
+    : `<p><b>${esc(v.vendor)}</b> has ${what} order <b>${esc(v.order_number)}</b>.</p>`;
+  return send(admin, `${v.status === "declined" ? "⚠️ " : v.status === "dispatched" ? "🚚 " : "✓ "}${v.vendor} ${what} order ${v.order_number}`,
+    layout(`Order ${v.order_number} ${what}`,
+      `${body}${v.vendor_note ? `<p style="font-size:14px"><b>Vendor note:</b> ${esc(v.vendor_note)}</p>` : ""}${vendorItems(v.items)}`,
+      orderId ? { label: "Open order in admin", href: `${SITE}/admin/orders/${orderId}` } : undefined));
+}
+
+// Customer: your order is on its way.
+export async function sendOrderShippedEmail(to: string | null | undefined, v: VendorOrderView) {
+  if (!to) return false;
+  return send(to, `Your PCBDukaan order ${v.order_number} has been shipped`,
+    layout("Your order is on its way 🚚",
+      `<p>Hi ${esc(v.ship_to.name.split(" ")[0])}, your order <b>${esc(v.order_number)}</b> has been shipped.</p>
+<p style="padding:12px;background:#f8fafc;border-radius:6px">Courier: <b>${esc(v.courier)}</b><br>Tracking / AWB number: <b>${esc(v.tracking_number)}</b></p>
+${vendorItems(v.items)}`,
+      v.tracking_url ? { label: "Track your shipment", href: v.tracking_url } : { label: "View your order", href: `${SITE}/account/orders` }));
 }

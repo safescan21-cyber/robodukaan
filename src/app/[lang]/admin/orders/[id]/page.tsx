@@ -8,6 +8,7 @@ import { getSupabase } from "@/lib/supabase-browser";
 import { adminButton, adminField, revalidateCatalog } from "@/lib/admin";
 import { ORDER_STATUSES, STATUS_LABEL } from "@/lib/constants";
 import { OrderDetail } from "@/components/OrderDetail";
+import { VendorAssign } from "@/components/admin/VendorAssign";
 import type { Order } from "@/lib/types";
 
 function AdminOrderPage() {
@@ -75,6 +76,7 @@ function AdminOrderPage() {
         <a href={`tel:+91${order.phone}`} className="rounded-md bg-slate-800 px-3 py-1.5 font-semibold text-white hover:bg-slate-700">Call customer</a>
         <Link href={`/admin/orders/${order.id}/invoice`} className="rounded-md bg-brand-600 px-3 py-1.5 font-semibold text-white hover:bg-brand-700">🧾 Print invoice</Link>
       </div>
+      <VendorAssign order={order} onChange={load} />
       <OrderDetail order={order} />
     </div>
   );
