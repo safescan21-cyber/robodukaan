@@ -56,7 +56,9 @@ export default function AdminRepairsPage() {
             {rows?.length === 0 && <tr><td colSpan={7} className="p-4 text-slate-500">No repair requests.</td></tr>}
             {rows?.map((r) => (
               <tr key={r.id} className="hover:bg-slate-50">
-                <td className="px-4 py-3"><Link href={`/admin/repairs/${r.id}`} className="font-mono font-semibold text-brand-700 hover:underline">{r.request_number}</Link></td>
+                <td className="px-4 py-3"><Link href={`/admin/repairs/${r.id}`} className="font-mono font-semibold text-brand-700 hover:underline">{r.request_number}</Link>
+                  {r.urgent && <span className="ms-1 rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold text-white">URGENT</span>}
+                  {r.wants_exchange && <span className="ms-1 rounded bg-indigo-600 px-1.5 py-0.5 text-[10px] font-bold text-white">EXCHANGE</span>}</td>
                 <td className="px-4 py-3 text-slate-600">{formatDate(r.created_at)}</td>
                 <td className="px-4 py-3">{r.name}<span className="block text-xs text-slate-500">{r.phone}</span></td>
                 <td className="px-4 py-3">{r.board_type}<span className="block max-w-56 truncate text-xs text-slate-500">{r.problem}</span></td>

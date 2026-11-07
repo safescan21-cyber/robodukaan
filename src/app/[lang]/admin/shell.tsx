@@ -10,6 +10,7 @@ const ITEMS = [
   { href: "/admin", label: "Dashboard", icon: "📊", exact: true },
   { href: "/admin/orders", label: "Orders", icon: "📦" },
   { href: "/admin/repairs", label: "PCB repairs", icon: "🔧" },
+  { href: "/admin/quotes", label: "Bulk quotes", icon: "📑" },
   { href: "/admin/products", label: "Products", icon: "🧩" },
   { href: "/admin/categories", label: "Categories", icon: "🗂️" },
   { href: "/admin/customers", label: "Customers", icon: "👥" },

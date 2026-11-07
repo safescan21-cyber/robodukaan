@@ -78,6 +78,8 @@ export function ProductForm({ product }: { product?: Product }) {
       stock: num("stock") ?? 0,
       warranty_months: num("warranty_months") ?? 0,
       hsn_code: String(f.get("hsn_code") ?? "").trim() || null,
+      // Only sent when used, so saving still works before migration 009 adds the column.
+      ...equivalentsPatch(String(f.get("equivalents") ?? "").trim(), product?.equivalents),
       ready_to_dispatch: f.get("ready_to_dispatch") === "on",
       is_featured: f.get("is_featured") === "on",
       is_active: f.get("is_active") === "on",
@@ -126,6 +128,9 @@ export function ProductForm({ product }: { product?: Product }) {
               </select>
             </label>
             <label className="block text-sm font-medium">Brand<input name="brand" defaultValue={product?.brand ?? ""} className={adminField} /></label>
+            <label className="block text-sm font-medium sm:col-span-2">Replaces part numbers <span className="font-normal text-slate-500">(other brands, comma separated – customers can search by these)</span>
+              <input name="equivalents" defaultValue={product?.equivalents ?? ""} maxLength={500} placeholder="e.g. Omron E2E-X8MD1, Autonics PR18-8DN, Mean Well NDR-120-24" className={adminField} />
+            </label>
           </div>
           <label className="block text-sm font-medium">Short description<input name="short_description" maxLength={200} defaultValue={product?.short_description ?? ""} className={adminField} /></label>
           <label className="block text-sm font-medium">Full description<textarea name="description" rows={6} defaultValue={product?.description ?? ""} className={adminField} /></label>
@@ -230,4 +235,10 @@ export function ProductForm({ product }: { product?: Product }) {
       </aside>
     </form>
   );
+}
+
+// Only include "equivalents" when it's used, so saving still works before migration 009 adds the column.
+function equivalentsPatch(value: string, current: string | null | undefined): { equivalents?: string | null } {
+  if (value) return { equivalents: value };
+  return current ? { equivalents: null } : {};
 }

@@ -8,6 +8,12 @@ import { BOARD_TYPES } from "@/lib/constants";
 import { useAuth } from "./AuthProvider";
 import { useI18n } from "@/i18n/client";
 
+// Board type (index in BOARD_TYPES) → shop category with replacement parts, for "repair or replace".
+const REPLACEMENT_CATEGORY: Record<number, string> = {
+  0: "industrial-control-boards", 1: "smps-power-supplies", 2: "vfd-motor-drives", 3: "plc-io-modules",
+  4: "industrial-control-boards", 5: "load-cells-weighing", 7: "smps-power-supplies",
+};
+
 const MAX_PHOTOS = 8;
 const MAX_MB = 10;
 const field = "mt-1 w-full rounded border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100";
@@ -21,6 +27,7 @@ export function RepairForm() {
   const [progress, setProgress] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
+  const [doneBoard, setDoneBoard] = useState(-1);
 
   useEffect(() => {
     const urls = files.map((f) => URL.createObjectURL(f));
@@ -72,11 +79,15 @@ export function RepairForm() {
           problem: String(f.get("problem")).trim(),
           quantity: Number(f.get("quantity")) || 1,
           photos: paths,
+          // Only sent when ticked, so the form still works before migration 009 adds these columns.
+          ...(f.get("urgent") === "on" ? { urgent: true } : {}),
+          ...(f.get("wants_exchange") === "on" ? { wants_exchange: true } : {}),
         })
         .select("id, request_number")
         .single();
       if (error) throw new Error(error.message);
       await postAsUser("/api/email/repair", { requestId: data.id, kind: "received" });
+      setDoneBoard(BOARD_TYPES.indexOf(String(f.get("board_type"))));
       setDone(data.request_number);
     } catch (err) {
       if (paths.length) await supabase.storage.from("pcb-repairs").remove(paths);
@@ -109,6 +120,13 @@ export function RepairForm() {
         <h3 className="mt-4 text-xl font-bold">{t("repair.sentTitle")}</h3>
         <p className="mt-2 text-slate-700">{t("repair.requestNumber")} <span className="font-mono font-bold">{done}</span></p>
         <p className="mt-1 text-sm text-slate-600">{t("repair.sentText")}</p>
+        {REPLACEMENT_CATEGORY[doneBoard] && (
+          // Repair or replace: if the machine must run today, point to new parts of the same kind.
+          <p className="mx-auto mt-4 max-w-md rounded-md bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">
+            ⚡ {t("repair.replaceText")}{" "}
+            <Link href={`/category/${REPLACEMENT_CATEGORY[doneBoard]}`} className="font-semibold underline">{t("repair.replaceLink")}</Link>
+          </p>
+        )}
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link href="/account/repairs" className="rounded-md bg-brand-600 px-5 py-2.5 font-semibold text-white hover:bg-brand-700">{t("repair.trackMine")}</Link>
           <button onClick={() => { setDone(null); setFiles([]); }} className="rounded-md px-5 py-2.5 font-semibold text-brand-700 ring-1 ring-brand-600 hover:bg-brand-50">{t("repair.another")}</button>
@@ -153,6 +171,17 @@ export function RepairForm() {
             </label>
           )}
         </div>
+      </div>
+
+      <div className="space-y-2 rounded-md bg-slate-50 p-3 text-sm ring-1 ring-slate-200">
+        <label className="flex items-start gap-2">
+          <input type="checkbox" name="urgent" className="mt-0.5 h-4 w-4 accent-red-600" />
+          <span><b>🚨 {t("repair.urgent")}</b><span className="block text-xs text-slate-600">{t("repair.urgentHint")}</span></span>
+        </label>
+        <label className="flex items-start gap-2">
+          <input type="checkbox" name="wants_exchange" className="mt-0.5 h-4 w-4 accent-brand-600" />
+          <span><b>🔁 {t("repair.exchange")}</b><span className="block text-xs text-slate-600">{t("repair.exchangeHint")}</span></span>
+        </label>
       </div>
 
       {error && <p className="rounded bg-red-50 p-3 text-sm text-red-700" role="alert">{error}</p>}

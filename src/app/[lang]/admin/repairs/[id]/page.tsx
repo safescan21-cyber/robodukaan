@@ -65,6 +65,12 @@ function AdminRepair() {
         <div>
           <p className="text-sm text-slate-500">PCB repair request</p>
           <h1 className="font-mono text-xl font-bold">{r.request_number}</h1>
+          {(r.urgent || r.wants_exchange) && (
+            <p className="mt-1 text-sm font-semibold text-red-700">
+              {r.urgent && "🚨 Machine stopped – customer needs this urgently. "}
+              {r.wants_exchange && "🔁 Customer wants an exchange board if you have one."}
+            </p>
+          )}
           <p className="text-sm text-slate-500">Received {formatDate(r.created_at)}</p>
         </div>
         <RepairStatusBadge status={r.status} />

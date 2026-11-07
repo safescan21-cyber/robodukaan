@@ -20,6 +20,9 @@ const MAIN = [
   ["/pcb-repair", "nav.pcbRepairService"],
   ["/careers", "nav.careers"],
   ["/locations", "nav.areas"],
+  ["/bulk-quote", "nav.bulkQuote"],
+  ["/replacement-finder", "nav.finder"],
+  ["/fault-codes", "nav.faultCodes"],
 ];
 const ACCOUNT = [
   ["/login", "auth.login"],

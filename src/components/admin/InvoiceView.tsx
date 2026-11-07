@@ -80,10 +80,12 @@ export function InvoiceView({ order }: { order: Order }) {
           <div className="grid grid-cols-2 gap-4 border-b border-slate-300 py-3">
             <div>
               <p className="text-xs font-bold uppercase text-slate-500">Bill to</p>
-              <p className="font-semibold">{order.customer_name}</p>
+              {order.buyer_company && <p className="font-semibold">{order.buyer_company}</p>}
+              <p className={order.buyer_company ? "" : "font-semibold"}>{order.buyer_company ? `Attn: ${order.customer_name}` : order.customer_name}</p>
               <p className="whitespace-pre-line">{order.address_line}</p>
               <p>{order.city}, {order.state} – {order.pincode}</p>
               <p>Mobile: {order.phone}{order.email ? ` · ${order.email}` : ""}</p>
+              {order.buyer_gstin && <p className="font-semibold">GSTIN: {order.buyer_gstin} <span className="font-normal text-slate-500">(State code {order.buyer_gstin.slice(0, 2)})</span></p>}
             </div>
             <div>
               <p className="text-xs font-bold uppercase text-slate-500">Ship to</p>

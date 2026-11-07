@@ -73,6 +73,7 @@ export function OrderDetail({ order, actions }: { order: Order; actions?: React.
             <p className="font-semibold">{order.customer_name}</p>
             <p className="text-slate-600">{order.address_line}<br />{order.city}, {order.state} – {order.pincode}</p>
             <p className="mt-2 text-slate-600">📞 {order.phone}{order.email ? <><br />✉️ {order.email}</> : null}</p>
+            {order.buyer_gstin && <p className="mt-2 text-slate-600">🏢 {order.buyer_company}<br />GSTIN: <span className="font-mono">{order.buyer_gstin}</span></p>}
             {order.notes && <p className="mt-2 rounded bg-slate-50 p-2 text-xs text-slate-600">Note: {order.notes}</p>}
           </section>
           <section className="rounded-md bg-white p-4 text-sm ring-1 ring-slate-200">

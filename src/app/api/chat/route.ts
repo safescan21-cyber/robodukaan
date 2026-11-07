@@ -37,17 +37,21 @@ async function findProducts(text: string): Promise<{ products: FoundProduct[]; c
   const words = [...new Set(text.toLowerCase().replace(/[^a-z0-9.\s-]/g, " ").split(/\s+/).filter((w) => w.length >= 3 && !STOP.has(w)))].slice(0, 6);
   if (words.length === 0) return { products: [], categories };
 
-  const nameOr = words.flatMap((w) => [`name.ilike.%${w}%`, `short_description.ilike.%${w}%`, `brand.ilike.%${w}%`, `sku.ilike.%${w}%`]).join(",");
   const catIds = (cats ?? []).filter((c) => words.some((w) => (c.name as string).toLowerCase().includes(w) || (c.slug as string).includes(w))).map((c) => c.id);
-  const filter = catIds.length ? `${nameOr},category_id.in.(${catIds.join(",")})` : nameOr;
-
-  const { data } = await supabase
-    .from("products")
-    .select("name, slug, price, mrp, stock, image_url, images, short_description, category:categories(name)")
-    .eq("is_active", true)
-    .or(filter)
-    .order("is_featured", { ascending: false })
-    .limit(30);
+  // "equivalents" = other brands' part numbers a product replaces, so "E2E-X8MD1" finds our sensor.
+  const query = (withEquivalents: boolean) => {
+    const nameOr = words.flatMap((w) => [`name.ilike.%${w}%`, `short_description.ilike.%${w}%`, `brand.ilike.%${w}%`, `sku.ilike.%${w}%`, ...(withEquivalents ? [`equivalents.ilike.%${w}%`] : [])]).join(",");
+    const filter = catIds.length ? `${nameOr},category_id.in.(${catIds.join(",")})` : nameOr;
+    return supabase
+      .from("products")
+      .select("name, slug, price, mrp, stock, image_url, images, short_description, category:categories(name)")
+      .eq("is_active", true)
+      .or(filter)
+      .order("is_featured", { ascending: false })
+      .limit(30);
+  };
+  let { data, error } = await query(true);
+  if (error) ({ data, error } = await query(false)); // before migration 009
 
   // Rank by how many search words each product matches.
   const scored = (data ?? []).map((p) => {

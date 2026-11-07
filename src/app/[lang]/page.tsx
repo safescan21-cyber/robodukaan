@@ -25,6 +25,8 @@ export default async function HomePage() {
         <Categories />
       </Suspense>
 
+      <Services t={t} />
+
       <Suspense fallback={<ProductGridSkeleton count={4} />}>
         <Row title="home.deals" sort="popular" featured href="/products" />
       </Suspense>
@@ -140,6 +142,32 @@ async function Row({
     <section>
       <SectionHeading title={(await getT()).t(title)} href={href} />
       <ProductRow products={products} />
+    </section>
+  );
+}
+
+// What competitors don't offer: repair + parts + know-how in one place.
+function Services({ t }: { t: (k: string) => string }) {
+  const items: [string, string, string, string][] = [
+    ["🔧", "home.svcRepair", "home.svcRepairText", "/pcb-repair"],
+    ["🔁", "home.svcFinder", "home.svcFinderText", "/replacement-finder"],
+    ["⚠️", "home.svcFault", "home.svcFaultText", "/fault-codes"],
+    ["💼", "home.svcQuote", "home.svcQuoteText", "/bulk-quote"],
+  ];
+  return (
+    <section>
+      <SectionHeading title={t("home.servicesTitle")} />
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {items.map(([icon, title, text, href]) => (
+          <Link key={href} href={href} className="group flex gap-3 rounded-md bg-white p-4 ring-1 ring-slate-200 hover:ring-brand-600">
+            <span className="text-2xl" aria-hidden="true">{icon}</span>
+            <span>
+              <span className="block font-bold group-hover:text-brand-700">{t(title)}</span>
+              <span className="mt-0.5 block text-sm text-slate-600">{t(text)}</span>
+            </span>
+          </Link>
+        ))}
+      </div>
     </section>
   );
 }

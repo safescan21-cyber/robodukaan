@@ -40,6 +40,7 @@ export type Product = {
   is_active: boolean;
   created_at: string;
   category?: (Pick<Category, "slug" | "name" | "icon"> & { hsn_code?: string | null }) | null;
+  equivalents?: string | null;
 };
 
 export type Banner = {
@@ -107,6 +108,8 @@ export type Order = {
   gst_amount?: number;
   total: number;
   tracking_url: string | null;
+  buyer_company?: string | null;
+  buyer_gstin?: string | null;
   invoice_number?: string | null;
   invoice_date?: string | null;
   created_at: string;
@@ -180,6 +183,8 @@ export type RepairRequest = {
   admin_notes: string | null;
   created_at: string;
   updated_at: string;
+  urgent?: boolean;
+  wants_exchange?: boolean;
 };
 
 export type Job = {
@@ -213,4 +218,26 @@ export type JobApplication = {
   admin_notes: string | null;
   created_at: string;
   job?: Pick<Job, "title" | "slug"> | null;
+};
+
+export type QuoteStatus = "new" | "quoted" | "won" | "lost";
+
+export type QuoteRequest = {
+  id: string;
+  quote_number: string;
+  user_id: string | null;
+  product_id: string | null;
+  product_name: string | null;
+  quantity: number;
+  name: string;
+  company: string | null;
+  gstin: string | null;
+  phone: string;
+  email: string | null;
+  city: string | null;
+  message: string | null;
+  status: QuoteStatus;
+  quoted_amount: number | null;
+  admin_notes: string | null;
+  created_at: string;
 };

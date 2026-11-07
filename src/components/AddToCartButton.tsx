@@ -43,18 +43,6 @@ export function AddToCartButton({
     setTimeout(() => setAdded(false), 1500);
   }
 
-  if (ready && !user) {
-    return (
-      <button
-        type="button"
-        onClick={() => router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`)}
-        className={`w-full rounded-md bg-slate-800 px-4 ${compact ? "py-2" : "py-3"} text-sm font-semibold text-white transition hover:bg-slate-700`}
-      >
-        🔒 {t("product.loginToBuy")}
-      </button>
-    );
-  }
-
   if (outOfStock) {
     return (
       <button disabled className={`w-full rounded-md bg-slate-200 px-4 ${compact ? "py-2" : "py-3"} text-sm font-semibold text-slate-500`}>
@@ -98,7 +86,8 @@ export function AddToCartButton({
           type="button"
           onClick={() => {
             addToCart();
-            router.push("/checkout");
+            // Anyone can fill a cart; login is asked only at checkout.
+            router.push(ready && !user ? "/login?next=/checkout" : "/checkout");
           }}
           className="flex-1 rounded-md bg-accent-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-accent-600"
         >

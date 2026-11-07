@@ -13,6 +13,8 @@ import { Tabs } from "@/components/Tabs";
 import { ProductReviews } from "@/components/ProductReviews";
 import { WishlistButton } from "@/components/WishlistButton";
 import { ShareButtons } from "@/components/ShareButtons";
+import { QuoteForm } from "@/components/QuoteForm";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { getT, alternatesFor } from "@/i18n/server";
 import { Stars } from "@/components/Stars";
@@ -219,6 +221,11 @@ async function ProductDetail({ params }: Pick<PageProps<"/[lang]/products/[slug]
           </div>
 
           {product.short_description && <p className="mt-4 text-slate-700">{product.short_description}</p>}
+          {product.equivalents && (
+            <p className="mt-3 rounded bg-sky-50 px-3 py-2 text-sm text-sky-900 ring-1 ring-sky-100">
+              🔁 <b>{t("product.replaces")}:</b> {product.equivalents}
+            </p>
+          )}
 
           <ul className="mt-4 space-y-1 text-sm">
             <li className={product.stock > 0 ? "font-semibold text-emerald-700" : "font-semibold text-red-600"}>
@@ -230,6 +237,10 @@ async function ProductDetail({ params }: Pick<PageProps<"/[lang]/products/[slug]
 
           <div className="mt-5">
             <AddToCartButton product={product} withQuantity buyNow />
+          </div>
+          <div className="mt-3 space-y-2">
+            <QuoteForm productId={product.id} productName={product.name} />
+            <WhatsAppButton text={`${t("whatsapp.productMsg")} ${product.name} (${product.sku})`} />
           </div>
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">

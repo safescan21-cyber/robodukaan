@@ -35,6 +35,8 @@ export const STORE = {
   name: "PCBDukaan",
   // Leave empty to hide the phone number everywhere on the site (e.g. "+91 97739 10846").
   phone: "",
+  // WhatsApp number with country code, digits only (e.g. "919773910846"). Empty hides all WhatsApp buttons.
+  whatsapp: "",
   email: "sonugiri@pcbdukaan.in",
 };
 

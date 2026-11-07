@@ -2,7 +2,7 @@ import "server-only";
 import nodemailer from "nodemailer";
 import { formatINR } from "./format";
 import { REPAIR_STATUS_LABEL } from "./constants";
-import type { Job, JobApplication, Order, OrderItem, RepairRequest } from "./types";
+import type { Job, JobApplication, Order, OrderItem, QuoteRequest, RepairRequest } from "./types";
 
 // Emails are sent from this server with the SMTP mailbox set in .env.local
 // (deploy/set-email.sh). If SMTP isn't configured, emails are skipped and logged.
@@ -80,7 +80,7 @@ ${line("Total (cash on delivery)", formatINR(order.total), true)}</table>`;
 }
 
 function address(order: Order) {
-  return `<p style="margin:12px 0;padding:12px;background:#f8fafc;border-radius:6px;font-size:14px"><b>${esc(order.customer_name)}</b><br>${esc(order.address_line)}<br>${esc(order.city)}, ${esc(order.state)} – ${esc(order.pincode)}<br>📞 ${esc(order.phone)}</p>`;
+  return `<p style="margin:12px 0;padding:12px;background:#f8fafc;border-radius:6px;font-size:14px"><b>${esc(order.customer_name)}</b><br>${esc(order.address_line)}<br>${esc(order.city)}, ${esc(order.state)} – ${esc(order.pincode)}<br>📞 ${esc(order.phone)}${order.buyer_gstin ? `<br>🏢 ${esc(order.buyer_company)} · GSTIN ${esc(order.buyer_gstin)}` : ""}</p>`;
 }
 
 export async function sendOrderEmails(order: Order) {
@@ -138,6 +138,7 @@ export async function sendWelcomeEmail(to: string, name: string | null) {
 function repairSummary(r: RepairRequest) {
   return `<table style="width:100%;font-size:14px;border-collapse:collapse;margin:12px 0">
 <tr><td style="padding:4px 0;color:#64748b;width:130px">Request</td><td style="padding:4px 0"><b>${esc(r.request_number)}</b></td></tr>
+${r.urgent || r.wants_exchange ? `<tr><td style="padding:4px 0;color:#64748b">Priority</td><td style="padding:4px 0;color:#b91c1c;font-weight:700">${[r.urgent ? "🚨 Machine stopped – urgent" : "", r.wants_exchange ? "🔁 Wants an exchange board" : ""].filter(Boolean).join(" · ")}</td></tr>` : ""}
 <tr><td style="padding:4px 0;color:#64748b">Board</td><td style="padding:4px 0">${esc(r.board_type)}${r.device ? ` – ${esc(r.device)}` : ""} × ${r.quantity}</td></tr>
 <tr><td style="padding:4px 0;color:#64748b">Problem</td><td style="padding:4px 0">${esc(r.problem)}</td></tr>
 <tr><td style="padding:4px 0;color:#64748b">Photos</td><td style="padding:4px 0">${r.photos.length}</td></tr>
@@ -167,7 +168,7 @@ export async function sendRepairReceivedEmails(r: RepairRequest) {
     results.push(
       await send(
         admin,
-        `🔧 New PCB repair request ${r.request_number}`,
+        `${r.urgent ? "🚨 URGENT " : "🔧 "}New PCB repair request ${r.request_number}${r.wants_exchange ? " (exchange wanted)" : ""}`,
         layout(
           `New PCB repair request ${r.request_number}`,
           `<p>From <b>${esc(r.name)}</b> · 📞 ${esc(r.phone)}${r.email ? ` · ✉️ ${esc(r.email)}` : ""}</p>${repairSummary(r)}`,
@@ -228,6 +229,39 @@ ${app.message ? `<p style="margin-top:12px;padding:12px;background:#f8fafc;borde
         app.email,
       ),
     );
+  }
+  return results.some(Boolean);
+}
+
+function quoteSummary(q: QuoteRequest) {
+  const row = (k: string, v: string | null | undefined) => (v ? `<tr><td style="padding:4px 0;color:#64748b;width:130px">${k}</td><td style="padding:4px 0">${v}</td></tr>` : "");
+  return `<table style="width:100%;font-size:14px;border-collapse:collapse;margin:12px 0">
+${row("Request", `<b>${esc(q.quote_number)}</b>`)}
+${row("Product", esc(q.product_name ?? "—"))}
+${row("Quantity", `<b>${q.quantity}</b>`)}
+${row("Company", esc(q.company))}
+${row("GSTIN", esc(q.gstin))}
+${row("City", esc(q.city))}
+${row("Message", esc(q.message))}
+</table>`;
+}
+
+// Bulk quote request: alert to the shop, confirmation to the buyer (if they gave an email).
+export async function sendQuoteRequestEmails(q: QuoteRequest) {
+  const results: boolean[] = [];
+  const admin = adminEmail();
+  if (admin) {
+    results.push(await send(admin, `💼 Bulk quote request ${q.quote_number}: ${q.quantity} × ${q.product_name ?? "items"}`,
+      layout(`Bulk quote request ${q.quote_number}`,
+        `<p>From <b>${esc(q.name)}</b>${q.company ? ` (${esc(q.company)})` : ""} · 📞 <a href="tel:+91${esc(q.phone)}">${esc(q.phone)}</a>${q.email ? ` · ✉️ ${esc(q.email)}` : ""}</p>${quoteSummary(q)}`,
+        { label: "Open in admin", href: `${SITE}/admin/quotes` }),
+      q.email || undefined));
+  }
+  if (q.email) {
+    results.push(await send(q.email, `Your quote request ${q.quote_number} – PCBDukaan`,
+      layout("We’ve received your quote request",
+        `<p>Hi ${esc(q.name.split(" ")[0])}, thanks for your enquiry. We’ll send you our best price for this quantity, usually within one working day.</p>${quoteSummary(q)}`),
+      admin || undefined));
   }
   return results.some(Boolean);
 }

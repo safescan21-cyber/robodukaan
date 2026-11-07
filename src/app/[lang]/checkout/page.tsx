@@ -13,8 +13,8 @@ import { formatINR, GST_RATE, gstFor, shippingFor } from "@/lib/format";
 import { INDIAN_STATES } from "@/lib/constants";
 import type { Address } from "@/lib/types";
 
-type Form = { name: string; phone: string; email: string; address_line: string; city: string; state: string; pincode: string; notes: string };
-const EMPTY: Form = { name: "", phone: "", email: "", address_line: "", city: "", state: "", pincode: "", notes: "" };
+type Form = { name: string; phone: string; email: string; address_line: string; city: string; state: string; pincode: string; notes: string; company: string; gstin: string };
+const EMPTY: Form = { name: "", phone: "", email: "", address_line: "", city: "", state: "", pincode: "", notes: "", company: "", gstin: "" };
 
 function Checkout() {
   const { items, ready, subtotal, clear } = useCart();
@@ -25,6 +25,7 @@ function Checkout() {
   const [form, setForm] = useState<Form>(EMPTY);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [saveAddress, setSaveAddress] = useState(true);
+  const [business, setBusiness] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const shipping = shippingFor(subtotal);
@@ -76,7 +77,7 @@ function Checkout() {
     const supabase = getSupabase();
     const { data, error } = await supabase.rpc("place_order", {
       items: items.map((i) => ({ product_id: i.productId, quantity: i.quantity })),
-      customer: form,
+      customer: business ? { ...form, gstin: form.gstin.replace(/\s/g, "").toUpperCase() } : { ...form, company: "", gstin: "" },
       coupon_code: coupon,
     });
     if (error) {
@@ -148,6 +149,21 @@ function Checkout() {
                 </label>
               )}
             </div>
+          </section>
+
+          {/* Business buyers: company name + GSTIN printed on the tax invoice (input tax credit). */}
+          <section className="rounded-md bg-white p-5 ring-1 ring-slate-200">
+            <label className="flex items-center gap-2 text-sm font-semibold">
+              <input type="checkbox" checked={business} onChange={(e) => setBusiness(e.target.checked)} className="h-4 w-4 accent-brand-600" />
+              {t("checkout.business")}
+            </label>
+            <p className="mt-1 text-xs text-slate-500">{t("checkout.businessHint")}</p>
+            {business && (
+              <div className="mt-3 grid gap-4 sm:grid-cols-2">
+                <label className="text-sm font-medium">{t("checkout.company")} *<input required value={form.company} onChange={set("company")} maxLength={120} autoComplete="organization" className={field} /></label>
+                <label className="text-sm font-medium">GSTIN *<input required value={form.gstin} onChange={set("gstin")} maxLength={15} pattern="[0-9]{2}[A-Za-z]{5}[0-9]{4}[A-Za-z][1-9A-Za-z][Zz][0-9A-Za-z]" title="15 characters, e.g. 27AAACR1234Q1Z5" placeholder="27AAACR1234Q1Z5" className={`${field} uppercase`} /></label>
+              </div>
+            )}
           </section>
         </div>
 

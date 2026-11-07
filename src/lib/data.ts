@@ -74,47 +74,55 @@ export async function getProducts(query: ProductQuery = {}): Promise<{ products:
 
   const pageSize = Math.min(query.pageSize ?? 24, 60);
   const page = Math.max(1, query.page ?? 1);
-  let request = supabase.from("products").select(CARD_FIELDS, { count: "exact" }).eq("is_active", true);
-
+  let categoryId: number | undefined;
   if (query.category) {
     const category = await getCategory(query.category);
     if (!category) return { products: [], total: 0 };
-    request = request.eq("category_id", category.id);
+    categoryId = category.id;
   }
-
   const q = query.q?.trim().replace(/[%,()*\\]/g, " ").slice(0, 60);
-  if (q) {
-    request = request.or(
-      `name.ilike.%${q}%,brand.ilike.%${q}%,short_description.ilike.%${q}%,sku.ilike.%${q}%`,
-    );
-  }
-  if (query.minPrice != null) request = request.gte("price", query.minPrice);
-  if (query.maxPrice != null) request = request.lte("price", query.maxPrice);
-  if (query.inStock) request = request.gt("stock", 0);
-  if (query.featured) request = request.eq("is_featured", true);
-
-  switch (query.sort) {
-    case "price-asc":
-      request = request.order("price", { ascending: true });
-      break;
-    case "price-desc":
-      request = request.order("price", { ascending: false });
-      break;
-    case "newest":
-      request = request.order("created_at", { ascending: false });
-      break;
-    case "best-selling":
-      request = request.order("sold_count", { ascending: false }).order("name");
-      break;
-    case "rating":
-      request = request.order("rating_avg", { ascending: false }).order("rating_count", { ascending: false });
-      break;
-    default:
-      request = request.order("is_featured", { ascending: false }).order("sold_count", { ascending: false }).order("name");
-  }
-
   const from = (page - 1) * pageSize;
-  const { data, error, count } = await request.range(from, from + pageSize - 1);
+  const run = (withEquivalents: boolean) => {
+    let request = supabase.from("products").select(CARD_FIELDS, { count: "exact" }).eq("is_active", true);
+
+    if (categoryId) request = request.eq("category_id", categoryId);
+
+    if (q) {
+      request = request.or(
+        // equivalents: part numbers of other brands this product replaces (Omron, Siemens …)
+        `name.ilike.%${q}%,brand.ilike.%${q}%,short_description.ilike.%${q}%,sku.ilike.%${q}%${withEquivalents ? `,equivalents.ilike.%${q}%` : ""}`,
+      );
+    }
+    if (query.minPrice != null) request = request.gte("price", query.minPrice);
+    if (query.maxPrice != null) request = request.lte("price", query.maxPrice);
+    if (query.inStock) request = request.gt("stock", 0);
+    if (query.featured) request = request.eq("is_featured", true);
+
+    switch (query.sort) {
+      case "price-asc":
+        request = request.order("price", { ascending: true });
+        break;
+      case "price-desc":
+        request = request.order("price", { ascending: false });
+        break;
+      case "newest":
+        request = request.order("created_at", { ascending: false });
+        break;
+      case "best-selling":
+        request = request.order("sold_count", { ascending: false }).order("name");
+        break;
+      case "rating":
+        request = request.order("rating_avg", { ascending: false }).order("rating_count", { ascending: false });
+        break;
+      default:
+        request = request.order("is_featured", { ascending: false }).order("sold_count", { ascending: false }).order("name");
+    }
+
+    return request.range(from, from + pageSize - 1);
+  };
+  let { data, error, count } = await run(true);
+  // Before migration 009 the equivalents column doesn't exist yet: search without it.
+  if (error && q) ({ data, error, count } = await run(false));
   logError("getProducts", error);
   return { products: normalize(data), total: count ?? 0 };
 }

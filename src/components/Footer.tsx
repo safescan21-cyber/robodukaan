@@ -59,6 +59,9 @@ export async function Footer() {
           <ul className="mt-3 space-y-2 text-sm">
             <li><Link href="/pcb-repair" className="hover:text-white">{t("nav.pcbRepairService")}</Link></li>
             <li><Link href="/locations" className="hover:text-white">{t("nav.areas")}</Link></li>
+            <li><Link href="/bulk-quote" className="hover:text-white">{t("nav.bulkQuote")}</Link></li>
+            <li><Link href="/replacement-finder" className="hover:text-white">{t("nav.finder")}</Link></li>
+            <li><Link href="/fault-codes" className="hover:text-white">{t("nav.faultCodes")}</Link></li>
             <li><Link href="/contact" className="hover:text-white">{t("nav.contact")}</Link></li>
             <li><Link href="/about" className="hover:text-white">{t("nav.about")}</Link></li>
             <li><Link href="/careers" className="hover:text-white">{t("nav.careers")}</Link></li>
