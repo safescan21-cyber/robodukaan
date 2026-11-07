@@ -2,6 +2,7 @@
 
 import Link from "@/i18n/client";
 import { useEffect, useRef, useState } from "react";
+import { STORE } from "@/lib/constants";
 import { playChatSound, setSoundEnabled, soundEnabled } from "@/lib/chat-sound";
 import { formatINR } from "@/lib/format";
 import { useI18n } from "@/i18n/client";
@@ -190,6 +191,18 @@ export function ChatWidget() {
             )}
             <div ref={endRef} />
           </div>
+          {STORE.whatsapp && (
+            // Talk to a person instead: opens WhatsApp with the last question and the current page.
+            <a
+              href={`https://wa.me/${STORE.whatsapp}?text=${encodeURIComponent(`${t("chat.whatsappMsg")} ${[...messages].reverse().find((m) => m.role === "user")?.content ?? ""}\n${typeof window !== "undefined" ? window.location.href : ""}`.trim())}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 border-t border-slate-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800 hover:bg-emerald-100"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 fill-emerald-600"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm4.5 12.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3a.5.5 0 0 0 0-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.4-.3Z"/></svg>
+              {t("chat.whatsappPrompt")} <span className="underline">{t("chat.whatsappButton")}</span>
+            </a>
+          )}
           <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="flex gap-2 border-t border-slate-200 p-2">
             <label htmlFor="chat-input" className="sr-only">{t("chat.yourMessage")}</label>
             <input

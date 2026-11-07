@@ -574,6 +574,9 @@ const dict: Record<string, string> = {
   "reviews.addPhotos": "添加照片",
   "reviews.photosHint": "最多 4 张商品照片（JPG、PNG、WebP）。",
   "reviews.photoAlt": "{name} 的照片 {n}",
+  "chat.whatsappPrompt": "想和工作人员直接沟通？",
+  "chat.whatsappButton": "通过 WhatsApp 聊天",
+  "chat.whatsappMsg": "您好 PCBDukaan，我需要以下帮助：",
 };
 
 export default dict;

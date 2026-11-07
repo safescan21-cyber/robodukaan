@@ -574,6 +574,9 @@ const dict: Record<string, string> = {
   "reviews.addPhotos": "फ़ोटो जोड़ें",
   "reviews.photosHint": "प्रोडक्ट की अधिकतम 4 फ़ोटो (JPG, PNG, WebP)।",
   "reviews.photoAlt": "{name} की फ़ोटो {n}",
+  "chat.whatsappPrompt": "किसी व्यक्ति से बात करना चाहते हैं?",
+  "chat.whatsappButton": "WhatsApp पर चैट करें",
+  "chat.whatsappMsg": "नमस्ते PCBDukaan, मुझे इसमें मदद चाहिए:",
 };
 
 export default dict;

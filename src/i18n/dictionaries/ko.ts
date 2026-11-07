@@ -574,6 +574,9 @@ const dict: Record<string, string> = {
   "reviews.addPhotos": "사진 추가",
   "reviews.photosHint": "상품 사진 최대 4장 (JPG, PNG, WebP).",
   "reviews.photoAlt": "{name}님의 사진 {n}",
+  "chat.whatsappPrompt": "직원과 직접 이야기하고 싶으세요?",
+  "chat.whatsappButton": "WhatsApp으로 채팅",
+  "chat.whatsappMsg": "안녕하세요 PCBDukaan, 다음 관련 도움이 필요합니다:",
 };
 
 export default dict;

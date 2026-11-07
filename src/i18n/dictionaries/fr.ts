@@ -574,6 +574,9 @@ const dict: Record<string, string> = {
   "reviews.addPhotos": "Ajouter des photos",
   "reviews.photosHint": "Jusqu’à 4 photos du produit (JPG, PNG, WebP).",
   "reviews.photoAlt": "Photo {n} de {name}",
+  "chat.whatsappPrompt": "Vous préférez parler à quelqu’un ?",
+  "chat.whatsappButton": "Discuter sur WhatsApp",
+  "chat.whatsappMsg": "Bonjour PCBDukaan, j’ai besoin d’aide pour :",
 };
 
 export default dict;
