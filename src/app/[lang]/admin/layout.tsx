@@ -22,7 +22,7 @@ const ITEMS = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <RequireAuth admin>
-      <div className="mx-auto grid max-w-[1400px] gap-6 px-4 py-6 lg:grid-cols-[220px_1fr]">
+      <div className="mx-auto grid max-w-[1400px] grid-cols-[minmax(0,1fr)] gap-6 px-4 py-6 lg:grid-cols-[220px_minmax(0,1fr)]">
         <Suspense fallback={<div className="h-64 rounded-md bg-white ring-1 ring-slate-200" />}>
           <SideNav
           title="Admin panel"

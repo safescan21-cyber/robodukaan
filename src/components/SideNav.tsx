@@ -7,7 +7,7 @@ import { stripLocale } from "@/i18n/config";
 export function SideNav({ title, items, footer }: { title: string; items: { href: string; label: string; icon: string; exact?: boolean }[]; footer?: React.ReactNode }) {
   const pathname = stripLocale(usePathname());
   return (
-    <aside className="h-fit rounded-md bg-white ring-1 ring-slate-200">
+    <aside className="h-fit min-w-0 rounded-md bg-white ring-1 ring-slate-200">
       <p className="border-b border-slate-200 px-4 py-3 text-sm font-bold uppercase tracking-wide">{title}</p>
       {/* Phones: items wrap onto a few lines so every link (incl. Log out) is visible without sideways scrolling. */}
       <nav className="flex flex-wrap gap-1 p-2 lg:flex-col lg:flex-nowrap">
