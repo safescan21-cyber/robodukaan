@@ -52,7 +52,7 @@ export default async function HomePage() {
         <Row title="nav.bestSellers" sort="best-selling" href="/products?sort=best-selling" />
       </Suspense>
       <Suspense fallback={<ProductGridSkeleton count={4} />}>
-        <Row title="nav.newArrivals" sort="newest" href="/products?sort=newest" />
+        <Row title="nav.newArrivals" sort="newest" newArrival href="/products?new=1" />
       </Suspense>
       <Suspense fallback={<ProductGridSkeleton count={4} />}>
         <Row title="home.smpsRow" sort="popular" category="smps-power-supplies" href="/category/smps-power-supplies" />
@@ -128,15 +128,19 @@ async function Row({
   sort,
   category,
   featured,
+  newArrival,
   href,
 }: {
   title: string;
   sort: "popular" | "best-selling" | "newest";
   category?: string;
   featured?: boolean;
+  newArrival?: boolean;
   href: string;
 }) {
-  const products = await getProductRow(sort, { category, featured, limit: 10 });
+  let products = await getProductRow(sort, { category, featured, newArrival, limit: 10 });
+  // Nothing ticked as "New arrival" yet: show the latest products instead of an empty row.
+  if (newArrival && products.length === 0) products = await getProductRow("newest", { category, limit: 10 });
   if (products.length === 0) return null;
   return (
     <section>

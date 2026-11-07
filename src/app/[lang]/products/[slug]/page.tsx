@@ -13,6 +13,7 @@ import { Tabs } from "@/components/Tabs";
 import { ProductReviews } from "@/components/ProductReviews";
 import { WishlistButton } from "@/components/WishlistButton";
 import { ShareButtons } from "@/components/ShareButtons";
+import type { ProductDocument } from "@/lib/types";
 import { QuoteForm } from "@/components/QuoteForm";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -94,17 +95,9 @@ async function ProductDetail({ params }: Pick<PageProps<"/[lang]/products/[slug]
     ...(product.documents.length
       ? [{
           id: "docs",
-          label: t("product.downloads"),
+          label: t("product.techData"),
           content: (
-            <ul className="space-y-2 text-sm">
-              {product.documents.map((d) => (
-                <li key={d.url}>
-                  <a href={d.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 font-semibold text-brand-700 hover:underline">
-                    📄 {d.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <DocList docs={product.documents} t={t} />
           ),
         }]
       : []),
@@ -199,6 +192,7 @@ async function ProductDetail({ params }: Pick<PageProps<"/[lang]/products/[slug]
         <ProductGallery images={images} videos={product.videos} icon={icon} name={product.name} />
 
         <div>
+          {product.is_new_arrival && <span className="mb-1 inline-block rounded bg-emerald-600 px-2 py-0.5 text-[11px] font-bold uppercase text-white">{t("product.newBadge")}</span>}
           <h1 className="text-2xl font-bold leading-snug text-slate-900">{product.name}</h1>
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500">
             {product.rating_count > 0 && <Stars value={product.rating_avg} count={product.rating_count} />}
@@ -238,6 +232,12 @@ async function ProductDetail({ params }: Pick<PageProps<"/[lang]/products/[slug]
           <div className="mt-5">
             <AddToCartButton product={product} withQuantity buyNow />
           </div>
+          {product.documents.length > 0 && (
+            <div className="mt-4 rounded-md bg-slate-50 p-3 ring-1 ring-slate-200">
+              <p className="mb-2 text-sm font-bold">📑 {t("product.techData")}</p>
+              <DocList docs={product.documents} t={t} />
+            </div>
+          )}
           <div className="mt-3 space-y-2">
             <QuoteForm productId={product.id} productName={product.name} />
             <WhatsAppButton text={`${t("whatsapp.productMsg")} ${product.name} (${product.sku})`} />
@@ -273,5 +273,36 @@ async function ProductDetail({ params }: Pick<PageProps<"/[lang]/products/[slug]
         </section>
       )}
     </>
+  );
+}
+
+// Technical data downloads. Uploaded files (Supabase storage) get ?download= so they save with a proper
+// name instead of opening in the tab; older plain links open as before.
+function docHref(d: ProductDocument) {
+  if (!d.url.includes("/storage/v1/object/public/")) return d.url;
+  const ext = d.type ?? d.url.split(".").pop() ?? "";
+  const file = `${d.name.replace(/[^\w\s.-]+/g, "").trim().replace(/\s+/g, "-") || "file"}${ext ? `.${ext}` : ""}`;
+  return `${d.url}?download=${encodeURIComponent(file)}`;
+}
+
+function fileSize(bytes?: number) {
+  if (!bytes) return "";
+  return bytes >= 1048576 ? `${(bytes / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
+}
+
+function DocList({ docs, t }: { docs: ProductDocument[]; t: (key: string) => string }) {
+  return (
+    <ul className="space-y-1.5 text-sm">
+      {docs.map((d) => (
+        <li key={d.url}>
+          <a href={docHref(d)} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2 rounded px-1 py-1 hover:bg-white">
+            <span className="w-11 shrink-0 rounded bg-slate-800 px-1 py-0.5 text-center text-[10px] font-bold uppercase text-white">{d.type ?? "link"}</span>
+            <span className="min-w-0 flex-1 truncate font-semibold text-brand-700 group-hover:underline">{d.name}</span>
+            {d.size ? <span className="shrink-0 text-xs text-slate-500">{fileSize(d.size)}</span> : null}
+            <span className="shrink-0 text-xs font-semibold text-slate-600">⬇ {t("product.download")}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
   );
 }

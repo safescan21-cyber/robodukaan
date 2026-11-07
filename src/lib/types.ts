@@ -10,7 +10,8 @@ export type Category = {
 };
 
 export type Faq = { q: string; a: string };
-export type ProductDocument = { name: string; url: string };
+// size (bytes) and type (file extension) are set for uploaded files; older entries are plain links.
+export type ProductDocument = { name: string; url: string; size?: number; type?: string };
 
 export type Product = {
   id: string;
@@ -41,6 +42,7 @@ export type Product = {
   created_at: string;
   category?: (Pick<Category, "slug" | "name" | "icon"> & { hsn_code?: string | null }) | null;
   equivalents?: string | null;
+  is_new_arrival?: boolean;
 };
 
 export type Banner = {

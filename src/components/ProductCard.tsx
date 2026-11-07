@@ -17,11 +17,14 @@ export async function ProductCard({ product }: { product: Product }) {
       </div>
       <Link href={`/products/${product.slug}`} className="relative block aspect-square overflow-hidden rounded-t-md p-3">
         <ProductImage imageUrl={productImage(product)} icon={product.category?.icon ?? "chip"} name={product.name} />
-        {off > 0 && (
-          <span className="absolute left-2 top-2 rounded bg-red-600 px-2 py-0.5 text-[11px] font-bold uppercase text-white">
-            {t("product.sale", { off })}
-          </span>
-        )}
+        <span className="absolute left-2 top-2 flex flex-col items-start gap-1">
+          {product.is_new_arrival && (
+            <span className="rounded bg-emerald-600 px-2 py-0.5 text-[11px] font-bold uppercase text-white">{t("product.newBadge")}</span>
+          )}
+          {off > 0 && (
+            <span className="rounded bg-red-600 px-2 py-0.5 text-[11px] font-bold uppercase text-white">{t("product.sale", { off })}</span>
+          )}
+        </span>
         {product.stock <= 0 && (
           <span className="absolute inset-x-0 bottom-0 bg-slate-900/70 py-1 text-center text-xs font-semibold text-white">{t("product.outOfStock")}</span>
         )}

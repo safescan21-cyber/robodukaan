@@ -556,6 +556,9 @@ const dict: Record<string, string> = {
   "home.svcFaultText": "oc، ov، Lv، E.OC1 یا F0001 کا مطلب – اور انہیں کیسے ٹھیک کریں۔",
   "home.svcQuote": "بلک اور کاروبار",
   "home.svcQuoteText": "10+ پیس کے کوٹیشن اور آپ کی کمپنی کے GSTIN کے ساتھ GST انوائس۔",
+  "product.techData": "تکنیکی ڈیٹا",
+  "product.download": "ڈاؤن لوڈ",
+  "product.newBadge": "نیا",
 };
 
 export default dict;

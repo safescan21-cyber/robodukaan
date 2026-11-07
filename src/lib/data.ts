@@ -63,6 +63,7 @@ export type ProductQuery = {
   maxPrice?: number;
   inStock?: boolean;
   featured?: boolean;
+  newArrival?: boolean;
   page?: number;
   pageSize?: number;
 };
@@ -82,8 +83,11 @@ export async function getProducts(query: ProductQuery = {}): Promise<{ products:
   }
   const q = query.q?.trim().replace(/[%,()*\\]/g, " ").slice(0, 60);
   const from = (page - 1) * pageSize;
-  const run = (withEquivalents: boolean) => {
-    let request = supabase.from("products").select(CARD_FIELDS, { count: "exact" }).eq("is_active", true);
+  // full = use the newest columns (equivalents from 009, is_new_arrival from 010). If the database
+  // doesn't have them yet, the query is repeated without them so the shop keeps working.
+  const run = (full: boolean) => {
+    const withEquivalents = full;
+    let request = supabase.from("products").select(full ? `${CARD_FIELDS}, is_new_arrival` : CARD_FIELDS, { count: "exact" }).eq("is_active", true);
 
     if (categoryId) request = request.eq("category_id", categoryId);
 
@@ -97,8 +101,9 @@ export async function getProducts(query: ProductQuery = {}): Promise<{ products:
     if (query.maxPrice != null) request = request.lte("price", query.maxPrice);
     if (query.inStock) request = request.gt("stock", 0);
     if (query.featured) request = request.eq("is_featured", true);
+    if (query.newArrival && full) request = request.eq("is_new_arrival", true);
 
-    switch (query.sort) {
+    switch (query.newArrival ? "newest" : query.sort) {
       case "price-asc":
         request = request.order("price", { ascending: true });
         break;
@@ -121,14 +126,13 @@ export async function getProducts(query: ProductQuery = {}): Promise<{ products:
     return request.range(from, from + pageSize - 1);
   };
   let { data, error, count } = await run(true);
-  // Before migration 009 the equivalents column doesn't exist yet: search without it.
-  if (error && q) ({ data, error, count } = await run(false));
+  if (error) ({ data, error, count } = await run(false));
   logError("getProducts", error);
   return { products: normalize(data), total: count ?? 0 };
 }
 
-export async function getProductRow(sort: ProductSort, opts: { category?: string; featured?: boolean; limit?: number } = {}) {
-  const { products } = await getProducts({ sort, category: opts.category, featured: opts.featured, pageSize: opts.limit ?? 10 });
+export async function getProductRow(sort: ProductSort, opts: { category?: string; featured?: boolean; newArrival?: boolean; limit?: number } = {}) {
+  const { products } = await getProducts({ sort, category: opts.category, featured: opts.featured, newArrival: opts.newArrival, pageSize: opts.limit ?? 10 });
   return products;
 }
 

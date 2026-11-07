@@ -20,17 +20,23 @@ export default function AdminProductsPage() {
   const [total, setTotal] = useState(0);
 
   const load = useCallback(async () => {
-    let req = getSupabase()
-      .from("products")
-      .select("id, slug, sku, name, price, mrp, stock, is_active, is_featured, image_url, images, sold_count, category_id, category:categories(slug, name, icon)", { count: "exact" })
-      .order("created_at", { ascending: false })
-      .range(page * PAGE, page * PAGE + PAGE - 1);
-    const term = q.trim().replace(/[%,()*\\]/g, " ");
-    if (term) req = req.or(`name.ilike.%${term}%,sku.ilike.%${term}%,brand.ilike.%${term}%`);
-    if (category) req = req.eq("category_id", Number(category));
-    if (stock === "low") req = req.lte("stock", 5);
-    if (stock === "out") req = req.eq("stock", 0);
-    const { data, count } = await req;
+    const FIELDS = "id, slug, sku, name, price, mrp, stock, is_active, is_featured, image_url, images, sold_count, category_id, category:categories(slug, name, icon)";
+    const query = (fields: string) => {
+      let req = getSupabase()
+        .from("products")
+        .select(fields, { count: "exact" })
+        .order("created_at", { ascending: false })
+        .range(page * PAGE, page * PAGE + PAGE - 1);
+      const term = q.trim().replace(/[%,()*\\]/g, " ");
+      if (term) req = req.or(`name.ilike.%${term}%,sku.ilike.%${term}%,brand.ilike.%${term}%`);
+      if (category) req = req.eq("category_id", Number(category));
+      if (stock === "low") req = req.lte("stock", 5);
+      if (stock === "out") req = req.eq("stock", 0);
+      return req;
+    };
+    // is_new_arrival comes with migration 010; without it, load the list as before.
+    let { data, count, error } = await query(`${FIELDS}, is_new_arrival`);
+    if (error) ({ data, count, error } = await query(FIELDS));
     setProducts(((data ?? []) as unknown as Product[]).map((p) => ({ ...p, price: Number(p.price) })));
     setTotal(count ?? 0);
   }, [q, category, stock, page]);
@@ -86,13 +92,13 @@ export default function AdminProductsPage() {
           <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-600">
             <tr>
               <th className="px-3 py-3">Product</th><th className="px-3 py-3">Category</th><th className="px-3 py-3">Price excl. GST / MRP</th>
-              <th className="px-3 py-3">Stock</th><th className="px-3 py-3">Sold</th><th className="px-3 py-3 text-center">Featured</th>
+              <th className="px-3 py-3">Stock</th><th className="px-3 py-3">Sold</th><th className="px-3 py-3 text-center">Featured</th><th className="px-3 py-3 text-center">New</th>
               <th className="px-3 py-3 text-center">Visible</th><th className="px-3 py-3" />
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {products === null && <tr><td colSpan={8} className="p-4 text-slate-500">Loading…</td></tr>}
-            {products?.length === 0 && <tr><td colSpan={8} className="p-4 text-slate-500">No products found.</td></tr>}
+            {products === null && <tr><td colSpan={9} className="p-4 text-slate-500">Loading…</td></tr>}
+            {products?.length === 0 && <tr><td colSpan={9} className="p-4 text-slate-500">No products found.</td></tr>}
             {products?.map((p) => (
               <tr key={p.id} className={p.is_active ? "" : "bg-slate-50 text-slate-500"}>
                 <td className="px-3 py-2">
@@ -142,6 +148,7 @@ export default function AdminProductsPage() {
                 </td>
                 <td className="px-3 py-2">{p.sold_count}</td>
                 <td className="px-3 py-2 text-center"><input type="checkbox" checked={p.is_featured} onChange={(e) => patch(p.id, { is_featured: e.target.checked })} className="h-4 w-4 accent-brand-600" aria-label="Featured" /></td>
+                <td className="px-3 py-2 text-center"><input type="checkbox" checked={!!p.is_new_arrival} onChange={(e) => patch(p.id, { is_new_arrival: e.target.checked })} className="h-4 w-4 accent-emerald-600" aria-label="New arrival" /></td>
                 <td className="px-3 py-2 text-center"><input type="checkbox" checked={p.is_active} onChange={(e) => patch(p.id, { is_active: e.target.checked })} className="h-4 w-4 accent-brand-600" aria-label="Visible in store" /></td>
                 <td className="whitespace-nowrap px-3 py-2 text-right text-xs font-semibold">
                   <Link href={`/admin/products/${p.id}`} className="text-brand-700 hover:underline">Edit</Link>

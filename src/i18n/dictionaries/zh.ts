@@ -556,6 +556,9 @@ const dict: Record<string, string> = {
   "home.svcFaultText": "oc、ov、Lv、E.OC1、F0001 的含义及解决方法。",
   "home.svcQuote": "批量与企业",
   "home.svcQuoteText": "10 件以上报价，以及含贵公司 GSTIN 的 GST 发票。",
+  "product.techData": "技术资料",
+  "product.download": "下载",
+  "product.newBadge": "新品",
 };
 
 export default dict;

@@ -55,7 +55,7 @@ export function MobileMenu({ categories }: { categories: Category[] }) {
             </ul>
             <ul className="border-t border-slate-200 py-2 text-sm">
               <li><Link href="/pcb-repair" className="block px-4 py-2.5 font-semibold text-accent-600 hover:bg-brand-50">🔧 {t("nav.pcbRepairService")}</Link></li>
-              <li><Link href="/products?sort=newest" className="block px-4 py-2.5 hover:bg-brand-50">{t("nav.newArrivals")}</Link></li>
+              <li><Link href="/products?new=1" className="block px-4 py-2.5 hover:bg-brand-50">{t("nav.newArrivals")}</Link></li>
               <li><Link href="/products?sort=best-selling" className="block px-4 py-2.5 hover:bg-brand-50">{t("nav.bestSellers")}</Link></li>
               <li><Link href="/wishlist" className="block px-4 py-2.5 hover:bg-brand-50">{t("nav.wishlist")}</Link></li>
               <li><Link href="/track" className="block px-4 py-2.5 hover:bg-brand-50">{t("nav.trackOrder")}</Link></li>

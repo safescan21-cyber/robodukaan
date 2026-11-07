@@ -72,7 +72,7 @@ export async function Header() {
         <div className="mx-auto flex max-w-7xl items-stretch px-4">
           <CategoryMenu categories={categories} />
           <ul className="flex items-center text-sm font-medium">
-            <li><Link href="/products?sort=newest" className="block px-4 py-3 hover:bg-white/10">{t("nav.newArrivals")}</Link></li>
+            <li><Link href="/products?new=1" className="block px-4 py-3 hover:bg-white/10">{t("nav.newArrivals")}</Link></li>
             <li><Link href="/products?sort=best-selling" className="block px-4 py-3 hover:bg-white/10">{t("nav.bestSellers")}</Link></li>
             {categories.slice(0, 3).map((c) => (
               <li key={c.id}>

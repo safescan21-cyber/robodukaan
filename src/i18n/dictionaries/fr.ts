@@ -556,6 +556,9 @@ const dict: Record<string, string> = {
   "home.svcFaultText": "Que signifient oc, ov, Lv, E.OC1 ou F0001 – et comment y remédier.",
   "home.svcQuote": "Volume et entreprises",
   "home.svcQuoteText": "Devis dès 10 pièces et factures GST avec le GSTIN de votre entreprise.",
+  "product.techData": "Données techniques",
+  "product.download": "Télécharger",
+  "product.newBadge": "Nouveau",
 };
 
 export default dict;

@@ -556,6 +556,9 @@ const dict: Record<string, string> = {
   "home.svcFaultText": "oc、ov、Lv、E.OC1、F0001の意味と対処法。",
   "home.svcQuote": "まとめ買い・法人",
   "home.svcQuoteText": "10個以上の見積もりと、会社GSTIN入りGSTインボイス。",
+  "product.techData": "技術資料",
+  "product.download": "ダウンロード",
+  "product.newBadge": "新着",
 };
 
 export default dict;

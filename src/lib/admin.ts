@@ -34,6 +34,29 @@ export async function uploadVideo(file: File, folder = "videos"): Promise<string
   return supabase.storage.from("product-images").getPublicUrl(path).data.publicUrl;
 }
 
+// Technical data files (datasheets, manuals, drawings) → public "product-docs" bucket (migration 010).
+const DOC_EXTENSIONS = ["pdf", "doc", "docx", "xls", "xlsx", "zip", "png", "jpg", "jpeg", "webp", "txt", "csv", "dwg", "dxf", "step", "stp"];
+export const DOC_ACCEPT = DOC_EXTENSIONS.map((e) => `.${e}`).join(",");
+
+export async function uploadDocument(file: File, folder = "products"): Promise<{ name: string; url: string; size: number; type: string }> {
+  const ext = (file.name.split(".").pop() || "").toLowerCase();
+  if (!DOC_EXTENSIONS.includes(ext)) throw new Error(`"${file.name}": allowed files are ${DOC_EXTENSIONS.join(", ").toUpperCase()}.`);
+  if (file.size > 25 * 1024 * 1024) throw new Error(`"${file.name}" is larger than 25 MB.`);
+  const base = file.name.slice(0, -(ext.length + 1));
+  const safe = base.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "file";
+  const path = `${folder}/${Date.now()}-${safe}.${ext}`;
+  const supabase = getSupabase();
+  const { error } = await supabase.storage.from("product-docs").upload(path, file, {
+    cacheControl: "86400", upsert: false, contentType: file.type || "application/octet-stream",
+  });
+  if (error) {
+    throw new Error(/bucket not found/i.test(error.message)
+      ? "File storage isn't set up yet: run supabase/migrations/RUN-IN-SUPABASE.sql (update 010) in Supabase."
+      : error.message);
+  }
+  return { name: base.replace(/[_-]+/g, " ").trim() || file.name, url: supabase.storage.from("product-docs").getPublicUrl(path).data.publicUrl, size: file.size, type: ext };
+}
+
 export const adminField =
   "mt-1 w-full rounded border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100";
 export const adminButton =

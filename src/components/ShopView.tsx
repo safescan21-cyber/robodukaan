@@ -32,6 +32,7 @@ export function parseShopQuery(sp: Params, fixedCategory?: string): ProductQuery
     minPrice: num(sp.min),
     maxPrice: num(sp.max),
     inStock: one(sp.stock) === "1",
+    newArrival: one(sp.new) === "1",
     page: Math.max(1, Math.floor(num(sp.page) ?? 1)),
     pageSize: PAGE_SIZE,
   };
@@ -46,6 +47,7 @@ function hrefWith(basePath: string, query: ProductQuery, fixedCategory: boolean,
     min: query.minPrice?.toString(),
     max: query.maxPrice?.toString(),
     stock: query.inStock ? "1" : undefined,
+    new: query.newArrival ? "1" : undefined,
     page: query.page && query.page > 1 ? String(query.page) : undefined,
   };
   for (const [k, v] of Object.entries({ ...current, ...changes })) if (v) p.set(k, v);

@@ -556,6 +556,9 @@ const dict: Record<string, string> = {
   "home.svcFaultText": "oc, ov, Lv, E.OC1, F0001의 의미와 해결 방법.",
   "home.svcQuote": "대량 및 사업자",
   "home.svcQuoteText": "10개 이상 견적과 회사 GSTIN이 포함된 GST 인보이스.",
+  "product.techData": "기술 자료",
+  "product.download": "다운로드",
+  "product.newBadge": "신상품",
 };
 
 export default dict;
