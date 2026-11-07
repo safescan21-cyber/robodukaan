@@ -3,11 +3,16 @@
 import { getSupabase } from "./supabase-browser";
 
 // Tell the server to refresh cached catalog pages after an admin change.
-export async function revalidateCatalog() {
+// paths: pages that changed (e.g. "/products/x"); search engines are told about them via IndexNow.
+export async function revalidateCatalog(paths: string[] = []) {
   const { data } = await getSupabase().auth.getSession();
   const token = data.session?.access_token;
   if (!token) return;
-  await fetch("/api/revalidate", { method: "POST", headers: { Authorization: `Bearer ${token}` } }).catch(() => {});
+  await fetch("/api/revalidate", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ paths }),
+  }).catch(() => {});
 }
 
 // Upload an image to the public "product-images" bucket and return its URL.

@@ -187,6 +187,7 @@ async function ProductDetail({ params }: Pick<PageProps<"/[lang]/products/[slug]
       <JsonLd data={schema} />
       <JsonLd data={breadcrumbs} />
       <Breadcrumbs
+        schema={false}
         items={[
           { label: t("nav.shop"), href: "/products" },
           ...(product.category ? [{ label: product.category.name, href: `/category/${product.category.slug}` }] : []),

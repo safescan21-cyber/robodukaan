@@ -1,6 +1,7 @@
 import { revalidateTag } from "next/cache";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { emailConfigured, sendBackInStockEmail } from "@/lib/email";
+import { pingIndexNow } from "@/lib/indexnow";
 
 // Refreshes cached catalog pages so changes show at once.
 // - Admins: after any catalog change in the admin panel.
@@ -17,14 +18,17 @@ export async function POST(request: Request) {
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     { auth: { persistSession: false }, global: { headers: { Authorization: `Bearer ${token}` } } },
   );
+  const body = await request.json().catch(() => ({}));
   const { data: isAdmin, error } = await supabase.rpc("is_admin");
   if (!error && isAdmin === true) {
     revalidateTag("catalog", { expire: 0 });
     const notified = await sendStockAlerts(supabase).catch(() => 0);
-    return Response.json({ ok: true, notified });
+    // Tell search engines about changed pages (only plain site paths, at most 50).
+    const paths = Array.isArray(body?.paths) ? body.paths.filter((p: unknown) => typeof p === "string" && /^\/[a-z0-9\/-]*$/.test(p)).slice(0, 50) : [];
+    const indexed = paths.length ? await pingIndexNow(paths) : false;
+    return Response.json({ ok: true, notified, indexed });
   }
 
-  const body = await request.json().catch(() => ({}));
   if (body?.reason !== "review") return Response.json({ error: "Admins only" }, { status: 403 });
   const { data: userData } = await supabase.auth.getUser(token);
   const userId = userData.user?.id;

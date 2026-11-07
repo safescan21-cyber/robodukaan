@@ -3,6 +3,7 @@ import Link from "@/i18n/client";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { RepairForm } from "@/components/RepairForm";
 import { BOARD_TYPES } from "@/lib/constants";
+import { REPAIR_SERVICES } from "@/lib/seo-content";
 import { getT, alternatesFor } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -44,7 +45,7 @@ export default async function PcbRepairPage() {
       </section>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
-        <section>
+        <section id="repair-form" className="scroll-mt-24">
           <h2 className="mb-4 text-xl font-bold">{t("repairPage.sendTitle")}</h2>
           <RepairForm />
         </section>
@@ -55,6 +56,13 @@ export default async function PcbRepairPage() {
               {BOARD_TYPES.filter((b) => b !== "Other").map((b, i) => <li key={b}>✓ {t(`board.${i}`)}</li>)}
             </ul>
             <Link href="/locations" className="mt-3 inline-block text-sm font-semibold text-brand-700 hover:underline">{t("repairPage.everyState")} <span className="inline-block rtl:-scale-x-100">→</span></Link>
+          </div>
+          <div className="rounded-md bg-white p-5 ring-1 ring-slate-200">
+            <h3 className="text-sm font-bold uppercase tracking-wide">🔧 Repair services</h3>
+            <ul className="mt-3 space-y-1.5 text-sm">
+              {REPAIR_SERVICES.map((r) => <li key={r.slug}><Link href={`/pcb-repair/${r.slug}`} className="text-brand-700 hover:underline">{r.name}</Link></li>)}
+              <li><Link href="/fault-codes" className="text-brand-700 hover:underline">⚠️ {t("nav.faultCodes")}</Link></li>
+            </ul>
           </div>
           <div className="rounded-md bg-accent-50 p-5 text-sm ring-1 ring-accent-400/30">
             <h3 className="font-bold">{t("repairPage.tipsTitle")}</h3>

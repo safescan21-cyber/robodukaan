@@ -67,7 +67,7 @@ async function StateContent({ params }: Pick<PageProps<"/[lang]/locations/[state
           { "@type": "ListItem", position: 3, name: s.name, item: `${SITE}/locations/${s.slug}` },
         ],
       }} />
-      <Breadcrumbs items={[{ label: (await getT()).t("nav.areas"), href: "/locations" }, { label: s.name }]} />
+      <Breadcrumbs schema={false} items={[{ label: (await getT()).t("nav.areas"), href: "/locations" }, { label: s.name }]} />
       <section className="rounded-md bg-gradient-to-r from-brand-800 to-brand-600 p-6 text-white sm:p-8">
         <h1 className="text-3xl font-extrabold">Industrial PCB repair &amp; electronics in {s.name}</h1>
         <p className="mt-3 max-w-3xl text-brand-100">

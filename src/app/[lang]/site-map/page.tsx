@@ -5,6 +5,8 @@ import { getAllProductLinks, getCategories, getOpenJobs } from "@/lib/data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { STATES, areasIn } from "@/lib/locations";
+import { REPAIR_SERVICES } from "@/lib/seo-content";
+import { DRIVE_BRANDS } from "@/lib/fault-codes";
 import { getT, alternatesFor } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -108,6 +110,19 @@ async function CatalogAndJobs() {
             </section>
           );
         })}
+      </div>
+      <h2 className="mb-4 mt-8 text-xl font-bold">{t("nav.pcbRepairService")}</h2>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <section className="rounded-md bg-white p-5 ring-1 ring-slate-200">
+          <ul className="space-y-1.5 text-sm">
+            {REPAIR_SERVICES.map((r) => <li key={r.slug}><Link href={`/pcb-repair/${r.slug}`} className="text-brand-700 hover:underline">{r.name}</Link></li>)}
+          </ul>
+        </section>
+        <section className="rounded-md bg-white p-5 ring-1 ring-slate-200">
+          <ul className="space-y-1.5 text-sm">
+            {DRIVE_BRANDS.map((b) => <li key={b.slug}><Link href={`/fault-codes/${b.slug}`} className="text-brand-700 hover:underline">{b.brand} – {t("nav.faultCodes")}</Link></li>)}
+          </ul>
+        </section>
       </div>
       <h2 className="mb-4 mt-8 text-xl font-bold">{t("nav.areas")}</h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

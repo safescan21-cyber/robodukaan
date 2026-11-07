@@ -121,7 +121,9 @@ export function ProductForm({ product }: { product?: Product }) {
       setError(error.message.includes("duplicate key") ? "Another product already uses this SKU or URL slug." : error.message);
       return;
     }
-    await revalidateCatalog();
+    // Refresh the shop and tell search engines about the product page (and its category).
+    const categorySlug = categories.find((c) => c.id === values.category_id)?.slug;
+    await revalidateCatalog([`/products/${values.slug}`, ...(categorySlug ? [`/category/${categorySlug}`] : [])]);
     router.push("/admin/products");
   }
 

@@ -68,7 +68,7 @@ async function AreaContent({ params }: Pick<PageProps<"/[lang]/locations/[state]
           { "@type": "ListItem", position: 4, name: x.name, item: `${SITE}/locations/${s.slug}/${x.slug}` },
         ],
       }} />
-      <Breadcrumbs items={[{ label: (await getT()).t("nav.areas"), href: "/locations" }, { label: s.name, href: `/locations/${s.slug}` }, { label: x.name }]} />
+      <Breadcrumbs schema={false} items={[{ label: (await getT()).t("nav.areas"), href: "/locations" }, { label: s.name, href: `/locations/${s.slug}` }, { label: x.name }]} />
       <section className="rounded-md bg-gradient-to-r from-brand-800 to-brand-600 p-6 text-white sm:p-8">
         <p className="text-xs font-semibold uppercase tracking-widest text-accent-400">{x.city}, {s.name}</p>
         <h1 className="mt-1 text-3xl font-extrabold">PCB repair &amp; industrial electronics in {x.name}</h1>

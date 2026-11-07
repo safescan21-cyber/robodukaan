@@ -54,7 +54,7 @@ async function BrandFaults({ params }: Pick<PageProps<"/[lang]/fault-codes/[bran
           { "@type": "ListItem", position: 3, name: `${b.brand} fault codes`, item: `${SITE}/fault-codes/${b.slug}` },
         ],
       }} />
-      <Breadcrumbs items={[{ label: t("nav.faultCodes"), href: "/fault-codes" }, { label: b.brand }]} />
+      <Breadcrumbs schema={false} items={[{ label: t("nav.faultCodes"), href: "/fault-codes" }, { label: b.brand }]} />
       <h1 className="text-3xl font-extrabold">{b.brand} VFD fault codes</h1>
       <p className="mt-1 text-sm text-slate-500">{b.series}</p>
       <p className="mt-3 max-w-3xl text-slate-700">{b.intro}</p>

@@ -1,0 +1,36 @@
+# PCBDukaan
+
+> PCBDukaan (pcbdukaan.com) is an Indian online store for industrial electronics and a component-level industrial PCB repair service. It supplies factories, OEMs, panel builders and maintenance engineers across India with industrial control boards, SMPS and power supplies, VFD and motor-drive boards, PLC and I/O modules, load cells and weighing indicators, industrial sensors, relays and power components, HMIs, communication modules and test & repair tools. Prices are shown excluding 18% GST; GST invoices (with the buyer's company GSTIN) and cash on delivery are available across India.
+
+## Shop
+- [All products](https://pcbdukaan.com/products): full catalogue with search, brand and price filters
+- [Industrial control boards](https://pcbdukaan.com/category/industrial-control-boards)
+- [SMPS & power supplies](https://pcbdukaan.com/category/smps-power-supplies)
+- [VFD & motor drive boards](https://pcbdukaan.com/category/vfd-motor-drives)
+- [PLC & I/O modules](https://pcbdukaan.com/category/plc-io-modules)
+- [Load cells & weighing](https://pcbdukaan.com/category/load-cells-weighing)
+- [Industrial sensors](https://pcbdukaan.com/category/industrial-sensors)
+- [Relays & power components](https://pcbdukaan.com/category/relays-power-components)
+- [Bulk quotes for factories and OEMs](https://pcbdukaan.com/bulk-quote)
+- [Replacement part finder](https://pcbdukaan.com/replacement-finder): search by other brands' part numbers (Omron, Siemens, Mean Well …)
+
+## PCB repair
+- [PCB repair service](https://pcbdukaan.com/pcb-repair): upload board photos, free quote usually within 1–2 working days, courier to and from anywhere in India
+- [VFD / AC drive repair](https://pcbdukaan.com/pcb-repair/vfd-drive-repair)
+- [SMPS repair](https://pcbdukaan.com/pcb-repair/smps-repair)
+- [Inverter & UPS card repair](https://pcbdukaan.com/pcb-repair/inverter-ups-repair)
+- [PLC repair](https://pcbdukaan.com/pcb-repair/plc-repair)
+- [Machine control board repair](https://pcbdukaan.com/pcb-repair/machine-control-board-repair)
+- [Weighing indicator repair](https://pcbdukaan.com/pcb-repair/weighing-indicator-repair)
+- [Servo drive repair](https://pcbdukaan.com/pcb-repair/servo-drive-repair)
+- [HMI repair](https://pcbdukaan.com/pcb-repair/hmi-repair)
+
+## Guides
+- [VFD fault codes](https://pcbdukaan.com/fault-codes): meanings, causes and checks for Delta, Yaskawa, Mitsubishi, Siemens, ABB, Schneider and Danfoss drives
+- [Areas served](https://pcbdukaan.com/locations): every Indian state and major industrial area
+
+## Company
+- [About](https://pcbdukaan.com/about)
+- [Contact](https://pcbdukaan.com/contact): sonugiri@pcbdukaan.in
+- [Shipping & returns](https://pcbdukaan.com/shipping-returns): free shipping above ₹499, dispatch within 24 hours on working days, delivery in 2–7 working days, 7-day replacement for damaged or defective items
+- Languages: English, Hindi (/hi), Urdu (/ur), French (/fr), Korean (/ko), Japanese (/ja), Chinese (/zh)
