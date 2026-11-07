@@ -9,6 +9,7 @@ import { getT } from "@/i18n/server";
 import { REPAIR_SERVICES, getRepairService } from "@/lib/seo-content";
 import { DRIVE_BRANDS } from "@/lib/fault-codes";
 import { STATES } from "@/lib/locations";
+import { RepairPrices, RepairPromise } from "@/components/RepairPromise";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://pcbdukaan.com";
 
@@ -53,6 +54,14 @@ async function Service({ params }: Pick<PageProps<"/[lang]/pcb-repair/[service]"
         url: `${SITE}/pcb-repair/${s.slug}`,
         provider: { "@type": "Organization", name: "PCBDukaan", url: SITE },
         areaServed: { "@type": "Country", name: "India" },
+        ...(s.prices?.length ? {
+          offers: {
+            "@type": "AggregateOffer",
+            priceCurrency: "INR",
+            lowPrice: Math.min(...s.prices.map((p) => p.from)),
+            ...(s.prices.every((p) => p.to) ? { highPrice: Math.max(...s.prices.map((p) => p.to!)) } : {}),
+          },
+        } : {}),
       }} />
       <Breadcrumbs items={[{ label: t("nav.pcbRepair"), href: "/pcb-repair" }, { label: s.name }]} />
 
@@ -78,6 +87,11 @@ async function Service({ params }: Pick<PageProps<"/[lang]/pcb-repair/[service]"
             <li>{t("repairPage.s4t")}</li>
           </ol>
         </section>
+      </div>
+
+      <div className="mt-6 grid gap-6 md:grid-cols-2">
+        {s.prices?.length ? <RepairPrices service={s} /> : null}
+        <RepairPromise className={s.prices?.length ? "" : "md:col-span-2"} />
       </div>
 
       {faultBrands.length > 0 && (

@@ -593,6 +593,18 @@ const dict: Record<string, string> = {
   "stock.done": "Done! We’ll email you once when it’s back in stock.",
   "meta.productTail": "{price} + GST · In stock · Cash on delivery across India.",
   "meta.productTailOut": "{price} + GST · Back soon · Get a back-in-stock alert.",
+  "repairTerms.title": "Our repair promise",
+  "repairTerms.freeCheck": "Free photo check and quote",
+  "repairTerms.approval": "No work without your approval of the price",
+  "repairTerms.tested": "Every repaired board is load-tested before dispatch",
+  "repairTerms.video": "You get a test video before we ship it back",
+  "repairTerms.warranty": "{n}-month warranty on the repair",
+  "repairTerms.pricesTitle": "Typical repair prices",
+  "repairTerms.pricesNote": "Typical ranges, + GST. Your exact price comes in the free quote after the photo check.",
+  "repairTerms.from": "from {price}",
+  "repairTerms.onQuote": "Price after free photo check",
+  "product.bis": "BIS registration no.",
+  "nav.partners": "Technician partners",
 };
 
 export default dict;

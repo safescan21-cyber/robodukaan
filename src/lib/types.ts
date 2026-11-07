@@ -33,6 +33,7 @@ export type Product = {
   documents: ProductDocument[];
   warranty_months: number;
   hsn_code?: string | null;
+  bis_number?: string | null;
   ready_to_dispatch: boolean;
   rating_avg: number;
   rating_count: number;
@@ -251,6 +252,23 @@ export type QuoteRequest = {
   message: string | null;
   status: QuoteStatus;
   quoted_amount: number | null;
+  admin_notes: string | null;
+  created_at: string;
+};
+
+export type PartnerStatus = "new" | "contacted" | "active" | "rejected";
+export type PartnerApplication = {
+  id: string;
+  user_id: string | null;
+  name: string;
+  business_name: string | null;
+  phone: string;
+  email: string | null;
+  city: string;
+  state: string | null;
+  experience: string | null;
+  message: string | null;
+  status: PartnerStatus;
   admin_notes: string | null;
   created_at: string;
 };

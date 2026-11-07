@@ -96,6 +96,7 @@ export function ProductForm({ product }: { product?: Product }) {
       stock: num("stock") ?? 0,
       warranty_months: num("warranty_months") ?? 0,
       hsn_code: String(f.get("hsn_code") ?? "").trim() || null,
+      ...bisPatch(String(f.get("bis_number") ?? "").trim().toUpperCase(), product?.bis_number),
       // Only sent when used, so saving still works before migration 009 adds the column.
       ...equivalentsPatch(String(f.get("equivalents") ?? "").trim(), product?.equivalents),
       ready_to_dispatch: f.get("ready_to_dispatch") === "on",
@@ -250,6 +251,7 @@ export function ProductForm({ product }: { product?: Product }) {
             <label className="block text-sm font-medium">Stock *<input name="stock" type="number" min={0} required defaultValue={product?.stock ?? 0} className={adminField} /></label>
             <label className="block text-sm font-medium">Warranty (months)<input name="warranty_months" type="number" min={0} defaultValue={product?.warranty_months ?? 0} className={adminField} /></label>
             <label className="col-span-2 block text-sm font-medium">HSN code<input name="hsn_code" defaultValue={product?.hsn_code ?? ""} placeholder="blank = use the category’s HSN" className={adminField} /></label>
+            <label className="col-span-2 block text-sm font-medium">BIS registration no. <span className="font-normal text-slate-500">(required by law for SMPS / adaptors up to 48 V – shown on the product page)</span><input name="bis_number" defaultValue={product?.bis_number ?? ""} maxLength={40} placeholder="e.g. R-41012345" className={`${adminField} uppercase`} /></label>
           </div>
           <p className="text-xs text-slate-500">Enter prices <b>excluding GST</b>. 18% GST is added at checkout.</p>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="ready_to_dispatch" defaultChecked={product?.ready_to_dispatch ?? true} className="h-4 w-4 accent-brand-600" />Ready to dispatch (ships in 24h)</label>
@@ -277,4 +279,10 @@ function equivalentsPatch(value: string, current: string | null | undefined): { 
 function newArrivalPatch(checked: boolean, current: boolean | undefined): { is_new_arrival?: boolean } {
   if (checked) return { is_new_arrival: true };
   return current ? { is_new_arrival: false } : {};
+}
+
+// Only include "bis_number" when it's used, so saving still works before migration 016 adds the column.
+function bisPatch(value: string, current: string | null | undefined): { bis_number?: string | null } {
+  if (value) return { bis_number: value };
+  return current ? { bis_number: null } : {};
 }

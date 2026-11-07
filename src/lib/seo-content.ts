@@ -134,9 +134,11 @@ export type RepairService = {
   category?: string;      // shop category with replacement parts
   faultCodes?: string[];  // fault-code brand pages to link
   faqs: Faq[];
+  // Typical repair price ranges (₹, + GST). The final price comes in the free quote after the photo check.
+  prices?: { item: string; from: number; to?: number }[];
 };
 
-const PROCESS_FAQ: Faq = { q: "How does the repair work?", a: "Upload clear photos of the board and describe the fault. Our technician checks them and emails you a free quote, usually within 1–2 working days. If you approve, courier the board to us – we repair it at component level, test it and ship it back." };
+const PROCESS_FAQ: Faq = { q: "How does the repair work?", a: "Upload clear photos of the board and describe the fault. Our technician checks them and emails you a free quote, usually within 1–2 working days. Nothing is repaired without your approval. If you approve, courier the board to us – we repair it at component level, load-test it and ship it back." };
 
 export const REPAIR_SERVICES: RepairService[] = [
   {
@@ -149,6 +151,7 @@ export const REPAIR_SERVICES: RepairService[] = [
     brands: ["Delta", "Yaskawa", "Mitsubishi", "Siemens", "ABB", "Schneider", "Danfoss", "INVT", "Fuji"],
     category: "vfd-motor-drives",
     faultCodes: ["delta", "yaskawa", "mitsubishi", "siemens", "abb", "schneider", "danfoss"],
+    prices: [{ item: "Small VFD, up to 5.5 kW", from: 2000, to: 8000 }, { item: "VFD 7.5 – 22 kW", from: 8000, to: 25000 }, { item: "VFD 30 – 75 kW", from: 25000, to: 55000 }, { item: "Above 75 kW", from: 55000 }],
     faqs: [PROCESS_FAQ, { q: "Can a VFD with a burnt IGBT be repaired?", a: "In most cases yes – the IGBT module, gate driver and related parts are replaced and the drive is tested. We'll tell you in the quote if repair isn't worthwhile." }],
   },
   {
@@ -160,6 +163,7 @@ export const REPAIR_SERVICES: RepairService[] = [
     faults: ["No output or output keeps cycling (blinking LED)", "Low or unstable output voltage", "Blown fuse / burnt MOSFET or rectifier", "Swollen or leaking capacitors", "Fan or overheating faults"],
     brands: ["Mean Well", "Delta", "Omron", "Siemens SITOP", "Phoenix Contact", "Schneider", "machine-builder SMPS"],
     category: "smps-power-supplies",
+    prices: [{ item: "DIN-rail / enclosed SMPS", from: 600, to: 1500 }, { item: "High-power or special SMPS", from: 1500, to: 5000 }],
     faqs: [PROCESS_FAQ, { q: "Is it worth repairing a cheap SMPS?", a: "For low-cost units a new SMPS is often faster – see our SMPS range. Repair makes sense for special, high-power or hard-to-find supplies." }],
   },
   {
@@ -182,6 +186,7 @@ export const REPAIR_SERVICES: RepairService[] = [
     faults: ["PLC doesn't power up or keeps resetting", "Dead inputs or outputs", "Relay output stuck or burnt", "Communication port (RS232/RS485) not working", "Battery / memory errors"],
     brands: ["Siemens", "Allen-Bradley", "Mitsubishi", "Omron", "Delta", "Schneider", "Fatek"],
     category: "plc-io-modules",
+    prices: [{ item: "Compact PLC / I/O module", from: 1000, to: 5000 }, { item: "PLC CPU, large modular PLC", from: 5000 }],
     faqs: [PROCESS_FAQ, { q: "Will repairing the PLC erase my program?", a: "We don't intentionally clear programs, but memory can be lost when batteries or power sections fail. Always keep a backup of your PLC program before sending the unit." }],
   },
   {
@@ -193,6 +198,7 @@ export const REPAIR_SERVICES: RepairService[] = [
     faults: ["Board doesn't power up", "Inputs or outputs not working", "Display or keypad faults", "Burnt tracks, connectors or components", "Intermittent faults when warm"],
     brands: ["CNC controllers", "injection moulding machines", "packing machines", "textile machines", "printing machines"],
     category: "industrial-control-boards",
+    prices: [{ item: "CNC / machine control card", from: 2500, to: 5500 }, { item: "Large or multi-layer machine board", from: 5500 }],
     faqs: [PROCESS_FAQ, { q: "Can you repair a board without a circuit diagram?", a: "Often yes – most faults can be traced at component level without a diagram. Clear photos of both sides of the board help us quote accurately." }],
   },
   {
@@ -215,6 +221,7 @@ export const REPAIR_SERVICES: RepairService[] = [
     faults: ["Overcurrent or power-stage alarms", "Encoder or feedback errors", "No display or drive won't start", "Regeneration / overvoltage alarms", "Burnt power components"],
     brands: ["Delta", "Mitsubishi", "Yaskawa", "Panasonic", "Siemens", "Fanuc"],
     category: "vfd-motor-drives",
+    prices: [{ item: "AC servo drive / amplifier", from: 4500, to: 18000 }, { item: "CNC spindle / large servo amplifier", from: 18000 }],
     faqs: [PROCESS_FAQ],
   },
   {
@@ -226,6 +233,7 @@ export const REPAIR_SERVICES: RepairService[] = [
     faults: ["Touch not responding or wrong touch position", "Blank, dim or flickering display", "HMI doesn't power up", "No communication with the PLC", "Cracked touch glass"],
     brands: ["Delta", "Siemens", "Weintek", "Mitsubishi", "Schneider", "Kinco"],
     category: "displays-hmi",
+    prices: [{ item: "HMI / touch panel up to 7 inch", from: 2000, to: 5000 }, { item: "Larger HMI or panel PC", from: 5000 }],
     faqs: [PROCESS_FAQ],
   },
 ];

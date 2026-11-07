@@ -592,6 +592,18 @@ const dict: Record<string, string> = {
   "stock.done": "已登记！到货后我们会发一次邮件通知您。",
   "meta.productTail": "{price} + GST · 有货 · 全印度货到付款。",
   "meta.productTailOut": "{price} + GST · 即将到货 · 订阅到货提醒。",
+  "repairTerms.title": "我们的维修承诺",
+  "repairTerms.freeCheck": "免费照片检测和报价",
+  "repairTerms.approval": "未经您确认价格不会开始维修",
+  "repairTerms.tested": "每块维修好的电路板发货前都经过带载测试",
+  "repairTerms.video": "寄回前向您发送测试视频",
+  "repairTerms.warranty": "维修保修 {n} 个月",
+  "repairTerms.pricesTitle": "常见维修价格",
+  "repairTerms.pricesNote": "常见价格区间，另加 GST。照片检测后的免费报价会给出准确价格。",
+  "repairTerms.from": "{price} 起",
+  "repairTerms.onQuote": "免费照片检测后报价",
+  "product.bis": "BIS 注册号",
+  "nav.partners": "技术员合作伙伴",
 };
 
 export default dict;

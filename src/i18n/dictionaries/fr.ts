@@ -592,6 +592,18 @@ const dict: Record<string, string> = {
   "stock.done": "C’est noté ! Nous vous écrirons une fois dès le retour en stock.",
   "meta.productTail": "{price} + GST · En stock · Paiement à la livraison partout en Inde.",
   "meta.productTailOut": "{price} + GST · Bientôt disponible · Alerte retour en stock.",
+  "repairTerms.title": "Notre engagement réparation",
+  "repairTerms.freeCheck": "Diagnostic sur photo et devis gratuits",
+  "repairTerms.approval": "Aucun travail sans votre accord sur le prix",
+  "repairTerms.tested": "Chaque carte réparée est testée en charge avant l’envoi",
+  "repairTerms.video": "Vous recevez une vidéo du test avant le renvoi",
+  "repairTerms.warranty": "Garantie de {n} mois sur la réparation",
+  "repairTerms.pricesTitle": "Prix de réparation habituels",
+  "repairTerms.pricesNote": "Fourchettes habituelles, + GST. Votre prix exact figure dans le devis gratuit après examen des photos.",
+  "repairTerms.from": "à partir de {price}",
+  "repairTerms.onQuote": "Prix après examen gratuit des photos",
+  "product.bis": "N° d’enregistrement BIS",
+  "nav.partners": "Techniciens partenaires",
 };
 
 export default dict;

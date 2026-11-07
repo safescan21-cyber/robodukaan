@@ -592,6 +592,18 @@ const dict: Record<string, string> = {
   "stock.done": "登録しました！再入荷したら一度だけメールでお知らせします。",
   "meta.productTail": "{price} + GST · 在庫あり · インド全土で代金引換。",
   "meta.productTailOut": "{price} + GST · 近日入荷 · 再入荷通知を受け取る。",
+  "repairTerms.title": "修理のお約束",
+  "repairTerms.freeCheck": "写真による無料診断・見積もり",
+  "repairTerms.approval": "価格のご承認なしに作業はしません",
+  "repairTerms.tested": "修理した基板はすべて発送前に負荷試験",
+  "repairTerms.video": "返送前に試験動画をお送りします",
+  "repairTerms.warranty": "修理に{n}か月保証",
+  "repairTerms.pricesTitle": "修理料金の目安",
+  "repairTerms.pricesNote": "一般的な範囲（GST別）。正確な価格は写真診断後の無料見積もりでお知らせします。",
+  "repairTerms.from": "{price}から",
+  "repairTerms.onQuote": "無料写真診断後に価格をご案内",
+  "product.bis": "BIS登録番号",
+  "nav.partners": "技術者パートナー",
 };
 
 export default dict;

@@ -592,6 +592,18 @@ const dict: Record<string, string> = {
   "stock.done": "हो गया! स्टॉक वापस आने पर हम एक बार ईमेल करेंगे।",
   "meta.productTail": "{price} + GST · स्टॉक में · पूरे भारत में कैश ऑन डिलीवरी।",
   "meta.productTailOut": "{price} + GST · जल्द उपलब्ध · स्टॉक अलर्ट पाएँ।",
+  "repairTerms.title": "हमारा रिपेयर वादा",
+  "repairTerms.freeCheck": "फ़ोटो से मुफ़्त जाँच और कोटेशन",
+  "repairTerms.approval": "आपकी कीमत की मंज़ूरी के बिना कोई काम नहीं",
+  "repairTerms.tested": "हर रिपेयर बोर्ड भेजने से पहले लोड-टेस्ट होता है",
+  "repairTerms.video": "वापस भेजने से पहले आपको टेस्ट वीडियो मिलता है",
+  "repairTerms.warranty": "रिपेयर पर {n} महीने की वारंटी",
+  "repairTerms.pricesTitle": "सामान्य रिपेयर कीमतें",
+  "repairTerms.pricesNote": "सामान्य रेंज, + GST। आपकी सही कीमत फ़ोटो जाँच के बाद मुफ़्त कोटेशन में आती है।",
+  "repairTerms.from": "{price} से",
+  "repairTerms.onQuote": "मुफ़्त फ़ोटो जाँच के बाद कीमत",
+  "product.bis": "BIS पंजीकरण नं.",
+  "nav.partners": "टेक्नीशियन पार्टनर",
 };
 
 export default dict;

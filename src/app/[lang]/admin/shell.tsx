@@ -12,6 +12,7 @@ const ITEMS = [
   { href: "/admin/sales-by-area", label: "Sales by area", icon: "🗺️" },
   { href: "/admin/repairs", label: "PCB repairs", icon: "🔧" },
   { href: "/admin/quotes", label: "Bulk quotes", icon: "📑" },
+  { href: "/admin/partners", label: "Partners", icon: "🤝" },
   { href: "/admin/products", label: "Products", icon: "🧩" },
   { href: "/admin/categories", label: "Categories", icon: "🗂️" },
   { href: "/admin/customers", label: "Customers", icon: "👥" },

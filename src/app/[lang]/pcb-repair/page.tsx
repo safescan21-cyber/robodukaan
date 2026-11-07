@@ -5,6 +5,7 @@ import { RepairForm } from "@/components/RepairForm";
 import { BOARD_TYPES } from "@/lib/constants";
 import { REPAIR_SERVICES } from "@/lib/seo-content";
 import { getT, alternatesFor } from "@/i18n/server";
+import { RepairPrices, RepairPromise } from "@/components/RepairPromise";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getT();
@@ -44,6 +45,11 @@ export default async function PcbRepairPage() {
         ))}
       </section>
 
+      <div className="mt-6 grid items-start gap-6 lg:grid-cols-2">
+        <RepairPromise />
+        <RepairPrices />
+      </div>
+
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
         <section id="repair-form" className="scroll-mt-24">
           <h2 className="mb-4 text-xl font-bold">{t("repairPage.sendTitle")}</h2>
@@ -62,6 +68,7 @@ export default async function PcbRepairPage() {
             <ul className="mt-3 space-y-1.5 text-sm">
               {REPAIR_SERVICES.map((r) => <li key={r.slug}><Link href={`/pcb-repair/${r.slug}`} className="text-brand-700 hover:underline">{r.name}</Link></li>)}
               <li><Link href="/fault-codes" className="text-brand-700 hover:underline">⚠️ {t("nav.faultCodes")}</Link></li>
+              <li><Link href="/repair-partners" className="text-brand-700 hover:underline">🤝 {t("nav.partners")}</Link></li>
             </ul>
           </div>
           <div className="rounded-md bg-accent-50 p-5 text-sm ring-1 ring-accent-400/30">

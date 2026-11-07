@@ -592,6 +592,18 @@ const dict: Record<string, string> = {
   "stock.done": "완료! 재입고되면 한 번 이메일로 알려드립니다.",
   "meta.productTail": "{price} + GST · 재고 있음 · 인도 전역 착불 결제.",
   "meta.productTailOut": "{price} + GST · 곧 입고 · 재입고 알림 받기.",
+  "repairTerms.title": "수리 약속",
+  "repairTerms.freeCheck": "사진 무료 진단 및 견적",
+  "repairTerms.approval": "가격 승인 없이는 작업하지 않습니다",
+  "repairTerms.tested": "수리된 모든 보드는 발송 전 부하 테스트",
+  "repairTerms.video": "반송 전에 테스트 영상을 보내드립니다",
+  "repairTerms.warranty": "수리 {n}개월 보증",
+  "repairTerms.pricesTitle": "일반 수리 가격",
+  "repairTerms.pricesNote": "일반적인 범위, GST 별도. 정확한 가격은 사진 진단 후 무료 견적으로 안내합니다.",
+  "repairTerms.from": "{price}부터",
+  "repairTerms.onQuote": "무료 사진 진단 후 가격 안내",
+  "product.bis": "BIS 등록 번호",
+  "nav.partners": "기술자 파트너",
 };
 
 export default dict;

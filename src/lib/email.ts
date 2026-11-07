@@ -2,7 +2,7 @@ import "server-only";
 import nodemailer from "nodemailer";
 import { formatINR } from "./format";
 import { REPAIR_STATUS_LABEL } from "./constants";
-import type { Job, JobApplication, Order, OrderItem, QuoteRequest, RepairRequest } from "./types";
+import type { Job, JobApplication, Order, OrderItem, PartnerApplication, QuoteRequest, RepairRequest } from "./types";
 
 // Emails are sent from this server with the SMTP mailbox set in .env.local
 // (deploy/set-email.sh). If SMTP isn't configured, emails are skipped and logged.
@@ -286,4 +286,26 @@ export async function sendBackInStockEmail(to: string, product: { name: string; 
       `<p>Good news – <b>${esc(product.name)}</b> is available again at ${formatINR(product.price)} + GST. Stock can sell out quickly, so order soon.</p>
 <p style="font-size:13px;color:#64748b">You asked us to tell you when this product was back. This is a one-time email.</p>`,
       { label: "View product", href: `${SITE}/products/${product.slug}` }));
+}
+
+// New technician partner application: admin email + confirmation to the technician.
+export async function sendPartnerApplicationEmails(a: Pick<PartnerApplication, "name" | "business_name" | "phone" | "email" | "city" | "state" | "experience" | "message">) {
+  const results: boolean[] = [];
+  const admin = adminEmail();
+  const details = `<table style="font-size:14px;border-collapse:collapse">
+${[["Name", a.name], ["Business", a.business_name], ["Mobile", a.phone], ["Email", a.email], ["City", [a.city, a.state].filter(Boolean).join(", ")], ["Experience / boards", a.experience], ["Message", a.message]]
+  .filter(([, v]) => v).map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#64748b">${k}</td><td style="padding:4px 0">${esc(v)}</td></tr>`).join("")}
+</table>`;
+  if (admin) {
+    results.push(await send(admin, `🤝 New technician partner: ${a.name.replace(/[\r\n]/g, " ")}, ${a.city.replace(/[\r\n]/g, " ")}`,
+      layout("New technician partner application", details, { label: "Open in admin", href: `${SITE}/admin/partners` }),
+      a.email || undefined));
+  }
+  if (a.email) {
+    results.push(await send(a.email, "Your PCBDukaan partner application",
+      layout("Thanks for applying",
+        `<p>Hi ${esc(a.name.split(" ")[0])}, thanks for your interest in becoming a PCBDukaan repair partner. We’ll call or WhatsApp you within a few working days to explain how it works.</p>${details}`),
+      admin || undefined));
+  }
+  return results.some(Boolean);
 }

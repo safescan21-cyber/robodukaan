@@ -40,6 +40,13 @@ export const STORE = {
   email: "sonugiri@pcbdukaan.in",
 };
 
+// Repair promises shown on every repair page. Change them here and the whole site follows.
+// warrantyMonths: 0 hides the warranty line. testVideo: false hides the "test video" promise.
+export const REPAIR_TERMS = {
+  warrantyMonths: 6,
+  testVideo: true,
+};
+
 export const REPAIR_STATUSES: RepairStatus[] = [
   "new", "reviewing", "quoted", "approved", "in_repair", "repaired", "returned", "rejected", "cancelled",
 ];

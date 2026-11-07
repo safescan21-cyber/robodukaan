@@ -234,6 +234,7 @@ async function ProductDetail({ params }: Pick<PageProps<"/[lang]/products/[slug]
             </li>
             {product.stock > 0 && product.ready_to_dispatch && <li className="text-slate-600">⚡ {t("product.readyDispatch")}</li>}
             {product.warranty_months > 0 && <li className="text-slate-600">🛡 {t("product.warranty", { n: product.warranty_months })}</li>}
+            {product.bis_number && <li className="text-slate-600">✅ {t("product.bis")}: <span className="font-mono">{product.bis_number}</span></li>}
           </ul>
 
           <div className="mt-5">
