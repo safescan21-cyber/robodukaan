@@ -36,13 +36,17 @@ export function InvoiceView({ order }: { order: Order }) {
           )}
 
           <div className="flex items-start justify-between gap-6 border-b-2 border-slate-800 pb-3">
-            <div>
+            <div className="flex gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo-mark.svg" alt="" width={48} height={48} className="h-12 w-12 shrink-0" />
+              <div>
               <p className="text-xl font-bold">{company}</p>
               {SELLER.address && <p className="whitespace-pre-line text-slate-700">{SELLER.address}</p>}
               {SELLER.state && <p className="text-slate-700">State: {SELLER.state}</p>}
               <p className="text-slate-700">{STORE.email}{STORE.phone ? ` · ${STORE.phone}` : ""} · pcbdukaan.com</p>
               {SELLER.gstin && <p className="font-semibold">GSTIN: {SELLER.gstin}</p>}
               {SELLER.pan && <p>PAN: {SELLER.pan}</p>}
+              </div>
             </div>
             <div className="shrink-0 text-right">
               {issued ? (
