@@ -25,7 +25,7 @@ export async function generateMetadata(props: PageProps<"/[lang]/locations/[stat
   const n = areasIn(s.slug).length;
   return {
     title: `PCB repair & electronics in ${s.name}`,
-    description: `Industrial PCB repair and SMPS, VFD, PLC, load cell and sensor supply for factories in ${s.name}${n ? ` — ${n} industrial areas` : ""}. Free repair quotes.`,
+    description: `PCB repair and SMPS, VFD, PLC, load cell and sensor supply for factories in ${s.name}${n ? ` — ${n} industrial areas` : ""}. Free repair quotes.`,
     alternates: { canonical: `/locations/${s.slug}` },
   };
 }

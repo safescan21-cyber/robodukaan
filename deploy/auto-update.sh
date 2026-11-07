@@ -22,10 +22,16 @@ start_chat_setup() {
     || log "Could not start AI chat setup"
 }
 
+# The daily report timer (sales + SEO email at 8 AM); quick and does nothing if already installed.
+ensure_report() {
+  [ -f "$APP_DIR/deploy/ensure-report.sh" ] || return 0
+  APP_DIR="$APP_DIR" bash "$APP_DIR/deploy/ensure-report.sh" || log "Could not install the daily report timer"
+}
+
 as_app "git fetch -q origin main" || { log "git fetch failed"; exit 1; }
 current=$(as_app "git rev-parse HEAD")
 latest=$(as_app "git rev-parse origin/main")
-[ "$current" = "$latest" ] && { start_chat_setup; exit 0; }
+[ "$current" = "$latest" ] && { start_chat_setup; ensure_report; exit 0; }
 
 log "Updating ${current:0:7} -> ${latest:0:7}"
 build() { as_app "git reset -q --hard $1 && npm ci --no-audit --no-fund >/dev/null 2>&1 && NEXT_TELEMETRY_DISABLED=1 npm run build >/dev/null 2>&1"; }
@@ -38,3 +44,4 @@ else
   build "$current" && systemctl restart robodukaan && log "Rolled back to ${current:0:7}"
 fi
 start_chat_setup
+ensure_report
