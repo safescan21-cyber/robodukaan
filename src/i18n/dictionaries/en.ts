@@ -505,6 +505,8 @@ const dict: Record<string, string> = {
   "meta.shipping": "PCBDukaan shipping, returns and cancellations: free shipping over ₹499, dispatch in 24 hours, delivery in 2–7 days, 7-day replacement.",
   "meta.categoryTitle": "{name} – buy online in India",
   "meta.categoryTail": "Buy online with GST invoice, cash on delivery and delivery across India.",
+  "chat.soundOff": "Turn sound off",
+  "chat.soundOn": "Turn sound on",
 };
 
 export default dict;

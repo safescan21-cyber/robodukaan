@@ -504,6 +504,8 @@ const dict: Record<string, string> = {
   "meta.shipping": "Livraison, retours et annulations PCBDukaan : livraison gratuite dès ₹499, expédition sous 24 h, livraison en 2 à 7 jours, remplacement sous 7 jours.",
   "meta.categoryTitle": "{name} – achat en ligne en Inde",
   "meta.categoryTail": "Achat en ligne avec facture GST, paiement à la livraison et livraison dans toute l’Inde.",
+  "chat.soundOff": "Couper le son",
+  "chat.soundOn": "Activer le son",
 };
 
 export default dict;

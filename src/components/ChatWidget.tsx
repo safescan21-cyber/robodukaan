@@ -2,6 +2,7 @@
 
 import Link from "@/i18n/client";
 import { useEffect, useRef, useState } from "react";
+import { playChatSound, setSoundEnabled, soundEnabled } from "@/lib/chat-sound";
 import { formatINR } from "@/lib/format";
 import { useI18n } from "@/i18n/client";
 
@@ -41,13 +42,16 @@ export function ChatWidget() {
   const [messages, setMessages] = useState<Msg[]>([{ role: "assistant", content: GREETING }]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [sound, setSound] = useState(true);
   const endRef = useRef<HTMLDivElement>(null);
+  const teaserRef = useRef(false);
 
   useEffect(() => {
     // Not shown inside the admin panel.
     if (/^(\/(hi|ur|fr|ko|ja|zh))?\/admin(\/|$)/.test(window.location.pathname)) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- decide visibility on the client
     setHidden(false);
+    setSound(soundEnabled());
     let greeted = false;
     try {
       greeted = sessionStorage.getItem(SEEN_KEY) === "1";
@@ -60,6 +64,14 @@ export function ChatWidget() {
     const hide = setTimeout(() => setTeaser(false), 17000);
     return () => { clearTimeout(show); clearTimeout(hide); };
   }, []);
+
+  // Chime when the greeting bubble appears (or at the visitor's first tap, if the browser
+  // doesn't allow sound before that and the bubble is still showing).
+  useEffect(() => {
+    teaserRef.current = teaser;
+    if (!teaser) return;
+    return playChatSound("greet", () => teaserRef.current);
+  }, [teaser]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -80,6 +92,7 @@ export function ChatWidget() {
     if (repairShortcut || (/repair/i.test(content) && content.length < 25)) {
       setMessages((cur) => [...cur, { role: "user", content }, { role: "assistant", content: t("chat.repairAnswer") }]);
       setInput("");
+      playChatSound("reply");
       return;
     }
     const history = [...messages.filter((m, i) => !(i === 0 && m.content === GREETING)), { role: "user" as const, content }];
@@ -110,6 +123,7 @@ export function ChatWidget() {
         setMessages((cur) => [...cur.slice(0, -1), { role: "assistant", content: snapshot }]);
       }
       setMessages((cur) => [...cur.slice(0, -1), { role: "assistant", content: text || t("chat.noAnswer"), products: res.ok ? products : [] }]);
+      if (text) playChatSound("reply");
     } catch {
       setMessages((cur) => [...cur.slice(0, -1), { role: "assistant", content: t("chat.unavailable") }]);
     }
@@ -129,6 +143,15 @@ export function ChatWidget() {
               <p className="font-semibold">{t("chat.title")}</p>
               <p className="text-xs text-brand-100">{t("chat.subtitle")}</p>
             </div>
+            <button
+              onClick={() => { const on = !sound; setSound(on); setSoundEnabled(on); if (on) playChatSound("reply"); }}
+              className="rounded p-1 text-lg leading-none hover:bg-white/10"
+              aria-label={sound ? t("chat.soundOff") : t("chat.soundOn")}
+              aria-pressed={!sound}
+              title={sound ? t("chat.soundOff") : t("chat.soundOn")}
+            >
+              <span aria-hidden="true">{sound ? "🔔" : "🔕"}</span>
+            </button>
             <button onClick={() => setOpen(false)} className="rounded p-1 text-2xl leading-none hover:bg-white/10" aria-label={t("chat.close")}>×</button>
           </header>
           <div className="flex-1 space-y-3 overflow-y-auto bg-slate-50 p-3 text-sm" aria-live="polite">

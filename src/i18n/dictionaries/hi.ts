@@ -504,6 +504,8 @@ const dict: Record<string, string> = {
   "meta.shipping": "PCBDukaan शिपिंग, रिटर्न और कैंसिलेशन: ₹499 से ऊपर मुफ़्त शिपिंग, 24 घंटे में डिस्पैच, 2–7 दिन में डिलीवरी, 7 दिन में रिप्लेसमेंट।",
   "meta.categoryTitle": "{name} – भारत में ऑनलाइन ख़रीदें",
   "meta.categoryTail": "GST इनवॉइस, कैश ऑन डिलीवरी और पूरे भारत में डिलीवरी के साथ ऑनलाइन ख़रीदें।",
+  "chat.soundOff": "आवाज़ बंद करें",
+  "chat.soundOn": "आवाज़ चालू करें",
 };
 
 export default dict;
