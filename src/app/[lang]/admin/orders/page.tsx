@@ -23,7 +23,9 @@ export default function AdminOrdersPage() {
     if (status === "open") req = req.in("status", ["pending", "confirmed", "packed"]);
     else if (status) req = req.eq("status", status);
     const term = q.trim().replace(/[%,()*\\]/g, " ");
-    if (term) req = req.or(`order_number.ilike.%${term}%,customer_name.ilike.%${term}%,phone.ilike.%${term}%,email.ilike.%${term}%`);
+    // Invoice numbers look like PD/2026-27/0001, so a "/" means the admin is searching for one.
+    if (term.includes("/")) req = req.ilike("invoice_number", `%${term}%`);
+    else if (term) req = req.or(`order_number.ilike.%${term}%,customer_name.ilike.%${term}%,phone.ilike.%${term}%,email.ilike.%${term}%`);
     const { data, count } = await req;
     setOrders((data as Order[]) ?? []);
     setTotal(count ?? 0);
@@ -45,7 +47,7 @@ export default function AdminOrdersPage() {
           </button>
         ))}
       </div>
-      <input value={q} onChange={(e) => { setQ(e.target.value); setPage(0); }} placeholder="Search order number, name, phone, email…" className={`${adminField} mt-0 max-w-md`} aria-label="Search orders" />
+      <input value={q} onChange={(e) => { setQ(e.target.value); setPage(0); }} placeholder="Search order or invoice number, name, phone, email…" className={`${adminField} mt-0 max-w-md`} aria-label="Search orders" />
       <div className="overflow-x-auto rounded-md bg-white ring-1 ring-slate-200">
         <table className="w-full min-w-[760px] text-sm">
           <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-600">
@@ -62,7 +64,7 @@ export default function AdminOrdersPage() {
                 <td className="px-4 py-3 text-slate-600">{o.city}, {o.state}</td>
                 <td className="px-4 py-3"><StatusBadge status={o.status} /></td>
                 <td className="px-4 py-3 text-right font-semibold">{formatINR(o.total)}</td>
-                <td className="whitespace-nowrap px-4 py-3 text-right"><Link href={`/admin/orders/${o.id}/invoice`} className="text-xs font-semibold text-brand-700 hover:underline">🧾 Invoice</Link></td>
+                <td className="whitespace-nowrap px-4 py-3 text-right"><Link href={`/admin/orders/${o.id}/invoice`} className="text-xs font-semibold text-brand-700 hover:underline">{o.invoice_number ? <span className="font-mono">{o.invoice_number}</span> : "🧾 Invoice"}</Link></td>
               </tr>
             ))}
           </tbody>

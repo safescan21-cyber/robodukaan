@@ -107,6 +107,8 @@ export type Order = {
   gst_amount?: number;
   total: number;
   tracking_url: string | null;
+  invoice_number?: string | null;
+  invoice_date?: string | null;
   created_at: string;
   order_items?: OrderItem[];
 };

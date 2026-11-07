@@ -25,6 +25,7 @@ export function InvoiceView({ order }: { order: Order }) {
         : [[`IGST @ ${rate}%`, gst]];
 
   const company = SELLER.companyName || STORE.name;
+  const issued = Boolean(order.invoice_number);
   const cell = "border border-slate-300 px-2 py-1.5";
 
   return (
@@ -44,16 +45,26 @@ export function InvoiceView({ order }: { order: Order }) {
               {SELLER.pan && <p>PAN: {SELLER.pan}</p>}
             </div>
             <div className="shrink-0 text-right">
-              <p className="text-lg font-bold tracking-wide">TAX INVOICE</p>
-              <p className="text-xs text-slate-500">Original for recipient</p>
+              {issued ? (
+                <>
+                  <p className="text-lg font-bold tracking-wide">TAX INVOICE</p>
+                  <p className="text-xs text-slate-500">Original for recipient</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-lg font-bold tracking-wide text-amber-700">DRAFT</p>
+                  <p className="text-xs text-slate-500">Not a tax invoice — number not issued</p>
+                </>
+              )}
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4 border-b border-slate-300 py-3">
             <dl className="grid content-start grid-cols-[auto_1fr] gap-x-3 gap-y-0.5">
-              <dt className="text-slate-500">Invoice no.</dt><dd className="font-mono font-semibold">{order.order_number}</dd>
-              <dt className="text-slate-500">Invoice date</dt><dd>{formatDate(order.created_at)}</dd>
+              <dt className="text-slate-500">Invoice no.</dt><dd className="font-mono font-semibold">{order.invoice_number ?? "—"}</dd>
+              <dt className="text-slate-500">Invoice date</dt><dd>{order.invoice_date ? formatDate(`${order.invoice_date}T12:00:00`) : "—"}</dd>
               <dt className="text-slate-500">Order no.</dt><dd className="font-mono">{order.order_number}</dd>
+              <dt className="text-slate-500">Order date</dt><dd>{formatDate(order.created_at)}</dd>
             </dl>
             <dl className="grid content-start grid-cols-[auto_1fr] gap-x-3 gap-y-0.5">
               <dt className="text-slate-500">Place of supply</dt><dd>{order.state}</dd>
