@@ -310,3 +310,54 @@ export function stateIndustries(stateSlug: string): Industry[] {
   for (const x of areasIn(stateSlug)) for (const i of x.industries) counts.set(i, (counts.get(i) ?? 0) + 1);
   return [...counts.entries()].sort((p, q) => q[1] - p[1]).map(([i]) => i);
 }
+
+// The biggest industrial clusters: these area pages are shown to search engines (sitemap, indexed) and carry
+// their own description. The other area pages stay on the site for visitors but are "noindex", so Google
+// doesn't see ~150 near-identical pages. Key: "<state>/<area>".
+export const FEATURED_AREAS: Record<string, string> = {
+  "maharashtra/chakan-midc": "Chakan, north of Pune, is one of India's biggest automotive belts. Vehicle and component plants here run press lines, welding robots and conveyors on VFDs and servo drives – the boards we repair most often.",
+  "maharashtra/pimpri-chinchwad-midc": "Pimpri-Chinchwad has been Pune's engineering heartland for decades, with auto, electrical and machine-building units whose older machines depend on hard-to-find control cards and drive boards.",
+  "maharashtra/bhosari-midc": "Bhosari's small and mid-size engineering, foundry and auto-component shops run CNC machines, induction heaters and press controls – ideal for component-level repair instead of costly replacements.",
+  "maharashtra/waluj-midc": "Waluj near Chhatrapati Sambhajinagar (Aurangabad) is a major auto and pharma cluster, where packaging lines, compressors and conveyors rely on PLCs, HMIs and drives.",
+  "maharashtra/ambad-midc": "Ambad MIDC in Nashik hosts electrical, auto-component and engineering units, with many panel builders and machine shops that need SMPS, relays and drive boards quickly.",
+  "maharashtra/ttc-midc-thane-belapur": "The Thane–Belapur (TTC) belt in Navi Mumbai mixes chemical, pharma and engineering plants – pumps, agitators and dosing systems that run on VFDs and PLCs.",
+  "maharashtra/taloja-midc": "Taloja MIDC is a chemicals, steel-processing and pharma estate where process pumps, blowers and furnaces depend on drives, temperature controllers and SMPS.",
+  "maharashtra/bhiwandi": "Bhiwandi is a powerloom and warehousing hub. Loom controllers, inverter cards and conveyor drives here fail often with dust and voltage swings – common repair jobs for us.",
+  "gujarat/vatva-gidc": "Vatva GIDC in Ahmedabad is a dense chemical, dyes and engineering estate where reactors, pumps and blowers rely on VFDs, PLCs and temperature controllers.",
+  "gujarat/naroda-gidc": "Naroda GIDC has engineering, pharma and plastics units – injection moulding machines, extruders and packaging lines with servo drives and HMIs.",
+  "gujarat/sanand-gidc": "Sanand, west of Ahmedabad, grew around automobile plants and their suppliers – robots, presses and conveyors that need fast drive and PLC support.",
+  "gujarat/makarpura-gidc": "Makarpura GIDC in Vadodara has engineering, electrical and pharma units, including many makers and users of switchgear, panels and process equipment.",
+  "gujarat/shapar-veraval": "Shapar-Veraval near Rajkot is packed with foundries, CNC job shops and pump makers – induction furnace cards, CNC drives and SMPS are everyday needs.",
+  "gujarat/aji-gidc": "Aji GIDC in Rajkot is a hub of small engineering and machine-tool units, where older CNC and lathe controllers often can only be kept running by repair.",
+  "gujarat/morbi": "Morbi is India's ceramic tile capital. Kilns, presses, glaze lines and big fans run on high-power VFDs and PLCs, and downtime is expensive – fast drive repair matters here.",
+  "gujarat/ankleshwar-gidc": "Ankleshwar is one of Asia's largest chemical estates. Reactors, centrifuges, pumps and effluent plants depend on drives, PLCs and flame-proof control systems.",
+  "gujarat/vapi-gidc": "Vapi GIDC combines chemicals, pharma and paper units with plenty of pumps, dryers and packing machines that use VFDs, PLCs and weighing systems.",
+  "gujarat/sachin-gidc": "Sachin GIDC near Surat is a textile processing and chemicals area – stenters, jet dyeing machines and looms run on drives, PLCs and temperature controllers.",
+  "tamil-nadu/sriperumbudur": "Sriperumbudur near Chennai is an automotive and electronics manufacturing corridor, where assembly lines use servo drives, PLCs, sensors and HMIs.",
+  "tamil-nadu/ambattur-industrial-estate": "Ambattur is one of Chennai's oldest industrial estates, with thousands of small engineering, auto-component and fabrication units running CNCs and presses.",
+  "tamil-nadu/hosur-sipcot": "Hosur's SIPCOT estates host two-wheeler, truck and auto-component plants plus electronics makers – a strong user base for drives, PLCs and servo systems.",
+  "tamil-nadu/kurichi-sidco": "Kurichi SIDCO in Coimbatore is home to pump, motor and foundry units – Coimbatore's pump industry relies heavily on drives, starters and control cards.",
+  "tamil-nadu/tiruppur": "Tiruppur is India's knitwear hub. Knitting, dyeing and compacting machines run on inverters, PLCs and temperature controllers that need quick repair in peak season.",
+  "karnataka/peenya": "Peenya in Bengaluru is one of Asia's largest industrial areas, with thousands of machine-tool, engineering and electronics units – a big user of CNC drives and controllers.",
+  "karnataka/bommasandra": "Bommasandra and the Hosur Road belt host auto-component, electronics and pharma plants with automated lines on PLCs, servos and sensors.",
+  "telangana/jeedimetla-ida": "Jeedimetla in Hyderabad has pharma, plastics and engineering units – granulators, blister packing machines and moulding machines run on drives and PLCs.",
+  "telangana/patancheru-ida": "Patancheru is a pharma and chemicals belt west of Hyderabad, where reactors, dryers and utilities depend on VFDs, PLCs and process controllers.",
+  "haryana/imt-manesar": "IMT Manesar is a major automobile and auto-component hub near Gurugram, with robotic welding, paint shops and presses using servo drives and PLCs.",
+  "haryana/faridabad-industrial-area": "Faridabad is one of North India's oldest industrial towns – forging, fabrication, auto-component and electrical units with many ageing machines that are best kept running by repair.",
+  "haryana/panipat": "Panipat is India's textile recycling and handloom hub; spinning and weaving machines, blowers and dryers run on inverters and motor controls.",
+  "delhi/okhla-industrial-area": "Okhla is Delhi's best-known industrial area, mixing garment exporters, printing and packaging units and electronics workshops that use PLCs, drives and SMPS.",
+  "uttar-pradesh/noida-phase-2": "Noida Phase 2 and the Noida SEZ host electronics, mobile and garment manufacturing – SMT lines, testers and packing machines with sensitive control electronics.",
+  "punjab/ludhiana-focal-point": "Ludhiana's Focal Points are full of hosiery, bicycle-part, auto-part and machine-tool units – induction heaters, CNCs and knitting machines are common repair jobs.",
+  "himachal-pradesh/baddi": "Baddi–Barotiwala–Nalagarh is India's largest pharma cluster, where tablet presses, blister and cartoning machines run on PLCs, HMIs, servo drives and weighing systems.",
+  "uttarakhand/sidcul-haridwar": "SIIDCUL Haridwar hosts FMCG, pharma and automobile plants with packing lines, filling machines and conveyors controlled by PLCs and drives.",
+  "uttarakhand/pantnagar": "SIIDCUL Pantnagar is an automobile, FMCG and electrical goods cluster with automated assembly and packing lines.",
+  "rajasthan/bhiwadi": "Bhiwadi, on the Delhi–Jaipur corridor, has auto-component, steel, electronics and FMCG plants – a strong market for drives, PLCs and power supplies.",
+  "madhya-pradesh/pithampur": "Pithampur near Indore is central India's main auto and pharma hub, with commercial-vehicle plants, component makers and packaging lines on drives and PLCs.",
+  "jharkhand/adityapur": "Adityapur near Jamshedpur supplies the steel and automobile majors – forging, machining and fabrication units with induction heaters, CNCs and VFDs.",
+  "west-bengal/howrah": "The Howrah belt is one of India's oldest engineering clusters – foundries, rolling mills and fabrication shops with ageing controls that are often only repairable.",
+  "chhattisgarh/siltara": "Siltara near Raipur is a steel and sponge-iron cluster, where kilns, crushers and rolling mills depend on large drives, PLCs and furnace controls.",
+};
+
+export function isFeaturedArea(stateSlug: string, areaSlug: string) {
+  return `${stateSlug}/${areaSlug}` in FEATURED_AREAS;
+}

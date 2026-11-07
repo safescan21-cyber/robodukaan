@@ -7,7 +7,7 @@ import { lang } from "next/root-params";
 import { getT } from "@/i18n/server";
 import { JsonLd } from "@/components/JsonLd";
 import { CategoryLinks, Faq, RepairCta } from "@/components/LocationBlocks";
-import { AREAS, INDUSTRY_LABEL, areasIn, getArea, getState, listText, needsFor } from "@/lib/locations";
+import { AREAS, FEATURED_AREAS, INDUSTRY_LABEL, areasIn, getArea, getState, isFeaturedArea, listText, needsFor } from "@/lib/locations";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://pcbdukaan.com";
 
@@ -26,6 +26,8 @@ export async function generateMetadata(props: PageProps<"/[lang]/locations/[stat
     title: `PCB repair & electronics in ${x.name}, ${x.city}`,
     description: clip(`Industrial PCB repair and supply for ${listText(x.industries.map((i) => INDUSTRY_LABEL[i]))} units in ${x.name}, ${x.city} (${s.name}). SMPS, drive boards, PLC modules, sensors. Free repair quote.`),
     alternates: { canonical: `/locations/${s.slug}/${x.slug}` },
+    // Only the biggest clusters are shown to search engines; the rest stay for visitors (see FEATURED_AREAS).
+    ...(isFeaturedArea(s.slug, x.slug) ? {} : { robots: { index: false, follow: true } }),
   };
 }
 
@@ -73,7 +75,7 @@ async function AreaContent({ params }: Pick<PageProps<"/[lang]/locations/[state]
         <p className="text-xs font-semibold uppercase tracking-widest text-accent-400">{x.city}, {s.name}</p>
         <h1 className="mt-1 text-3xl font-extrabold">PCB repair &amp; industrial electronics in {x.name}</h1>
         <p className="mt-3 max-w-3xl text-brand-100">
-          {x.name} in {x.city} is known for its {industryText} units. PCBDukaan supplies replacement electronics for these plants — such as {listText(needs.boards.slice(0, 3))} — and repairs faulty industrial PCBs at component level by courier.
+          {FEATURED_AREAS[`${s.slug}/${x.slug}`] ? <>{FEATURED_AREAS[`${s.slug}/${x.slug}`]} </> : <>{x.name} in {x.city} is known for its {industryText} units. </>}PCBDukaan supplies replacement electronics for these plants — such as {listText(needs.boards.slice(0, 3))} — and repairs faulty industrial PCBs at component level by courier.
         </p>
       </section>
 

@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getAllProductLinks, getCategories, getOpenJobs } from "@/lib/data";
-import { AREAS, STATES } from "@/lib/locations";
+import { AREAS, STATES, isFeaturedArea } from "@/lib/locations";
 import { DRIVE_BRANDS } from "@/lib/fault-codes";
 import { REPAIR_SERVICES } from "@/lib/seo-content";
 import { languageAlternates } from "@/i18n/config";
@@ -29,7 +29,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...STATES.map((s) => ({ url: `${SITE}/locations/${s.slug}`, changeFrequency: "monthly" as const, priority: 0.6 })),
     ...REPAIR_SERVICES.map((r) => ({ url: `${SITE}/pcb-repair/${r.slug}`, changeFrequency: "monthly" as const, priority: 0.8 })),
     ...DRIVE_BRANDS.map((b) => ({ url: `${SITE}/fault-codes/${b.slug}`, changeFrequency: "monthly" as const, priority: 0.6 })),
-    ...AREAS.map((x) => ({ url: `${SITE}/locations/${x.state}/${x.slug}`, changeFrequency: "monthly" as const, priority: 0.5 })),
+    ...AREAS.filter((x) => isFeaturedArea(x.state, x.slug)).map((x) => ({ url: `${SITE}/locations/${x.state}/${x.slug}`, changeFrequency: "monthly" as const, priority: 0.5 })),
     ...jobs.map((j) => ({ url: `${SITE}/careers/${j.slug}`, lastModified: j.created_at, changeFrequency: "weekly" as const, priority: 0.5, alternates: langs(`/careers/${j.slug}`) })),
   ];
 }
