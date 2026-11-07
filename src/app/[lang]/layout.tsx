@@ -59,10 +59,9 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
           <AuthProvider>
             <CartProvider>
               <WishlistProvider>
-                <Header />
+                <div className="print:hidden"><Header /></div>
                 <main className="flex-1">{children}</main>
-                <Footer />
-                <ChatLoader />
+                <div className="print:hidden"><Footer /><ChatLoader /></div>
               </WishlistProvider>
             </CartProvider>
           </AuthProvider>

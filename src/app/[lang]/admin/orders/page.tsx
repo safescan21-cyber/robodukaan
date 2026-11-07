@@ -49,11 +49,11 @@ export default function AdminOrdersPage() {
       <div className="overflow-x-auto rounded-md bg-white ring-1 ring-slate-200">
         <table className="w-full min-w-[760px] text-sm">
           <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-600">
-            <tr><th className="px-4 py-3">Order</th><th className="px-4 py-3">Date</th><th className="px-4 py-3">Customer</th><th className="px-4 py-3">City</th><th className="px-4 py-3">Status</th><th className="px-4 py-3 text-right">Total</th></tr>
+            <tr><th className="px-4 py-3">Order</th><th className="px-4 py-3">Date</th><th className="px-4 py-3">Customer</th><th className="px-4 py-3">City</th><th className="px-4 py-3">Status</th><th className="px-4 py-3 text-right">Total</th><th className="px-4 py-3"><span className="sr-only">Invoice</span></th></tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {orders === null && <tr><td colSpan={6} className="p-4 text-slate-500">Loading…</td></tr>}
-            {orders?.length === 0 && <tr><td colSpan={6} className="p-4 text-slate-500">No orders found.</td></tr>}
+            {orders === null && <tr><td colSpan={7} className="p-4 text-slate-500">Loading…</td></tr>}
+            {orders?.length === 0 && <tr><td colSpan={7} className="p-4 text-slate-500">No orders found.</td></tr>}
             {orders?.map((o) => (
               <tr key={o.id} className="hover:bg-slate-50">
                 <td className="px-4 py-3"><Link href={`/admin/orders/${o.id}`} className="font-mono font-semibold text-brand-700 hover:underline">{o.order_number}</Link></td>
@@ -62,6 +62,7 @@ export default function AdminOrdersPage() {
                 <td className="px-4 py-3 text-slate-600">{o.city}, {o.state}</td>
                 <td className="px-4 py-3"><StatusBadge status={o.status} /></td>
                 <td className="px-4 py-3 text-right font-semibold">{formatINR(o.total)}</td>
+                <td className="whitespace-nowrap px-4 py-3 text-right"><Link href={`/admin/orders/${o.id}/invoice`} className="text-xs font-semibold text-brand-700 hover:underline">🧾 Invoice</Link></td>
               </tr>
             ))}
           </tbody>

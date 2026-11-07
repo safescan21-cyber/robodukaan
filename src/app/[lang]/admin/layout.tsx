@@ -22,14 +22,14 @@ const ITEMS = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <RequireAuth admin>
-      <div className="mx-auto grid max-w-[1400px] grid-cols-[minmax(0,1fr)] gap-6 px-4 py-6 lg:grid-cols-[220px_minmax(0,1fr)]">
-        <Suspense fallback={<div className="h-64 rounded-md bg-white ring-1 ring-slate-200" />}>
+      <div className="mx-auto grid max-w-[1400px] grid-cols-[minmax(0,1fr)] gap-6 px-4 py-6 print:block print:p-0 lg:grid-cols-[220px_minmax(0,1fr)]">
+        <div className="print:hidden"><Suspense fallback={<div className="h-64 rounded-md bg-white ring-1 ring-slate-200" />}>
           <SideNav
           title="Admin panel"
           items={ITEMS}
           footer={<><Link href="/" className="flex shrink-0 items-center gap-3 rounded px-3 py-2 text-sm text-slate-500 hover:bg-slate-100"><span aria-hidden="true">🏪</span>View store</Link><LogoutButton /></>}
         />
-        </Suspense>
+        </Suspense></div>
         <div className="min-w-0">{children}</div>
       </div>
     </RequireAuth>

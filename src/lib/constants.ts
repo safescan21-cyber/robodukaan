@@ -94,3 +94,13 @@ export const APPLICATION_STATUS_STYLE: Record<JobApplicationStatus, string> = {
   rejected: "bg-slate-200 text-slate-700",
   hired: "bg-emerald-100 text-emerald-800",
 };
+
+// Seller details printed on tax invoices (Admin → Orders → Print invoice).
+// Fill these in when ready; empty fields are simply left off the invoice.
+export const SELLER = {
+  companyName: "PCBDukaan Pvt Ltd", // legal company name (empty → "PCBDukaan")
+  gstin: "", // 15-character GSTIN
+  address: "", // full address, use \n for new lines
+  state: "", // seller's state (must match a name in INDIAN_STATES); decides CGST+SGST vs IGST
+  pan: "",
+};

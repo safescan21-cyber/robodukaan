@@ -73,7 +73,7 @@ function AdminOrderPage() {
       <div className="flex flex-wrap gap-3 text-sm">
         <a href={`https://wa.me/91${order.phone}?text=${waText}`} target="_blank" rel="noopener noreferrer" className="rounded-md bg-emerald-600 px-3 py-1.5 font-semibold text-white hover:bg-emerald-700">Message customer on WhatsApp</a>
         <a href={`tel:+91${order.phone}`} className="rounded-md bg-slate-800 px-3 py-1.5 font-semibold text-white hover:bg-slate-700">Call customer</a>
-        <button onClick={() => window.print()} className="rounded-md px-3 py-1.5 font-semibold ring-1 ring-slate-300 hover:bg-slate-50">Print</button>
+        <Link href={`/admin/orders/${order.id}/invoice`} className="rounded-md bg-brand-600 px-3 py-1.5 font-semibold text-white hover:bg-brand-700">🧾 Print invoice</Link>
       </div>
       <OrderDetail order={order} />
     </div>
