@@ -1,25 +1,44 @@
--- PCBDukaan update 012: reviews always show the writer's name (also for admin accounts).
+-- PCBDukaan update 013: profile photo + personal/business details, photos on reviews.
 -- Paste into Supabase → SQL Editor → Run. Safe to run more than once.
 
--- Name shown on a review, e.g. "Sonu G.": profile name → name on the latest order →
--- name given at sign-up → the part of the email before @ (letters only) → "Customer".
-create or replace function public.review_display_name(p_user uuid)
-returns text language sql stable security definer set search_path = public as $$
-  with n as (
-    select coalesce(
-      (select nullif(trim(full_name), '') from public.profiles where id = p_user),
-      (select nullif(trim(customer_name), '') from public.orders where user_id = p_user order by created_at desc limit 1),
-      (select nullif(trim(coalesce(raw_user_meta_data->>'full_name', raw_user_meta_data->>'name')), '') from auth.users where id = p_user),
-      (select nullif(regexp_replace(split_part(email, '@', 1), '[^A-Za-z]+', ' ', 'g'), ' ') from auth.users where id = p_user)
-    ) as name
-  ), w as (select regexp_split_to_array(trim(name), '\s+') as parts from n where trim(coalesce(name, '')) <> '')
-  select coalesce(
-    (select initcap(parts[1]) || case when cardinality(parts) > 1 then ' ' || upper(left(parts[cardinality(parts)], 1)) || '.' else '' end from w),
-    'Customer');
-$$;
+-- ── Profile: photo and details ──────────────────────────────────────────────────────
+alter table public.profiles add column if not exists avatar_url text;
+alter table public.profiles add column if not exists company    text;
+alter table public.profiles add column if not exists gstin      text;
+alter table public.profiles add column if not exists city       text;
+alter table public.profiles add column if not exists state      text;
+alter table public.profiles drop constraint if exists profiles_gstin_format;
+alter table public.profiles add constraint profiles_gstin_format
+  check (gstin is null or gstin ~ '^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$');
+alter table public.profiles drop constraint if exists profiles_details_length;
+alter table public.profiles add constraint profiles_details_length
+  check (length(coalesce(company, '')) <= 120 and length(coalesce(city, '')) <= 80 and length(coalesce(state, '')) <= 80);
+
+-- ── Customer photo uploads (profile photos, review photos) ─────────────────────────
+-- Public to view. Signed-in customers may only add/remove files in their own folder: <user id>/…
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('user-uploads', 'user-uploads', true, 5242880, array['image/jpeg', 'image/png', 'image/webp'])
+on conflict (id) do update set public = true, file_size_limit = excluded.file_size_limit, allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "user-uploads: public read" on storage.objects;
+drop policy if exists "user-uploads: own folder write" on storage.objects;
+drop policy if exists "user-uploads: own folder delete" on storage.objects;
+drop policy if exists "user-uploads: admin delete" on storage.objects;
+create policy "user-uploads: public read" on storage.objects for select using (bucket_id = 'user-uploads');
+create policy "user-uploads: own folder write" on storage.objects for insert
+  with check (bucket_id = 'user-uploads' and auth.uid() is not null and (storage.foldername(name))[1] = auth.uid()::text and not public.is_blocked());
+create policy "user-uploads: own folder delete" on storage.objects for delete
+  using (bucket_id = 'user-uploads' and (storage.foldername(name))[1] = auth.uid()::text);
+create policy "user-uploads: admin delete" on storage.objects for delete
+  using (bucket_id = 'user-uploads' and public.is_admin());
+
+-- ── Reviews: photos + the writer's profile photo ────────────────────────────────────
+alter table public.reviews add column if not exists photos      text[] not null default '{}';
+alter table public.reviews add column if not exists user_avatar text;
 
 create or replace function public.prepare_review()
 returns trigger language plpgsql security definer set search_path = public as $$
+declare v_photo text;
 begin
   -- vote_review() only changes the like/dislike counters: let that through unchanged.
   if tg_op = 'UPDATE' and coalesce(current_setting('pcbdukaan.vote_update', true), '') = '1' then
@@ -52,19 +71,39 @@ begin
       new.admin_reply_at := case when new.admin_reply is null then null else now() end;
     end if;
   end if;
-  -- The writer's name: set on every new review and whenever writers edit their own review
-  -- (for customers and admins alike). An admin hiding or replying to someone else's review keeps that name.
+
+  -- The writer's own new review or edit: name, profile photo and photo checks.
   if tg_op = 'INSERT' or new.user_id = auth.uid() then
     new.user_name := public.review_display_name(new.user_id);
+    new.user_avatar := (select avatar_url from public.profiles where id = new.user_id);
+    new.photos := coalesce(new.photos, '{}');
+    if cardinality(new.photos) > 4 then
+      raise exception 'You can add up to 4 photos to a review';
+    end if;
+    -- Only photos the writer uploaded to their own folder.
+    foreach v_photo in array new.photos loop
+      if position('/user-uploads/' || new.user_id::text || '/' in v_photo) = 0 then
+        raise exception 'Invalid review photo';
+      end if;
+    end loop;
   end if;
   return new;
 end;
 $$;
 
--- Fix reviews that still show "Customer".
-alter table public.reviews disable trigger reviews_prepare;
-alter table public.reviews disable trigger reviews_block_guard;
-update public.reviews r set user_name = public.review_display_name(r.user_id)
- where r.user_name = 'Customer' and public.review_display_name(r.user_id) <> 'Customer';
-alter table public.reviews enable trigger reviews_prepare;
-alter table public.reviews enable trigger reviews_block_guard;
+-- When a customer changes their profile photo, their reviews show the new one.
+create or replace function public.sync_review_avatar()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if new.avatar_url is distinct from old.avatar_url then
+    -- Same pass-through flag as vote_review(): only this column changes, review rules are skipped.
+    perform set_config('pcbdukaan.vote_update', '1', true);
+    update public.reviews set user_avatar = new.avatar_url where user_id = new.id;
+    perform set_config('pcbdukaan.vote_update', '', true);
+  end if;
+  return new;
+end;
+$$;
+drop trigger if exists profiles_sync_review_avatar on public.profiles;
+create trigger profiles_sync_review_avatar after update of avatar_url on public.profiles
+  for each row execute function public.sync_review_avatar();

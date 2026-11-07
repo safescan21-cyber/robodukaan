@@ -46,9 +46,12 @@ function Checkout() {
           email: f.email || user.email || "",
           name: f.name || a?.full_name || profile?.full_name || "",
           phone: f.phone || a?.phone || profile?.phone || "",
+          company: f.company || profile?.company || "",
+          gstin: f.gstin || profile?.gstin || "",
           ...(a && !f.address_line ? { address_line: a.address_line, city: a.city, state: a.state, pincode: a.pincode } : {}),
         }));
         if (list.length) setSaveAddress(false);
+        if (profile?.gstin) setBusiness(true); // saved in My account → business details
       });
   }, [user, profile]);
 

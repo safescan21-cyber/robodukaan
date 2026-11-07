@@ -564,6 +564,16 @@ const dict: Record<string, string> = {
   "reviews.dislike": "ناپسند",
   "reviews.loginToVote": "ووٹ دینے کے لیے لاگ اِن کریں",
   "reviews.reply": "PCBDukaan کا جواب",
+  "profile.photo": "پروفائل تصویر",
+  "profile.photoHint": "آپ کے جائزوں پر آپ کے نام کے ساتھ دکھائی دے گی۔ JPG، PNG یا WebP۔",
+  "profile.addPhoto": "تصویر شامل کریں",
+  "profile.changePhoto": "تصویر تبدیل کریں",
+  "profile.business": "کاروباری تفصیلات (اختیاری)",
+  "profile.businessHint": "یہاں محفوظ کرنے پر کمپنی کا نام اور GSTIN چیک آؤٹ میں GST انوائس کے لیے خود بھر جائے گا۔",
+  "profile.badGstin": "براہ کرم درست 15 حروف کا GSTIN درج کریں (یا خالی چھوڑ دیں)۔",
+  "reviews.addPhotos": "تصاویر شامل کریں",
+  "reviews.photosHint": "پروڈکٹ کی زیادہ سے زیادہ 4 تصاویر (JPG، PNG، WebP)۔",
+  "reviews.photoAlt": "{name} کی تصویر {n}",
 };
 
 export default dict;

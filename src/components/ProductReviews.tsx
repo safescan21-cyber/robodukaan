@@ -8,7 +8,11 @@ import type { Review } from "@/lib/types";
 import { formatDate } from "@/lib/format";
 import { useAuth } from "./AuthProvider";
 import { Stars } from "./Stars";
+import { Avatar } from "./Avatar";
+import { uploadUserPhoto } from "@/lib/user-photos";
 import { useI18n } from "@/i18n/client";
+
+const MAX_REVIEW_PHOTOS = 4;
 
 export function ProductReviews({ productId, slug }: { productId: string; slug: string }) {
   const { user, isAdmin } = useAuth();
@@ -18,6 +22,8 @@ export function ProductReviews({ productId, slug }: { productId: string; slug: s
   const [comment, setComment] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [photos, setPhotos] = useState<string[]>([]); // already-uploaded photos on my review
+  const [newFiles, setNewFiles] = useState<File[]>([]); // chosen, uploaded when the review is saved
   const [myVotes, setMyVotes] = useState<Record<string, number>>({});
   const [voteError, setVoteError] = useState<{ id: string; text: string } | null>(null);
 
@@ -76,6 +82,7 @@ export function ProductReviews({ productId, slug }: { productId: string; slug: s
       // eslint-disable-next-line react-hooks/set-state-in-effect -- prefill the form with the user's review
       setRating(mine.rating);
       setComment(mine.comment);
+      setPhotos(mine.photos ?? []);
     }
   }, [mine]);
 
@@ -84,12 +91,25 @@ export function ProductReviews({ productId, slug }: { productId: string; slug: s
     if (!user) return;
     setBusy(true);
     setMessage(null);
+    let all = photos;
+    try {
+      const uploaded = [];
+      for (const file of newFiles) uploaded.push(await uploadUserPhoto(file, user.id, "reviews"));
+      all = [...photos, ...uploaded].slice(0, MAX_REVIEW_PHOTOS);
+    } catch (err) {
+      setBusy(false);
+      setMessage(err instanceof Error ? err.message : t("common.error"));
+      return;
+    }
+    // photos is only sent when used, so reviews still save on a database without migration 013.
     const { error } = await getSupabase()
       .from("reviews")
-      .upsert({ product_id: productId, user_id: user.id, rating, comment: comment.trim() }, { onConflict: "product_id,user_id" });
+      .upsert({ product_id: productId, user_id: user.id, rating, comment: comment.trim(), ...(all.length || mine?.photos?.length ? { photos: all } : {}) }, { onConflict: "product_id,user_id" });
     setBusy(false);
     if (error) setMessage(error.message);
     else {
+      setPhotos(all);
+      setNewFiles([]);
       setMessage(t("reviews.saved"));
       load();
       postAsUser("/api/revalidate", { reason: "review" }); // update the review count and stars on the page
@@ -148,6 +168,32 @@ export function ProductReviews({ productId, slug }: { productId: string; slug: s
               placeholder={t("reviews.placeholder")}
               className="mt-2 w-full rounded border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-600"
             />
+            <div className="mt-2">
+              <div className="flex flex-wrap gap-2">
+                {photos.map((url) => (
+                  <span key={url} className="relative">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={url} alt="" className="h-16 w-16 rounded object-cover ring-1 ring-slate-200" />
+                    <button type="button" onClick={() => setPhotos((p) => p.filter((x) => x !== url))} className="absolute -end-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/70 text-[10px] text-white" aria-label={t("common.remove")}>✕</button>
+                  </span>
+                ))}
+                {newFiles.map((file, i) => (
+                  <span key={`${file.name}-${i}`} className="relative">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={URL.createObjectURL(file)} alt="" className="h-16 w-16 rounded object-cover ring-1 ring-brand-300" />
+                    <button type="button" onClick={() => setNewFiles((p) => p.filter((_, j) => j !== i))} className="absolute -end-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/70 text-[10px] text-white" aria-label={t("common.remove")}>✕</button>
+                  </span>
+                ))}
+                {photos.length + newFiles.length < MAX_REVIEW_PHOTOS && (
+                  <label className="flex h-16 w-16 cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed border-slate-300 text-center text-[10px] text-slate-500 hover:border-brand-600">
+                    <span className="text-lg" aria-hidden="true">📷</span>{t("reviews.addPhotos")}
+                    <input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only"
+                      onChange={(e) => { const chosen = Array.from(e.target.files ?? []); setNewFiles((p) => [...p, ...chosen].slice(0, MAX_REVIEW_PHOTOS - photos.length)); e.target.value = ""; }} />
+                  </label>
+                )}
+              </div>
+              <p className="mt-1 text-xs text-slate-500">{t("reviews.photosHint")}</p>
+            </div>
             <div className="mt-2 flex items-center gap-3">
               <button disabled={busy} className="rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60">
                 {busy ? t("common.saving") : mine ? t("reviews.update") : t("reviews.submit")}
@@ -170,12 +216,23 @@ export function ProductReviews({ productId, slug }: { productId: string; slug: s
             {reviews.map((r) => (
               <li key={r.id} className="py-4">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Stars value={r.rating} />
+                  <Avatar url={r.user_avatar} name={r.user_name} size={28} />
                   <span className="text-sm font-semibold">{r.user_name}</span>
+                  <Stars value={r.rating} />
                   {r.verified && <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[11px] font-semibold text-emerald-800">{t("reviews.verified")}</span>}
                   <span className="text-xs text-slate-400">{formatDate(r.created_at)}</span>
                 </div>
                 <p className="mt-1.5 whitespace-pre-line text-sm text-slate-700">{r.comment}</p>
+                {r.photos && r.photos.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {r.photos.map((url, i) => (
+                      <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="block overflow-hidden rounded ring-1 ring-slate-200 hover:ring-brand-600">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={url} alt={t("reviews.photoAlt", { name: r.user_name, n: i + 1 })} loading="lazy" className="h-20 w-20 object-cover" />
+                      </a>
+                    ))}
+                  </div>
+                )}
 
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
                   <span className="text-slate-500">{t("reviews.helpful")}</span>

@@ -71,6 +71,8 @@ export type Review = {
   dislikes?: number;
   admin_reply?: string | null;
   admin_reply_at?: string | null;
+  photos?: string[];
+  user_avatar?: string | null;
   created_at: string;
 };
 
@@ -155,6 +157,11 @@ export type Profile = {
   role: "user" | "admin";
   is_blocked: boolean;
   welcome_sent_at: string | null;
+  avatar_url?: string | null;
+  company?: string | null;
+  gstin?: string | null;
+  city?: string | null;
+  state?: string | null;
   created_at: string;
 };
 

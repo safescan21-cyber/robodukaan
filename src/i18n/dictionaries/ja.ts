@@ -564,6 +564,16 @@ const dict: Record<string, string> = {
   "reviews.dislike": "よくないね",
   "reviews.loginToVote": "投票するにはログインしてください",
   "reviews.reply": "PCBDukaanからの返信",
+  "profile.photo": "プロフィール写真",
+  "profile.photoHint": "レビューで名前の横に表示されます。JPG、PNG、WebP。",
+  "profile.addPhoto": "写真を追加",
+  "profile.changePhoto": "写真を変更",
+  "profile.business": "事業者情報（任意）",
+  "profile.businessHint": "ここに保存すると、購入手続きでGSTインボイス用の会社名とGSTINが自動入力されます。",
+  "profile.badGstin": "正しい15文字のGSTINを入力してください（または空欄のまま）。",
+  "reviews.addPhotos": "写真を追加",
+  "reviews.photosHint": "商品の写真を最大4枚（JPG、PNG、WebP）。",
+  "reviews.photoAlt": "{name}さんの写真 {n}",
 };
 
 export default dict;

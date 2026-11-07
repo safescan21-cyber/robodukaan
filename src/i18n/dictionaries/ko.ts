@@ -564,6 +564,16 @@ const dict: Record<string, string> = {
   "reviews.dislike": "싫어요",
   "reviews.loginToVote": "투표하려면 로그인하세요",
   "reviews.reply": "PCBDukaan 답변",
+  "profile.photo": "프로필 사진",
+  "profile.photoHint": "리뷰에서 이름 옆에 표시됩니다. JPG, PNG 또는 WebP.",
+  "profile.addPhoto": "사진 추가",
+  "profile.changePhoto": "사진 변경",
+  "profile.business": "사업자 정보 (선택)",
+  "profile.businessHint": "여기에 저장하면 결제 시 GST 인보이스용 회사명과 GSTIN이 자동 입력됩니다.",
+  "profile.badGstin": "올바른 15자리 GSTIN을 입력하세요 (또는 비워 두세요).",
+  "reviews.addPhotos": "사진 추가",
+  "reviews.photosHint": "상품 사진 최대 4장 (JPG, PNG, WebP).",
+  "reviews.photoAlt": "{name}님의 사진 {n}",
 };
 
 export default dict;

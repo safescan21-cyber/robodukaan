@@ -565,6 +565,16 @@ const dict: Record<string, string> = {
   "reviews.dislike": "Dislike",
   "reviews.loginToVote": "Log in to vote",
   "reviews.reply": "Reply from PCBDukaan",
+  "profile.photo": "Profile photo",
+  "profile.photoHint": "Shown next to your name on your reviews. JPG, PNG or WebP.",
+  "profile.addPhoto": "Add photo",
+  "profile.changePhoto": "Change photo",
+  "profile.business": "Business details (optional)",
+  "profile.businessHint": "Saved here, your company name and GSTIN are filled in at checkout for GST invoices.",
+  "profile.badGstin": "Please enter a valid 15-character GSTIN (or leave it empty).",
+  "reviews.addPhotos": "Add photos",
+  "reviews.photosHint": "Up to 4 photos of the product (JPG, PNG, WebP).",
+  "reviews.photoAlt": "Photo {n} from {name}",
 };
 
 export default dict;

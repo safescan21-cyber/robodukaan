@@ -564,6 +564,16 @@ const dict: Record<string, string> = {
   "reviews.dislike": "踩",
   "reviews.loginToVote": "登录后投票",
   "reviews.reply": "PCBDukaan 回复",
+  "profile.photo": "头像",
+  "profile.photoHint": "在您的评价中显示在名字旁边。JPG、PNG 或 WebP。",
+  "profile.addPhoto": "添加照片",
+  "profile.changePhoto": "更换照片",
+  "profile.business": "企业信息（可选）",
+  "profile.businessHint": "保存后，结算时会自动填入公司名称和 GSTIN，用于开具 GST 发票。",
+  "profile.badGstin": "请输入有效的 15 位 GSTIN（或留空）。",
+  "reviews.addPhotos": "添加照片",
+  "reviews.photosHint": "最多 4 张商品照片（JPG、PNG、WebP）。",
+  "reviews.photoAlt": "{name} 的照片 {n}",
 };
 
 export default dict;

@@ -78,6 +78,14 @@ export default function AdminReviewsPage() {
               </div>
               {r.product && <Link href={`/products/${r.product.slug}`} target="_blank" className="text-xs text-brand-700 hover:underline">{r.product.name}</Link>}
               <p className="mt-1 whitespace-pre-line text-slate-700">{r.comment}</p>
+              {r.photos && r.photos.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {r.photos.map((url) => (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <a key={url} href={url} target="_blank" rel="noopener noreferrer"><img src={url} alt="Review photo" className="h-16 w-16 rounded object-cover ring-1 ring-slate-200" /></a>
+                  ))}
+                </div>
+              )}
               <p className="mt-1 text-xs text-slate-500">👍 {r.likes ?? 0} · 👎 {r.dislikes ?? 0}</p>
               <form key={r.admin_reply ?? ""} onSubmit={(e) => { e.preventDefault(); saveReply(r, e.currentTarget); }} className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-start">
                 <textarea name="reply" defaultValue={r.admin_reply ?? ""} rows={2} maxLength={1500} placeholder="Reply as PCBDukaan (shown under the review; empty = no reply)"
