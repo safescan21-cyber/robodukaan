@@ -14,6 +14,17 @@ stamp=$(TZ=Asia/Kolkata date +%F_%H%M)
 out="$DIR/pcbdukaan_$stamp.dump"
 
 # public = shop data, private = report settings, auth = customer logins, storage = file list (not the files).
+if [ "$DB_URL" = selfhost ]; then
+  # Database on this VPS (deploy/vps-db): dump inside the Supabase db container, plus the uploaded files.
+  cd "${SB_DIR:-/opt/supabase}"
+  docker compose exec -T db pg_dump -U supabase_admin -d postgres -Fc --no-owner --no-privileges \
+    -n public -n private -n auth -n storage > "$out.part"
+  mv "$out.part" "$out"; chmod 600 "$out"
+  tar -czf "$DIR/pcbdukaan_files_$stamp.tgz" -C volumes storage 2>/dev/null && chmod 600 "$DIR/pcbdukaan_files_$stamp.tgz"
+  find "$DIR" -name 'pcbdukaan_*' -mtime +"$KEEP_DAYS" -delete
+  echo "Backup saved: $out ($(du -h "$out" | cut -f1)) + files. Kept: $(ls "$DIR"/pcbdukaan_*.dump | wc -l) copies, $(du -sh "$DIR" | cut -f1) in total."
+  exit 0
+fi
 if ! "$PG_DUMP" "$DB_URL" -Fc --no-owner --no-privileges -n public -n private -n auth -n storage -f "$out.part" 2> "$DIR/last-error.txt"; then
   echo "Full backup failed ($(tail -1 "$DIR/last-error.txt")) – trying shop data only"
   "$PG_DUMP" "$DB_URL" -Fc --no-owner --no-privileges -n public -n private -f "$out.part"
