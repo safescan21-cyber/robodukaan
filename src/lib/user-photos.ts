@@ -8,7 +8,7 @@ import { getSupabase } from "./supabase-browser";
 
 const MAX_SIDE = 1600;
 
-async function shrink(file: File, maxSide = MAX_SIDE): Promise<Blob> {
+export async function shrink(file: File, maxSide = MAX_SIDE): Promise<Blob> {
   if (!/^image\/(jpeg|png|webp)$/.test(file.type)) throw new Error("Please choose a JPG, PNG or WebP photo.");
   try {
     const bitmap = await createImageBitmap(file);

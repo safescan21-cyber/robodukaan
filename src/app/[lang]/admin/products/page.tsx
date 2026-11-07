@@ -72,7 +72,10 @@ export default function AdminProductsPage() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">Products <span className="text-base font-normal text-slate-500">({total})</span></h1>
-        <Link href="/admin/products/new" className="rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">+ Add product</Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/admin/products/import" className="rounded-md px-4 py-2 text-sm font-semibold ring-1 ring-slate-300 hover:ring-brand-600">⇪ Bulk upload (Excel/CSV)</Link>
+          <Link href="/admin/products/new" className="rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">+ Add product</Link>
+        </div>
       </div>
       <div className="grid gap-3 rounded-md bg-white p-3 ring-1 ring-slate-200 sm:grid-cols-[1fr_200px_160px]">
         <input value={q} onChange={(e) => { setQ(e.target.value); setPage(0); }} placeholder="Search name, SKU, brand…" className={adminField} aria-label="Search products" />

@@ -1,6 +1,7 @@
 "use client";
 
 import { getSupabase } from "./supabase-browser";
+import { shrink } from "./user-photos";
 
 // Tell the server to refresh cached catalog pages after an admin change.
 // paths: pages that changed (e.g. "/products/x"); search engines are told about them via IndexNow.
@@ -18,11 +19,15 @@ export async function revalidateCatalog(paths: string[] = []) {
 // Upload an image to the public "product-images" bucket and return its URL.
 export async function uploadImage(file: File, folder = "products"): Promise<string> {
   if (!file.type.startsWith("image/")) throw new Error("Please choose an image file.");
-  if (file.size > 5 * 1024 * 1024) throw new Error("Images must be under 5 MB.");
-  const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
+  // Big phone photos (JPG/PNG/WebP) are shrunk to 1600 px first; other image types upload as they are.
+  const body: Blob = /^image\/(jpeg|png|webp)$/.test(file.type) ? await shrink(file) : file;
+  if (body.size > 5 * 1024 * 1024) throw new Error("Images must be under 5 MB.");
+  const ext = body === file
+    ? (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "")
+    : body.type === "image/png" ? "png" : body.type === "image/webp" ? "webp" : "jpg";
   const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
   const supabase = getSupabase();
-  const { error } = await supabase.storage.from("product-images").upload(path, file, { cacheControl: "31536000", upsert: false });
+  const { error } = await supabase.storage.from("product-images").upload(path, body, { cacheControl: "31536000", upsert: false, contentType: body.type || file.type });
   if (error) throw new Error(error.message);
   return supabase.storage.from("product-images").getPublicUrl(path).data.publicUrl;
 }
