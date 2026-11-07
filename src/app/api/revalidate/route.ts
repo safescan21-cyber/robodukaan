@@ -1,5 +1,6 @@
 import { revalidateTag } from "next/cache";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { emailConfigured, sendBackInStockEmail } from "@/lib/email";
 
 // Refreshes cached catalog pages so changes show at once.
 // - Admins: after any catalog change in the admin panel.
@@ -19,7 +20,8 @@ export async function POST(request: Request) {
   const { data: isAdmin, error } = await supabase.rpc("is_admin");
   if (!error && isAdmin === true) {
     revalidateTag("catalog", { expire: 0 });
-    return Response.json({ ok: true });
+    const notified = await sendStockAlerts(supabase).catch(() => 0);
+    return Response.json({ ok: true, notified });
   }
 
   const body = await request.json().catch(() => ({}));
@@ -33,4 +35,24 @@ export async function POST(request: Request) {
   if (lastReviewRefresh.size > 5000) lastReviewRefresh.clear();
   revalidateTag("catalog", { expire: 0 });
   return Response.json({ ok: true });
+}
+
+// After an admin catalog change (e.g. stock updated): email everyone waiting for a product that is
+// back in stock, once. Runs with the admin's own login, so it only sees what admins may see.
+async function sendStockAlerts(supabase: SupabaseClient) {
+  if (!emailConfigured()) return 0;
+  const { data, error } = await supabase
+    .from("stock_alerts")
+    .select("id, email, product:products(name, slug, price, stock, is_active)")
+    .is("notified_at", null)
+    .limit(200);
+  if (error || !data) return 0; // e.g. before migration 014
+  type Row = { id: string; email: string; product: { name: string; slug: string; price: number; stock: number; is_active: boolean } | null };
+  const ready = (data as unknown as Row[]).filter((r) => r.product && r.product.is_active && r.product.stock > 0);
+  const sent: string[] = [];
+  for (const r of ready) {
+    if (await sendBackInStockEmail(r.email, { name: r.product!.name, slug: r.product!.slug, price: Number(r.product!.price) })) sent.push(r.id);
+  }
+  if (sent.length) await supabase.from("stock_alerts").update({ notified_at: new Date().toISOString() }).in("id", sent);
+  return sent.length;
 }

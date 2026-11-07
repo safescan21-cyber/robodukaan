@@ -1,5 +1,5 @@
 import Link from "@/i18n/client";
-import { getCategories, getProducts, type ProductQuery, type ProductSort } from "@/lib/data";
+import { getCategories, getBrands, getProducts, type ProductQuery, type ProductSort } from "@/lib/data";
 import { ProductGrid } from "./ProductCard";
 import { SortSelect } from "./SortSelect";
 import { CategoryIcon } from "./CategoryIcon";
@@ -33,6 +33,7 @@ export function parseShopQuery(sp: Params, fixedCategory?: string): ProductQuery
     maxPrice: num(sp.max),
     inStock: one(sp.stock) === "1",
     newArrival: one(sp.new) === "1",
+    brand: one(sp.brand)?.slice(0, 80) || undefined,
     page: Math.max(1, Math.floor(num(sp.page) ?? 1)),
     pageSize: PAGE_SIZE,
   };
@@ -48,6 +49,7 @@ function hrefWith(basePath: string, query: ProductQuery, fixedCategory: boolean,
     max: query.maxPrice?.toString(),
     stock: query.inStock ? "1" : undefined,
     new: query.newArrival ? "1" : undefined,
+    brand: query.brand,
     page: query.page && query.page > 1 ? String(query.page) : undefined,
   };
   for (const [k, v] of Object.entries({ ...current, ...changes })) if (v) p.set(k, v);
@@ -64,12 +66,12 @@ export async function ShopView({
   query: ProductQuery;
   fixedCategory?: boolean;
 }) {
-  const [{ products, total }, categories] = await Promise.all([getProducts(query), getCategories()]);
+  const [{ products, total }, categories, brands] = await Promise.all([getProducts(query), getCategories(), getBrands(query.category)]);
   const page = query.page ?? 1;
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const from = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
   const to = Math.min(total, page * PAGE_SIZE);
-  const hasFilters = query.minPrice != null || query.maxPrice != null || query.inStock;
+  const hasFilters = query.minPrice != null || query.maxPrice != null || query.inStock || !!query.brand;
   const { t, locale } = await getT();
 
   return (
@@ -98,10 +100,30 @@ export async function ShopView({
             </ul>
           </details>
         )}
+        {brands.length > 1 && (
+          <details open className="rounded-md bg-white ring-1 ring-slate-200">
+            <summary className="cursor-pointer border-b border-slate-100 px-4 py-3 text-sm font-bold uppercase tracking-wide">{t("shop.brand")}</summary>
+            <ul className="max-h-64 overflow-y-auto py-1 text-sm">
+              <li>
+                <Link href={hrefWith(basePath, query, fixedCategory, { brand: undefined, page: undefined })}
+                  className={`block px-4 py-2 hover:bg-brand-50 ${!query.brand ? "font-semibold text-brand-700" : "text-slate-700"}`}>{t("shop.allBrands")}</Link>
+              </li>
+              {brands.map((b) => (
+                <li key={b.name}>
+                  <Link href={hrefWith(basePath, query, fixedCategory, { brand: b.name, page: undefined })}
+                    className={`flex justify-between px-4 py-2 hover:bg-brand-50 ${query.brand === b.name ? "font-semibold text-brand-700" : "text-slate-700"}`}>
+                    <span className="truncate">{b.name}</span><span className="text-xs text-slate-400">{b.count}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
         <form action={localizePath(basePath, locale)} method="get" className="space-y-4 rounded-md bg-white p-4 ring-1 ring-slate-200">
           {query.q && <input type="hidden" name="q" value={query.q} />}
           {!fixedCategory && query.category && <input type="hidden" name="category" value={query.category} />}
           {query.sort && query.sort !== "popular" && <input type="hidden" name="sort" value={query.sort} />}
+          {query.brand && <input type="hidden" name="brand" value={query.brand} />}
           <p className="text-sm font-bold uppercase tracking-wide">{t("shop.filterPrice")}</p>
           <div className="flex items-center gap-2">
             <label className="flex-1 text-xs text-slate-500">{t("shop.min")} ₹
@@ -118,7 +140,7 @@ export async function ShopView({
           </label>
           <button className="w-full rounded-md bg-brand-600 py-2 text-sm font-semibold text-white hover:bg-brand-700">{t("shop.applyFilters")}</button>
           {hasFilters && (
-            <Link href={hrefWith(basePath, query, fixedCategory, { min: undefined, max: undefined, stock: undefined, page: undefined })}
+            <Link href={hrefWith(basePath, query, fixedCategory, { min: undefined, max: undefined, stock: undefined, brand: undefined, page: undefined })}
               className="block text-center text-xs font-semibold text-red-600 hover:underline">
               {t("shop.clearFilters")}
             </Link>

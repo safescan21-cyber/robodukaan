@@ -577,6 +577,21 @@ const dict: Record<string, string> = {
   "chat.whatsappPrompt": "직원과 직접 이야기하고 싶으세요?",
   "chat.whatsappButton": "WhatsApp으로 채팅",
   "chat.whatsappMsg": "안녕하세요 PCBDukaan, 다음 관련 도움이 필요합니다:",
+  "search.seeAll": "“{q}” 검색 결과 {count}개 모두 보기",
+  "shop.brand": "브랜드",
+  "shop.allBrands": "전체 브랜드",
+  "recent.title": "최근 본 상품",
+  "delivery.title": "배송",
+  "delivery.placeholder": "PIN 코드",
+  "delivery.check": "확인",
+  "delivery.invalid": "올바른 6자리 PIN 코드를 입력하세요.",
+  "delivery.result": "{from} – {to} 도착 예정",
+  "delivery.cod": "착불 결제 가능",
+  "stock.title": "품절 – 재입고 시 이메일 받기",
+  "stock.button": "알림 받기",
+  "stock.done": "완료! 재입고되면 한 번 이메일로 알려드립니다.",
+  "meta.productTail": "{price} + GST · 재고 있음 · 인도 전역 착불 결제.",
+  "meta.productTailOut": "{price} + GST · 곧 입고 · 재입고 알림 받기.",
 };
 
 export default dict;

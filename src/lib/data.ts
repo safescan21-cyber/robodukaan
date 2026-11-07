@@ -64,6 +64,7 @@ export type ProductQuery = {
   inStock?: boolean;
   featured?: boolean;
   newArrival?: boolean;
+  brand?: string;
   page?: number;
   pageSize?: number;
 };
@@ -101,6 +102,7 @@ export async function getProducts(query: ProductQuery = {}): Promise<{ products:
     if (query.maxPrice != null) request = request.lte("price", query.maxPrice);
     if (query.inStock) request = request.gt("stock", 0);
     if (query.featured) request = request.eq("is_featured", true);
+    if (query.brand) request = request.eq("brand", query.brand);
     if (query.newArrival && full && newArrivalFilter) request = request.eq("is_new_arrival", true);
 
     switch (query.newArrival ? "newest" : query.sort) {
@@ -199,4 +201,25 @@ export async function getAllProductLinks(): Promise<{ slug: string; name: string
     .limit(5000);
   logError("getAllProductLinks", error);
   return data ?? [];
+}
+
+// Brands for the shop filter (optionally within one category), most products first.
+export async function getBrands(categorySlug?: string): Promise<{ name: string; count: number }[]> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("catalog");
+  let request = supabase.from("products").select("brand, category_id").eq("is_active", true).not("brand", "is", null).limit(2000);
+  if (categorySlug) {
+    const category = await getCategory(categorySlug);
+    if (!category) return [];
+    request = request.eq("category_id", category.id);
+  }
+  const { data, error } = await request;
+  logError("getBrands", error);
+  const counts = new Map<string, number>();
+  for (const row of data ?? []) {
+    const name = String(row.brand ?? "").trim();
+    if (name) counts.set(name, (counts.get(name) ?? 0) + 1);
+  }
+  return [...counts].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }

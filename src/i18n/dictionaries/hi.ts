@@ -577,6 +577,21 @@ const dict: Record<string, string> = {
   "chat.whatsappPrompt": "किसी व्यक्ति से बात करना चाहते हैं?",
   "chat.whatsappButton": "WhatsApp पर चैट करें",
   "chat.whatsappMsg": "नमस्ते PCBDukaan, मुझे इसमें मदद चाहिए:",
+  "search.seeAll": "“{q}” के सभी {count} नतीजे देखें",
+  "shop.brand": "ब्रांड",
+  "shop.allBrands": "सभी ब्रांड",
+  "recent.title": "हाल ही में देखे गए",
+  "delivery.title": "डिलीवरी",
+  "delivery.placeholder": "पिन कोड",
+  "delivery.check": "जाँचें",
+  "delivery.invalid": "कृपया सही 6 अंकों का पिन कोड डालें।",
+  "delivery.result": "{from} – {to} तक डिलीवरी",
+  "delivery.cod": "कैश ऑन डिलीवरी उपलब्ध",
+  "stock.title": "स्टॉक ख़त्म – वापस आने पर ईमेल पाएँ",
+  "stock.button": "मुझे बताएँ",
+  "stock.done": "हो गया! स्टॉक वापस आने पर हम एक बार ईमेल करेंगे।",
+  "meta.productTail": "{price} + GST · स्टॉक में · पूरे भारत में कैश ऑन डिलीवरी।",
+  "meta.productTailOut": "{price} + GST · जल्द उपलब्ध · स्टॉक अलर्ट पाएँ।",
 };
 
 export default dict;

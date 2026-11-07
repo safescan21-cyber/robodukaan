@@ -4,6 +4,7 @@ import { getBanners, getCategories, getProductRow } from "@/lib/data";
 import { ProductGridSkeleton, ProductRow, SectionHeading } from "@/components/ProductCard";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { HeroSlider } from "@/components/HeroSlider";
+import { RecentlyViewed } from "@/components/RecentlyViewed";
 import { SetupNotice } from "@/components/SetupNotice";
 import type { Metadata } from "next";
 import { alternatesFor, getT } from "@/i18n/server";
@@ -26,6 +27,8 @@ export default async function HomePage() {
       </Suspense>
 
       <Services t={t} />
+
+      <RecentlyViewed />
 
       <Suspense fallback={<ProductGridSkeleton count={4} />}>
         <Row title="home.deals" sort="popular" featured href="/products" />

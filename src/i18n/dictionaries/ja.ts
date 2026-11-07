@@ -577,6 +577,21 @@ const dict: Record<string, string> = {
   "chat.whatsappPrompt": "担当者と話したいですか？",
   "chat.whatsappButton": "WhatsAppでチャット",
   "chat.whatsappMsg": "こんにちは PCBDukaan、次の件で相談があります：",
+  "search.seeAll": "「{q}」の検索結果 {count}件をすべて見る",
+  "shop.brand": "ブランド",
+  "shop.allBrands": "すべてのブランド",
+  "recent.title": "最近見た商品",
+  "delivery.title": "配送",
+  "delivery.placeholder": "PINコード",
+  "delivery.check": "確認",
+  "delivery.invalid": "正しい6桁のPINコードを入力してください。",
+  "delivery.result": "{from} – {to} にお届け予定",
+  "delivery.cod": "代金引換が利用できます",
+  "stock.title": "在庫切れ – 再入荷時にメールでお知らせ",
+  "stock.button": "通知を受け取る",
+  "stock.done": "登録しました！再入荷したら一度だけメールでお知らせします。",
+  "meta.productTail": "{price} + GST · 在庫あり · インド全土で代金引換。",
+  "meta.productTailOut": "{price} + GST · 近日入荷 · 再入荷通知を受け取る。",
 };
 
 export default dict;

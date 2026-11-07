@@ -265,3 +265,12 @@ export async function sendQuoteRequestEmails(q: QuoteRequest) {
   }
   return results.some(Boolean);
 }
+
+// "Back in stock" email for a customer who asked to be notified.
+export async function sendBackInStockEmail(to: string, product: { name: string; slug: string; price: number }) {
+  return send(to, `Back in stock: ${product.name}`,
+    layout("It’s back in stock",
+      `<p>Good news – <b>${esc(product.name)}</b> is available again at ${formatINR(product.price)} + GST. Stock can sell out quickly, so order soon.</p>
+<p style="font-size:13px;color:#64748b">You asked us to tell you when this product was back. This is a one-time email.</p>`,
+      { label: "View product", href: `${SITE}/products/${product.slug}` }));
+}

@@ -15,6 +15,9 @@ import { WishlistButton } from "@/components/WishlistButton";
 import { ShareButtons } from "@/components/ShareButtons";
 import type { ProductDocument } from "@/lib/types";
 import { QuoteForm } from "@/components/QuoteForm";
+import { DeliveryCheck } from "@/components/DeliveryCheck";
+import { StockAlert } from "@/components/StockAlert";
+import { RecentlyViewed, RecordView } from "@/components/RecentlyViewed";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { getT, alternatesFor } from "@/i18n/server";
@@ -26,7 +29,10 @@ export async function generateMetadata(props: PageProps<"/[lang]/products/[slug]
   const { t } = await getT();
   if (!product) return { title: t("product.notFound") };
   const image = productImage(product);
-  const description = product.short_description ?? product.description?.slice(0, 155) ?? undefined;
+  const base = (product.short_description ?? product.description ?? "").trim();
+  // Short descriptions get price, stock and delivery added, so search results show a useful line.
+  const tail = t(product.stock > 0 ? "meta.productTail" : "meta.productTailOut", { price: formatINR(product.price) });
+  const description = (base.length < 110 ? `${base}${base && !/[.!?]$/.test(base) ? "." : ""} ${tail}` : base).trim().slice(0, 160) || undefined;
   return {
     title: product.name,
     description,
@@ -239,6 +245,8 @@ async function ProductDetail({ params }: Pick<PageProps<"/[lang]/products/[slug]
             </div>
           )}
           <div className="mt-3 space-y-2">
+            {product.stock <= 0 && <StockAlert productId={product.id} />}
+            <DeliveryCheck price={product.price} />
             <QuoteForm productId={product.id} productName={product.name} />
             <WhatsAppButton text={`${t("whatsapp.productMsg")} ${product.name} (${product.sku})`} />
           </div>
@@ -272,6 +280,8 @@ async function ProductDetail({ params }: Pick<PageProps<"/[lang]/products/[slug]
           <ProductRow products={related} />
         </section>
       )}
+      <div className="mt-10"><RecentlyViewed exclude={product.slug} /></div>
+      <RecordView item={{ slug: product.slug, name: product.name, price: product.price, image: productImage(product) }} />
     </>
   );
 }

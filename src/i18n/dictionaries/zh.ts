@@ -577,6 +577,21 @@ const dict: Record<string, string> = {
   "chat.whatsappPrompt": "想和工作人员直接沟通？",
   "chat.whatsappButton": "通过 WhatsApp 聊天",
   "chat.whatsappMsg": "您好 PCBDukaan，我需要以下帮助：",
+  "search.seeAll": "查看“{q}”的全部 {count} 条结果",
+  "shop.brand": "品牌",
+  "shop.allBrands": "全部品牌",
+  "recent.title": "最近浏览",
+  "delivery.title": "配送",
+  "delivery.placeholder": "邮政编码",
+  "delivery.check": "查询",
+  "delivery.invalid": "请输入有效的 6 位邮政编码。",
+  "delivery.result": "预计 {from} – {to} 送达",
+  "delivery.cod": "支持货到付款",
+  "stock.title": "缺货 – 到货时邮件通知我",
+  "stock.button": "到货通知",
+  "stock.done": "已登记！到货后我们会发一次邮件通知您。",
+  "meta.productTail": "{price} + GST · 有货 · 全印度货到付款。",
+  "meta.productTailOut": "{price} + GST · 即将到货 · 订阅到货提醒。",
 };
 
 export default dict;

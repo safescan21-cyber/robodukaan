@@ -5,6 +5,7 @@ import { STORE } from "@/lib/constants";
 import { HeaderActions } from "./HeaderActions";
 import { CategoryMenu } from "./CategoryMenu";
 import { MobileMenu } from "./MobileMenu";
+import { SearchBox } from "./SearchBox";
 import { Logo } from "./Logo";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { getT } from "@/i18n/server";
@@ -47,14 +48,7 @@ export async function Header() {
                 <option key={c.id} value={c.slug}>{c.name}</option>
               ))}
             </select>
-            <label htmlFor="site-search" className="sr-only">{t("search.label")}</label>
-            <input
-              id="site-search"
-              name="q"
-              type="search"
-              placeholder={t("search.placeholder")}
-              className="w-full rounded-l-md border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-brand-600 md:rounded-none"
-            />
+            <SearchBox placeholder={t("search.placeholder")} label={t("search.label")} />
             <button type="submit" className="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-r-md rtl:rounded-l-md rtl:rounded-r-none bg-accent-500 px-5 text-sm font-semibold text-white hover:bg-accent-600" aria-label={t("search.button")}>
               <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                 <circle cx="11" cy="11" r="7" />

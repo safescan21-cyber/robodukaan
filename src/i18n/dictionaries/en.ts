@@ -578,6 +578,21 @@ const dict: Record<string, string> = {
   "chat.whatsappPrompt": "Prefer to talk to a person?",
   "chat.whatsappButton": "Chat on WhatsApp",
   "chat.whatsappMsg": "Hello PCBDukaan, I need help with:",
+  "search.seeAll": "See all {count} results for “{q}”",
+  "shop.brand": "Brand",
+  "shop.allBrands": "All brands",
+  "recent.title": "Recently viewed",
+  "delivery.title": "Delivery",
+  "delivery.placeholder": "PIN code",
+  "delivery.check": "Check",
+  "delivery.invalid": "Please enter a valid 6-digit PIN code.",
+  "delivery.result": "Delivery by {from} – {to}",
+  "delivery.cod": "Cash on delivery available",
+  "stock.title": "Out of stock – get an email when it’s back",
+  "stock.button": "Notify me",
+  "stock.done": "Done! We’ll email you once when it’s back in stock.",
+  "meta.productTail": "{price} + GST · In stock · Cash on delivery across India.",
+  "meta.productTailOut": "{price} + GST · Back soon · Get a back-in-stock alert.",
 };
 
 export default dict;
