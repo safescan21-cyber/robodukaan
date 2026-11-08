@@ -6,7 +6,9 @@ import { useAuth } from "./AuthProvider";
 import { getSupabase } from "@/lib/supabase-browser";
 
 // Bulk quote request (guests allowed). On a product page it starts as a button; on /bulk-quote it's open.
-export function QuoteForm({ productId, productName, startOpen = false }: { productId?: string; productName?: string; startOpen?: boolean }) {
+// variant "exchange": the customer wants this board in exchange for their old faulty one (quantity 1, message filled in).
+export function QuoteForm({ productId, productName, startOpen = false, variant = "bulk" }: { productId?: string; productName?: string; startOpen?: boolean; variant?: "bulk" | "exchange" }) {
+  const exchange = variant === "exchange";
   const { t } = useI18n();
   const { user, profile } = useAuth();
   const [open, setOpen] = useState(startOpen);
@@ -42,7 +44,7 @@ export function QuoteForm({ productId, productName, startOpen = false }: { produ
   if (!open) {
     return (
       <button type="button" onClick={() => setOpen(true)} className="w-full rounded-md border-2 border-dashed border-brand-600 px-4 py-2.5 text-sm font-semibold text-brand-700 hover:bg-brand-50">
-        📦 {t("quote.button")}
+        {exchange ? `🔁 ${t("exchange.button")}` : `📦 ${t("quote.button")}`}
       </button>
     );
   }
@@ -59,21 +61,21 @@ export function QuoteForm({ productId, productName, startOpen = false }: { produ
   return (
     <form onSubmit={onSubmit} className="space-y-3 rounded-md bg-slate-50 p-4 ring-1 ring-slate-200">
       <div>
-        <p className="font-bold">{t("quote.title")}</p>
-        <p className="text-xs text-slate-600">{t("quote.intro")}</p>
+        <p className="font-bold">{exchange ? t("exchange.formTitle") : t("quote.title")}</p>
+        <p className="text-xs text-slate-600">{exchange ? t("exchange.formIntro") : t("quote.intro")}</p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="text-sm font-medium sm:col-span-2">{t("cart.product")} *
           <input name="product_name" required defaultValue={productName ?? ""} readOnly={!!productName} maxLength={200} className={`${field} ${productName ? "bg-slate-100" : ""}`} />
         </label>
-        <label className="text-sm font-medium">{t("form.quantity")} *<input name="quantity" type="number" min={1} max={100000} required defaultValue={productName ? 10 : undefined} className={field} /></label>
+        <label className="text-sm font-medium">{t("form.quantity")} *<input name="quantity" type="number" min={1} max={100000} required defaultValue={exchange ? 1 : productName ? 10 : undefined} className={field} /></label>
         <label className="text-sm font-medium">{t("form.yourName")} *<input name="name" required minLength={2} maxLength={100} defaultValue={profile?.full_name ?? ""} autoComplete="name" className={field} /></label>
         <label className="text-sm font-medium">{t("form.mobileWhatsapp")} *<input name="phone" type="tel" required inputMode="tel" pattern="[+0-9 ]{10,15}" defaultValue={profile?.phone ?? ""} autoComplete="tel" placeholder={t("form.mobilePh")} className={field} /></label>
         <label className="text-sm font-medium">{t("form.email")}<input name="email" type="email" maxLength={200} defaultValue={user?.email ?? ""} autoComplete="email" className={field} /></label>
         <label className="text-sm font-medium">{t("checkout.company")}<input name="company" maxLength={120} autoComplete="organization" className={field} /></label>
         <label className="text-sm font-medium">GSTIN<input name="gstin" maxLength={15} pattern="[0-9]{2}[A-Za-z]{5}[0-9]{4}[A-Za-z][1-9A-Za-z][Zz][0-9A-Za-z]" title="15 characters, e.g. 27AAACR1234Q1Z5" className={`${field} uppercase`} /></label>
         <label className="text-sm font-medium sm:col-span-2">{t("form.city")}<input name="city" maxLength={80} className={field} /></label>
-        <label className="text-sm font-medium sm:col-span-2">{t("quote.message")}<textarea name="message" rows={3} maxLength={2000} placeholder={t("quote.messagePh")} className={field} /></label>
+        <label className="text-sm font-medium sm:col-span-2">{t("quote.message")}<textarea name="message" rows={3} maxLength={2000} placeholder={t("quote.messagePh")} defaultValue={exchange ? t("exchange.message") : undefined} className={field} /></label>
       </div>
       {error && <p className="text-sm text-red-600" role="alert">{error}</p>}
       <button disabled={sending} className="w-full rounded-md bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60">

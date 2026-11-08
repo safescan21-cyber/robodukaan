@@ -604,6 +604,20 @@ const dict: Record<string, string> = {
   "repairTerms.onQuote": "مفت تصویری جانچ کے بعد قیمت",
   "product.bis": "BIS رجسٹریشن نمبر",
   "nav.partners": "ٹیکنیشن پارٹنر",
+  "track.tabOrder": "آرڈر",
+  "track.tabRepair": "مرمت",
+  "track.repairTitle": "اپنی مرمت ٹریک کریں",
+  "track.repairNumber": "مرمت درخواست نمبر",
+  "track.repairNotFound": "اس نمبر اور موبائل نمبر سے کوئی مرمت درخواست نہیں ملی۔",
+  "track.progress": "مرمت کی پیش رفت",
+  "nav.caseStudies": "مرمت کیس اسٹڈیز",
+  "exchange.title": "ایکسچینج آفر",
+  "exchange.text": "اسی ماڈل کا اپنا پرانا خراب بورڈ ہمیں بھیجیں اور یہ بورڈ کم ایکسچینج قیمت پر حاصل کریں۔",
+  "exchange.textPrice": "اسی ماڈل کا پرانا خراب بورڈ بھیجنے پر یہ بورڈ {price} + GST سے حاصل کریں۔",
+  "exchange.button": "ایکسچینج قیمت پوچھیں",
+  "exchange.formTitle": "ایکسچینج درخواست",
+  "exchange.formIntro": "اپنے پرانے بورڈ کے بارے میں بتائیں – ہم ایکسچینج قیمت اور بھیجنے کا طریقہ بتائیں گے۔",
+  "exchange.message": "مجھے اسی ماڈل کے میرے پرانے خراب بورڈ کے بدلے یہ بورڈ چاہیے۔ خرابی: ",
 };
 
 export default dict;

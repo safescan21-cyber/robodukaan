@@ -169,7 +169,7 @@ export async function sendRepairReceivedEmails(r: RepairRequest) {
         `PCB repair request ${r.request_number} received`,
         layout(
           "We’ve received your PCB repair request",
-          `<p>Hi ${esc(r.name.split(" ")[0])}, thanks for sending your board details and photos. Our technician will review them and send you a repair quote, usually within 1–2 working days.</p>${repairSummary(r)}`,
+          `<p>Hi ${esc(r.name.split(" ")[0])}, thanks for sending your board details and photos. Our technician will review them and send you a repair quote, usually within 1–2 working days.</p>${repairSummary(r)}<p style="font-size:14px">Follow every step of your repair any time: <a href="${SITE}/track?repair=${encodeURIComponent(r.request_number)}">track repair ${esc(r.request_number)}</a> (with your mobile number).</p>`,
           { label: "View your request", href: `${SITE}/account/repairs` },
         ),
         adminEmail() || undefined,

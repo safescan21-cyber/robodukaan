@@ -604,6 +604,20 @@ const dict: Record<string, string> = {
   "repairTerms.onQuote": "मुफ़्त फ़ोटो जाँच के बाद कीमत",
   "product.bis": "BIS पंजीकरण नं.",
   "nav.partners": "टेक्नीशियन पार्टनर",
+  "track.tabOrder": "ऑर्डर",
+  "track.tabRepair": "रिपेयर",
+  "track.repairTitle": "अपनी रिपेयर ट्रैक करें",
+  "track.repairNumber": "रिपेयर रिक्वेस्ट नंबर",
+  "track.repairNotFound": "इस नंबर और मोबाइल नंबर से कोई रिपेयर रिक्वेस्ट नहीं मिली।",
+  "track.progress": "रिपेयर की प्रगति",
+  "nav.caseStudies": "रिपेयर केस स्टडी",
+  "exchange.title": "एक्सचेंज ऑफ़र",
+  "exchange.text": "उसी मॉडल का अपना पुराना खराब बोर्ड हमें भेजें और यह बोर्ड कम एक्सचेंज कीमत पर पाएँ।",
+  "exchange.textPrice": "उसी मॉडल का पुराना खराब बोर्ड भेजने पर यह बोर्ड {price} + GST से पाएँ।",
+  "exchange.button": "एक्सचेंज कीमत पूछें",
+  "exchange.formTitle": "एक्सचेंज रिक्वेस्ट",
+  "exchange.formIntro": "अपने पुराने बोर्ड के बारे में बताएँ – हम एक्सचेंज कीमत और भेजने का तरीका बताएँगे।",
+  "exchange.message": "मुझे उसी मॉडल के मेरे पुराने खराब बोर्ड के बदले यह बोर्ड चाहिए। खराबी: ",
 };
 
 export default dict;

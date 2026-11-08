@@ -605,6 +605,20 @@ const dict: Record<string, string> = {
   "repairTerms.onQuote": "Price after free photo check",
   "product.bis": "BIS registration no.",
   "nav.partners": "Technician partners",
+  "track.tabOrder": "Order",
+  "track.tabRepair": "Repair",
+  "track.repairTitle": "Track your repair",
+  "track.repairNumber": "Repair request number",
+  "track.repairNotFound": "No repair request found with that number and mobile number.",
+  "track.progress": "Repair progress",
+  "nav.caseStudies": "Repair case studies",
+  "exchange.title": "Exchange offer",
+  "exchange.text": "Send us your old faulty board of the same model and get this one at a lower exchange price.",
+  "exchange.textPrice": "Get this board from {price} + GST when you send us your old faulty board of the same model.",
+  "exchange.button": "Ask for exchange price",
+  "exchange.formTitle": "Exchange request",
+  "exchange.formIntro": "Tell us about your old board – we reply with the exchange price and how to send it.",
+  "exchange.message": "I want this board in exchange for my old faulty board of the same model. Fault: ",
 };
 
 export default dict;

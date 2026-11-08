@@ -6,16 +6,27 @@ import { getSupabase } from "@/lib/supabase-browser";
 import { useI18n } from "@/i18n/client";
 import { RepairPhotos } from "@/components/RepairPhotos";
 import { RepairStatusBadge } from "@/components/RepairStatusBadge";
+import { RepairTimeline } from "@/components/RepairTimeline";
 import { formatDate, formatINR } from "@/lib/format";
-import type { RepairRequest } from "@/lib/types";
+import type { RepairHistoryEntry, RepairRequest } from "@/lib/types";
 
 export default function MyRepairsPage() {
   const { t } = useI18n();
   const [repairs, setRepairs] = useState<RepairRequest[] | null>(null);
+  const [history, setHistory] = useState<Record<string, RepairHistoryEntry[]>>({});
 
   useEffect(() => {
     getSupabase().from("repair_requests").select("*").order("created_at", { ascending: false })
       .then(({ data }) => setRepairs((data as RepairRequest[]) ?? []));
+    // Status timeline (database update 018); without it the page simply shows no timeline.
+    getSupabase().from("repair_status_history").select("repair_id, status, changed_at").order("changed_at")
+      .then(({ data }) => {
+        const map: Record<string, RepairHistoryEntry[]> = {};
+        for (const h of (data ?? []) as { repair_id: string; status: RepairHistoryEntry["status"]; changed_at: string }[]) {
+          (map[h.repair_id] ??= []).push({ status: h.status, at: h.changed_at });
+        }
+        setHistory(map);
+      });
   }, []);
 
   return (
@@ -43,6 +54,12 @@ export default function MyRepairsPage() {
             <p className="mt-3 text-sm"><span className="font-semibold">{r.board_type}</span>{r.device ? ` – ${r.device}` : ""} × {r.quantity}</p>
             <p className="mt-1 whitespace-pre-line text-sm text-slate-700">{r.problem}</p>
             <div className="mt-3"><RepairPhotos paths={r.photos} size="sm" /></div>
+            {history[r.id] && (
+              <details className="mt-3 text-sm" open={!["returned", "rejected", "cancelled"].includes(r.status)}>
+                <summary className="cursor-pointer font-semibold text-brand-700">{t("track.progress")}</summary>
+                <div className="mt-3"><RepairTimeline status={r.status} history={history[r.id]} /></div>
+              </details>
+            )}
             {(r.quote_amount != null || r.admin_notes) && (
               <div className="mt-4 rounded-md bg-brand-50 p-4 text-sm ring-1 ring-brand-100">
                 {r.quote_amount != null && <p>{t("myRepairs.quote")}: <span className="text-lg font-bold text-brand-700">{formatINR(r.quote_amount)}</span></p>}

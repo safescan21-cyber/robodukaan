@@ -1,6 +1,6 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { supabase } from "./supabase";
-import type { Banner, Category, Product } from "./types";
+import type { Banner, CaseStudy, Category, Product } from "./types";
 
 // Server-side catalog reads, cached for a minute and refreshed immediately
 // when an admin saves something (see app/api/revalidate/route.ts).
@@ -222,4 +222,25 @@ export async function getBrands(categorySlug?: string): Promise<{ name: string; 
     if (name) counts.set(name, (counts.get(name) ?? 0) + 1);
   }
   return [...counts].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}
+
+// Repair case studies written by the admin (database update 018). Empty until the table exists.
+export async function getCaseStudies(serviceSlug?: string): Promise<CaseStudy[]> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("catalog");
+  let request = supabase.from("case_studies").select("*").eq("is_published", true).order("published_at", { ascending: false }).limit(100);
+  if (serviceSlug) request = request.eq("service_slug", serviceSlug);
+  const { data, error } = await request;
+  if (error && !/case_studies/.test(error.message)) logError("getCaseStudies", error);
+  return (data as CaseStudy[]) ?? [];
+}
+
+export async function getCaseStudy(slug: string): Promise<CaseStudy | null> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("catalog");
+  const { data, error } = await supabase.from("case_studies").select("*").eq("slug", slug).eq("is_published", true).maybeSingle();
+  if (error && !/case_studies/.test(error.message)) logError("getCaseStudy", error);
+  return (data as CaseStudy) ?? null;
 }

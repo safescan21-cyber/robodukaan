@@ -44,6 +44,8 @@ export type Product = {
   category?: (Pick<Category, "slug" | "name" | "icon"> & { hsn_code?: string | null }) | null;
   equivalents?: string | null;
   is_new_arrival?: boolean;
+  exchange_available?: boolean;
+  exchange_price?: number | null;
 };
 
 export type Banner = {
@@ -321,4 +323,41 @@ export type VendorOrderView = {
   notes: string | null;
   cod_amount: number | null;
   items: { name: string; sku: string; quantity: number }[];
+};
+
+export type RepairHistoryEntry = { status: RepairStatus; at: string };
+export type TrackedRepair = {
+  request_number: string;
+  status: RepairStatus;
+  board_type: string;
+  device: string | null;
+  quantity: number;
+  urgent: boolean;
+  wants_exchange: boolean;
+  quote_amount: number | null;
+  created_at: string;
+  updated_at: string;
+  history: RepairHistoryEntry[];
+};
+
+export type CaseStudy = {
+  id: string;
+  slug: string;
+  title: string;
+  board_type: string | null;
+  brand_model: string | null;
+  industry: string | null;
+  city: string | null;
+  fault: string;
+  diagnosis: string | null;
+  repair: string;
+  result: string | null;
+  turnaround_days: number | null;
+  saving_note: string | null;
+  photos: string[];
+  service_slug: string | null;
+  is_published: boolean;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
 };

@@ -249,6 +249,15 @@ async function ProductDetail({ params }: Pick<PageProps<"/[lang]/products/[slug]
           <div className="mt-3 space-y-2">
             {product.stock <= 0 && <StockAlert productId={product.id} />}
             <DeliveryCheck price={product.price} />
+            {product.exchange_available && (
+              <div className="mb-3 rounded-md bg-sky-50 p-4 text-sm ring-1 ring-sky-200">
+                <p className="font-bold text-sky-900">🔁 {t("exchange.title")}</p>
+                <p className="mt-1 text-sky-900">
+                  {product.exchange_price ? t("exchange.textPrice", { price: formatINR(product.exchange_price) }) : t("exchange.text")}
+                </p>
+                <div className="mt-3"><QuoteForm productId={product.id} productName={product.name} variant="exchange" /></div>
+              </div>
+            )}
             <QuoteForm productId={product.id} productName={product.name} />
             <WhatsAppButton text={`${t("whatsapp.productMsg")} ${product.name} (${product.sku})`} />
           </div>

@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { getSupabase } from "@/lib/supabase-browser";
-import { formatINR } from "@/lib/format";
+import { formatDate, formatINR } from "@/lib/format";
 import { useI18n } from "@/i18n/client";
-import type { OrderStatus } from "@/lib/types";
+import { RepairTimeline } from "@/components/RepairTimeline";
+import type { OrderStatus, TrackedRepair } from "@/lib/types";
 
 type TrackedOrder = {
   order_number: string;
@@ -24,8 +26,15 @@ type TrackedOrder = {
 
 const STEPS = ["pending", "confirmed", "packed", "shipped", "delivered"] as const;
 
-export default function TrackPage() {
+export default function Page() {
+  return <Suspense fallback={<div className="mx-auto h-96 max-w-2xl animate-pulse px-4 py-12" />}><TrackPage /></Suspense>;
+}
+
+function TrackPage() {
   const { t } = useI18n();
+  const params = useSearchParams();
+  const repairParam = params.get("repair") ?? "";
+  const [tab, setTab] = useState<"order" | "repair">(repairParam ? "repair" : "order");
   const [order, setOrder] = useState<TrackedOrder | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -51,7 +60,16 @@ export default function TrackPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
-      <h1 className="text-3xl font-bold">{t("track.title")}</h1>
+      <h1 className="text-3xl font-bold">{tab === "order" ? t("track.title") : t("track.repairTitle")}</h1>
+      <div className="mt-4 inline-flex rounded-md bg-slate-200 p-1 text-sm font-semibold" role="tablist">
+        {(["order", "repair"] as const).map((k) => (
+          <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={() => setTab(k)}
+            className={`rounded px-4 py-1.5 ${tab === k ? "bg-white text-brand-700 shadow" : "text-slate-600"}`}>
+            {k === "order" ? `📦 ${t("track.tabOrder")}` : `🔧 ${t("track.tabRepair")}`}
+          </button>
+        ))}
+      </div>
+      {tab === "repair" ? <RepairTrack initialNumber={repairParam} /> : <>
       <form onSubmit={onSubmit} className="mt-6 grid gap-4 rounded-xl bg-white p-6 ring-1 ring-slate-200 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
         <label className="text-sm font-medium">{t("success.orderNumber")}<input name="order" required placeholder="PD…" className={`${field} uppercase`} /></label>
         <label className="text-sm font-medium">{t("form.mobileNumber")}<input name="phone" required type="tel" inputMode="numeric" className={field} /></label>
@@ -106,6 +124,55 @@ export default function TrackPage() {
           </ul>
         </section>
       )}
+      </>}
     </div>
+  );
+}
+
+function RepairTrack({ initialNumber }: { initialNumber: string }) {
+  const { t } = useI18n();
+  const [repair, setRepair] = useState<TrackedRepair | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const field = "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100";
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    setLoading(true); setMessage(null); setRepair(null);
+    const { data, error } = await getSupabase().rpc("track_repair", {
+      p_request_number: String(form.get("repair") ?? "").trim(),
+      p_phone: String(form.get("phone") ?? ""),
+    });
+    setLoading(false);
+    if (error) setMessage(t("common.error"));
+    else if (!data) setMessage(t("track.repairNotFound"));
+    else setRepair(data as TrackedRepair);
+  }
+
+  return (
+    <>
+      <form onSubmit={onSubmit} className="mt-6 grid gap-4 rounded-xl bg-white p-6 ring-1 ring-slate-200 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+        <label className="text-sm font-medium">{t("track.repairNumber")}<input name="repair" required defaultValue={initialNumber} placeholder="PR…" className={`${field} uppercase`} /></label>
+        <label className="text-sm font-medium">{t("form.mobileNumber")}<input name="phone" required type="tel" inputMode="numeric" className={field} /></label>
+        <button disabled={loading} className="rounded-lg bg-brand-600 px-5 py-2 font-semibold text-white hover:bg-brand-700 disabled:opacity-60">
+          {loading ? t("track.checking") : t("track.button")}
+        </button>
+      </form>
+      {message && <p className="mt-6 rounded-lg bg-amber-50 p-4 text-sm text-amber-900" role="status">{message}</p>}
+      {repair && (
+        <section className="mt-6 rounded-xl bg-white p-6 ring-1 ring-slate-200">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <p className="font-mono text-lg font-bold">{repair.request_number}</p>
+            <p className="text-sm text-slate-500">{formatDate(repair.created_at)}</p>
+          </div>
+          <p className="mt-1 text-sm"><b>{repair.board_type}</b>{repair.device ? ` – ${repair.device}` : ""} × {repair.quantity}</p>
+          {repair.quote_amount != null && (
+            <p className="mt-3 rounded bg-brand-50 p-3 text-sm">{t("myRepairs.quote")}: <b className="text-lg text-brand-700">{formatINR(repair.quote_amount)}</b></p>
+          )}
+          <div className="mt-5"><RepairTimeline status={repair.status} history={repair.history} /></div>
+        </section>
+      )}
+    </>
   );
 }

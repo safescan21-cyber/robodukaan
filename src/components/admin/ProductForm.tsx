@@ -102,6 +102,7 @@ export function ProductForm({ product }: { product?: Product }) {
       ready_to_dispatch: f.get("ready_to_dispatch") === "on",
       is_featured: f.get("is_featured") === "on",
       ...newArrivalPatch(f.get("is_new_arrival") === "on", product?.is_new_arrival),
+      ...exchangePatch(f.get("exchange_available") === "on", num("exchange_price"), product),
       is_active: f.get("is_active") === "on",
       images,
       videos,
@@ -256,6 +257,8 @@ export function ProductForm({ product }: { product?: Product }) {
           <p className="text-xs text-slate-500">Enter prices <b>excluding GST</b>. 18% GST is added at checkout.</p>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="ready_to_dispatch" defaultChecked={product?.ready_to_dispatch ?? true} className="h-4 w-4 accent-brand-600" />Ready to dispatch (ships in 24h)</label>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_featured" defaultChecked={product?.is_featured ?? false} className="h-4 w-4 accent-brand-600" />Featured (shows in Deals of the day)</label>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="exchange_available" defaultChecked={product?.exchange_available ?? false} className="h-4 w-4 accent-brand-600" />Exchange offer (customer sends back the old faulty board)</label>
+          <label className="block text-sm font-medium">Exchange price (₹, before GST) <span className="font-normal text-slate-500">– optional, shown as “from”</span><input name="exchange_price" type="number" min={1} step="0.01" defaultValue={product?.exchange_price ?? ""} className={adminField} /></label>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_new_arrival" defaultChecked={product?.is_new_arrival ?? !product} className="h-4 w-4 accent-brand-600" />New arrival (shows in New arrivals with a NEW badge)</label>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_active" defaultChecked={product?.is_active ?? true} className="h-4 w-4 accent-brand-600" />Visible in store</label>
         </section>
@@ -285,4 +288,12 @@ function newArrivalPatch(checked: boolean, current: boolean | undefined): { is_n
 function bisPatch(value: string, current: string | null | undefined): { bis_number?: string | null } {
   if (value) return { bis_number: value };
   return current ? { bis_number: null } : {};
+}
+
+// Exchange fields (migration 018) are only sent when used, so saving still works before the update.
+function exchangePatch(on: boolean, price: number | null, product?: { exchange_available?: boolean; exchange_price?: number | null } | null) {
+  const patch: { exchange_available?: boolean; exchange_price?: number | null } = {};
+  if (on || product?.exchange_available) patch.exchange_available = on;
+  if (price != null || product?.exchange_price != null) patch.exchange_price = price && price > 0 ? price : null;
+  return patch;
 }

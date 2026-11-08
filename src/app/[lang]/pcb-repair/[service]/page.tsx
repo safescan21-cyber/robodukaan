@@ -10,6 +10,7 @@ import { REPAIR_SERVICES, getRepairService } from "@/lib/seo-content";
 import { DRIVE_BRANDS } from "@/lib/fault-codes";
 import { STATES } from "@/lib/locations";
 import { RepairPrices, RepairPromise } from "@/components/RepairPromise";
+import { getCaseStudies } from "@/lib/data";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://pcbdukaan.com";
 
@@ -42,6 +43,7 @@ async function Service({ params }: Pick<PageProps<"/[lang]/pcb-repair/[service]"
   if (!s) notFound();
   const { t } = await getT();
   const faultBrands = DRIVE_BRANDS.filter((b) => s.faultCodes?.includes(b.slug));
+  const cases = (await getCaseStudies(s.slug)).slice(0, 4);
   const others = REPAIR_SERVICES.filter((x) => x.slug !== s.slug);
   return (
     <>
@@ -93,6 +95,15 @@ async function Service({ params }: Pick<PageProps<"/[lang]/pcb-repair/[service]"
         {s.prices?.length ? <RepairPrices service={s} /> : null}
         <RepairPromise className={s.prices?.length ? "" : "md:col-span-2"} />
       </div>
+
+      {cases.length > 0 && (
+        <section className="mt-6 rounded-md bg-white p-5 ring-1 ring-slate-200">
+          <h2 className="text-lg font-bold">Recent {s.name.toLowerCase()} jobs</h2>
+          <ul className="mt-2 space-y-1 text-sm">
+            {cases.map((c) => <li key={c.id}><Link href={`/repair-case-studies/${c.slug}`} className="text-brand-700 hover:underline">{c.title}</Link></li>)}
+          </ul>
+        </section>
+      )}
 
       {faultBrands.length > 0 && (
         <section className="mt-6 rounded-md bg-white p-5 ring-1 ring-slate-200">

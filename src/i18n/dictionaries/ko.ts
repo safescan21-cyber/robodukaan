@@ -604,6 +604,20 @@ const dict: Record<string, string> = {
   "repairTerms.onQuote": "무료 사진 진단 후 가격 안내",
   "product.bis": "BIS 등록 번호",
   "nav.partners": "기술자 파트너",
+  "track.tabOrder": "주문",
+  "track.tabRepair": "수리",
+  "track.repairTitle": "수리 진행 조회",
+  "track.repairNumber": "수리 요청 번호",
+  "track.repairNotFound": "해당 번호와 휴대폰 번호로 수리 요청을 찾을 수 없습니다.",
+  "track.progress": "수리 진행 상황",
+  "nav.caseStudies": "수리 사례",
+  "exchange.title": "교환 혜택",
+  "exchange.text": "같은 모델의 고장 난 기존 보드를 보내주시면 이 보드를 할인된 교환 가격에 드립니다.",
+  "exchange.textPrice": "같은 모델의 고장 난 보드를 보내주시면 이 보드를 {price} + GST부터 구매할 수 있습니다.",
+  "exchange.button": "교환 가격 문의",
+  "exchange.formTitle": "교환 요청",
+  "exchange.formIntro": "기존 보드에 대해 알려주세요 – 교환 가격과 발송 방법을 안내해 드립니다.",
+  "exchange.message": "같은 모델의 고장 난 기존 보드와 교환으로 이 보드를 원합니다. 고장 내용: ",
 };
 
 export default dict;

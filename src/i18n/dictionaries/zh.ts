@@ -604,6 +604,20 @@ const dict: Record<string, string> = {
   "repairTerms.onQuote": "免费照片检测后报价",
   "product.bis": "BIS 注册号",
   "nav.partners": "技术员合作伙伴",
+  "track.tabOrder": "订单",
+  "track.tabRepair": "维修",
+  "track.repairTitle": "查询维修进度",
+  "track.repairNumber": "维修申请编号",
+  "track.repairNotFound": "未找到与该编号和手机号码匹配的维修申请。",
+  "track.progress": "维修进度",
+  "nav.caseStudies": "维修案例",
+  "exchange.title": "以旧换新",
+  "exchange.text": "寄回同型号的旧故障板，即可以优惠的换新价格购买此电路板。",
+  "exchange.textPrice": "寄回同型号的旧故障板，此电路板 {price} + GST 起。",
+  "exchange.button": "咨询换新价格",
+  "exchange.formTitle": "以旧换新申请",
+  "exchange.formIntro": "请介绍您的旧电路板——我们会回复换新价格和寄送方式。",
+  "exchange.message": "我想用同型号的旧故障板换购此电路板。故障情况：",
 };
 
 export default dict;

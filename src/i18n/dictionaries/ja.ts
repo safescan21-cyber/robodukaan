@@ -604,6 +604,20 @@ const dict: Record<string, string> = {
   "repairTerms.onQuote": "無料写真診断後に価格をご案内",
   "product.bis": "BIS登録番号",
   "nav.partners": "技術者パートナー",
+  "track.tabOrder": "注文",
+  "track.tabRepair": "修理",
+  "track.repairTitle": "修理の状況確認",
+  "track.repairNumber": "修理依頼番号",
+  "track.repairNotFound": "この番号と携帯番号に一致する修理依頼が見つかりません。",
+  "track.progress": "修理の進捗",
+  "nav.caseStudies": "修理事例",
+  "exchange.title": "交換サービス",
+  "exchange.text": "同じ型式の故障した基板を送っていただくと、この基板を割引の交換価格でお届けします。",
+  "exchange.textPrice": "同じ型式の故障基板を送っていただくと、この基板を {price} + GST から購入できます。",
+  "exchange.button": "交換価格を問い合わせる",
+  "exchange.formTitle": "交換の依頼",
+  "exchange.formIntro": "お手元の基板について教えてください。交換価格と発送方法をご案内します。",
+  "exchange.message": "同じ型式の故障した基板と交換で、この基板を希望します。故障内容：",
 };
 
 export default dict;

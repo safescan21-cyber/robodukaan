@@ -604,6 +604,20 @@ const dict: Record<string, string> = {
   "repairTerms.onQuote": "Prix après examen gratuit des photos",
   "product.bis": "N° d’enregistrement BIS",
   "nav.partners": "Techniciens partenaires",
+  "track.tabOrder": "Commande",
+  "track.tabRepair": "Réparation",
+  "track.repairTitle": "Suivre votre réparation",
+  "track.repairNumber": "Numéro de demande de réparation",
+  "track.repairNotFound": "Aucune demande de réparation trouvée avec ce numéro et ce numéro de mobile.",
+  "track.progress": "Avancement de la réparation",
+  "nav.caseStudies": "Études de cas de réparation",
+  "exchange.title": "Offre d’échange",
+  "exchange.text": "Envoyez-nous votre ancienne carte défectueuse du même modèle et obtenez celle-ci à un prix d’échange réduit.",
+  "exchange.textPrice": "Obtenez cette carte à partir de {price} + GST en nous envoyant votre ancienne carte défectueuse du même modèle.",
+  "exchange.button": "Demander le prix d’échange",
+  "exchange.formTitle": "Demande d’échange",
+  "exchange.formIntro": "Décrivez votre ancienne carte – nous répondons avec le prix d’échange et la façon de l’envoyer.",
+  "exchange.message": "Je souhaite cette carte en échange de mon ancienne carte défectueuse du même modèle. Panne : ",
 };
 
 export default dict;
