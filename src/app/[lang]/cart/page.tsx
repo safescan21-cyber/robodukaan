@@ -75,7 +75,7 @@ export default function CartPage() {
             <div className="flex justify-between border-t border-slate-200 pt-3 text-lg font-bold"><dt>{t("cart.total")}</dt><dd>{formatINR(subtotal - discount + shipping + gst)}</dd></div>
           </dl>
           {shipping > 0 && (
-            <p className="rounded bg-accent-50 p-2 text-xs text-accent-600">
+            <p className="rounded bg-accent-50 p-2 text-xs text-accent-700">
               {t("cart.addMore", { amount: formatINR(FREE_SHIPPING_FROM - subtotal) })}
             </p>
           )}

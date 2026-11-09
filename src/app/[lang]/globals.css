@@ -12,6 +12,7 @@
   --color-accent-400: #ff9a4d;
   --color-accent-500: #f97316;
   --color-accent-600: #e0640d;
+  --color-accent-700: #c2410c; /* orange text on white/light backgrounds (contrast 5.2:1) */
 
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif;
 }

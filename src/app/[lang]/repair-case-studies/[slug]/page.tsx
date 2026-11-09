@@ -55,7 +55,7 @@ async function Content({ params }: Pick<PageProps<"/[lang]/repair-case-studies/[
         mainEntityOfPage: `${SITE}/repair-case-studies/${c.slug}`,
       }} />
       <Breadcrumbs items={[{ label: t("nav.pcbRepair"), href: "/pcb-repair" }, { label: t("nav.caseStudies"), href: "/repair-case-studies" }, { label: c.title }]} />
-      <p className="text-xs font-semibold uppercase text-accent-600">Repair case study{c.published_at ? ` · ${formatDate(c.published_at)}` : ""}</p>
+      <p className="text-xs font-semibold uppercase text-accent-700">Repair case study{c.published_at ? ` · ${formatDate(c.published_at)}` : ""}</p>
       <h1 className="mt-1 text-2xl font-extrabold sm:text-3xl">{c.title}</h1>
       {facts.length > 0 && (
         <dl className="mt-4 grid gap-x-6 gap-y-1 rounded-md bg-white p-4 text-sm ring-1 ring-slate-200 sm:grid-cols-2">

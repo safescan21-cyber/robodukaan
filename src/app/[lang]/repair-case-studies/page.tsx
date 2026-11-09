@@ -40,7 +40,7 @@ async function List() {
                 <img src={c.photos[0]} alt={c.title} loading="lazy" className="aspect-video w-full object-cover" />
               )}
               <div className="p-4">
-                <p className="text-xs font-semibold uppercase text-accent-600">{[c.board_type, c.industry, c.city].filter(Boolean).join(" · ")}</p>
+                <p className="text-xs font-semibold uppercase text-accent-700">{[c.board_type, c.industry, c.city].filter(Boolean).join(" · ")}</p>
                 <h2 className="mt-1 font-bold">{c.title}</h2>
                 <p className="mt-1 line-clamp-2 text-sm text-slate-600">{c.fault}</p>
                 {c.published_at && <p className="mt-2 text-xs text-slate-500">{formatDate(c.published_at)}</p>}

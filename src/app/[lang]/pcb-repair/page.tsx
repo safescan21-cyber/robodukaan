@@ -38,7 +38,7 @@ export default async function PcbRepairPage() {
         {STEPS.map(([icon, title, text], i) => (
           <div key={title} className="rounded-md bg-white p-5 ring-1 ring-slate-200">
             <p className="text-3xl" aria-hidden="true">{icon}</p>
-            <p className="mt-2 text-xs font-bold uppercase text-accent-600">{t("repairPage.step", { n: i + 1 })}</p>
+            <p className="mt-2 text-xs font-bold uppercase text-accent-700">{t("repairPage.step", { n: i + 1 })}</p>
             <p className="font-bold">{t(title)}</p>
             <p className="mt-1 text-sm text-slate-600">{t(text)}</p>
           </div>

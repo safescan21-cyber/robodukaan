@@ -86,11 +86,11 @@ async function Hero() {
         <Link href="/pcb-repair" className="group relative overflow-hidden rounded-md bg-brand-50 p-5 ring-1 ring-brand-100">
           <p className="text-xs font-semibold uppercase text-brand-700">{t("home.freeQuote")}</p>
           <p className="mt-1 text-lg font-bold text-slate-900">{t("home.repairTitle")}</p>
-          <p className="mt-2 text-sm font-semibold text-accent-600 group-hover:underline">{t("home.sendPhotos")} <span className="inline-block rtl:-scale-x-100">→</span></p>
+          <p className="mt-2 text-sm font-semibold text-accent-700 group-hover:underline">{t("home.sendPhotos")} <span className="inline-block rtl:-scale-x-100">→</span></p>
           <CategoryIcon name="pcb" className="absolute -bottom-3 -right-3 h-24 w-24 text-brand-600/20" />
         </Link>
         <Link href="/category/plc-io-modules" className="group relative overflow-hidden rounded-md bg-accent-50 p-5 ring-1 ring-accent-400/30">
-          <p className="text-xs font-semibold uppercase text-accent-600">{t("home.autoTag")}</p>
+          <p className="text-xs font-semibold uppercase text-accent-700">{t("home.autoTag")}</p>
           <p className="mt-1 text-lg font-bold text-slate-900">{t("home.plcTitle")}</p>
           <p className="mt-2 text-sm font-semibold text-brand-700 group-hover:underline">{t("home.shopPlc")} <span className="inline-block rtl:-scale-x-100">→</span></p>
           <CategoryIcon name="chip" className="absolute -bottom-3 -right-3 h-24 w-24 text-accent-500/25" />
