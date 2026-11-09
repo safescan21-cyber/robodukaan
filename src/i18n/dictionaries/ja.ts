@@ -676,6 +676,14 @@ const dict: Record<string, string> = {
   "tiers.card": "{qty}個以上：1個{price}",
   "orders.buyAgain": "もう一度購入",
   "orders.buyAgainNone": "これらの商品は現在購入できません。",
+  "pay.choose": "お支払い方法",
+  "pay.online": "オンライン決済",
+  "pay.onlineText": "UPI・カード・ネットバンキング・ウォレット – Razorpayによる安全な決済",
+  "pay.placeAndPay": "注文して{total}を支払う",
+  "pay.paidOk": "お支払いを確認しました – ありがとうございます！",
+  "pay.notDone": "お支払いが完了していません。ご注文は保存されています – 「今すぐ支払う」を押すか、代金引換でお支払いください。",
+  "pay.payNow": "今すぐ支払う",
+  "pay.opening": "開いています…",
 };
 
 export default dict;

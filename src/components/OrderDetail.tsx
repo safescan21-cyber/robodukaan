@@ -78,7 +78,7 @@ export function OrderDetail({ order, actions }: { order: Order; actions?: React.
           </section>
           <section className="rounded-md bg-white p-4 text-sm ring-1 ring-slate-200">
             <h2 className="mb-2 text-sm font-bold uppercase tracking-wide">{t("order.payment")}</h2>
-            <p>{t("trust.cod")}</p>
+            <p>{order.payment_method === "online" ? `💳 ${t("pay.online")}` : t("trust.cod")}</p>
             <p className="text-slate-600">{t("order.paymentStatus")}: <span className="font-semibold">{t(`paymentStatus.${order.payment_status}`)}</span></p>
           </section>
         </aside>

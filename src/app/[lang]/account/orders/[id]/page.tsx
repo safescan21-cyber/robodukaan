@@ -9,6 +9,7 @@ import { postAsUser } from "@/lib/api-client";
 import { useCart } from "@/components/CartProvider";
 import { useRouter } from "@/i18n/client";
 import { productImage } from "@/lib/format";
+import { payForOrder } from "@/lib/pay-client";
 import { useI18n } from "@/i18n/client";
 import { OrderDetail } from "@/components/OrderDetail";
 import type { Order } from "@/lib/types";
@@ -21,6 +22,21 @@ function MyOrderPage() {
   const { add } = useCart();
   const router = useRouter();
   const [buying, setBuying] = useState(false);
+  const [paying, setPaying] = useState(false);
+  const [payNote, setPayNote] = useState<string | null>(null);
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search).get("pay");
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- read the redirect reason once
+    if (p === "closed" || p === "error") setPayNote(t("pay.notDone"));
+  }, [t]);
+
+  async function payNow(o: Order) {
+    setPaying(true); setError(null);
+    const r = await payForOrder(o.order_number);
+    setPaying(false);
+    if (r.status === "paid") { setPayNote(null); load(); }
+    else if (r.status === "error") setError(r.message ?? t("pay.notDone"));
+  }
 
   // Buy again: the same items at today's price and stock.
   async function buyAgain(o: Order) {
@@ -46,7 +62,6 @@ function MyOrderPage() {
   }, [id]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch on mount
     load();
   }, [load]);
 
@@ -59,9 +74,13 @@ function MyOrderPage() {
     <>
       <Link href="/account/orders" className="mb-3 inline-block text-sm font-semibold text-brand-700 hover:underline"><span className="inline-block rtl:-scale-x-100">←</span> {t("orders.all")}</Link>
       {error && <p className="mb-3 rounded bg-red-50 p-3 text-sm text-red-700" role="alert">{error}</p>}
+      {payNote && order.payment_status === "pending" && order.status !== "cancelled" && <p className="mb-3 rounded bg-amber-50 p-3 text-sm text-amber-900" role="status">{payNote}</p>}
       <OrderDetail
         order={order}
         actions={<>
+          {order.payment_method === "online" && order.payment_status === "pending" && order.status !== "cancelled" && (
+            <button onClick={() => payNow(order)} disabled={paying} className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60">💳 {paying ? t("pay.opening") : t("pay.payNow")}</button>
+          )}
           <button onClick={() => buyAgain(order)} disabled={buying} className="rounded-md bg-accent-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-accent-600 disabled:opacity-60">🔁 {t("orders.buyAgain")}</button>
           {order.invoice_number && (
             <Link href={`/account/orders/${order.id}/invoice`} className="rounded-md bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-brand-700">🧾 {t("invoice.view")}</Link>

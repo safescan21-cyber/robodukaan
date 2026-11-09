@@ -1,155 +1,94 @@
--- PCBDukaan update 023: quantity price breaks ("buy 10+ at ₹X each"). Safe to run more than once.
--- products.price_tiers = [{"min_qty": 10, "price": 2050}, {"min_qty": 25, "price": 1990}] (prices excl. GST).
-alter table public.products add column if not exists price_tiers jsonb not null default '[]'::jsonb;
-do $$ begin
-  alter table public.products add constraint products_price_tiers_check
-    check (jsonb_typeof(price_tiers) = 'array' and jsonb_array_length(price_tiers) <= 5);
-exception when duplicate_object then null; end $$;
+-- PCBDukaan update 024: online payment with Razorpay (UPI, cards, net banking). Safe to run more than once.
+-- The Razorpay key secret is kept in app_secrets (no API access; only the functions below read it), so the
+-- database itself checks Razorpay's payment signature – a customer can't mark an order paid without paying.
+create extension if not exists pgcrypto with schema extensions;
 
--- Unit price for a quantity: the lowest valid break the quantity reaches, never above the normal price.
-create or replace function public.tier_price(p_base numeric, p_tiers jsonb, p_qty int)
-returns numeric language sql immutable set search_path = public as $$
-  select coalesce((
-    select (t->>'price')::numeric
-      from jsonb_array_elements(case when jsonb_typeof(p_tiers) = 'array' then p_tiers else '[]'::jsonb end) t
-     where (t->>'min_qty') ~ '^\d+$' and (t->>'price') ~ '^\d+(\.\d+)?$'
-       and (t->>'min_qty')::int <= p_qty and (t->>'price')::numeric > 0 and (t->>'price')::numeric <= p_base
-     order by (t->>'min_qty')::int desc, (t->>'price')::numeric
-     limit 1), p_base);
-$$;
-grant execute on function public.tier_price(numeric, jsonb, int) to anon, authenticated;
+alter table public.orders add column if not exists razorpay_order_id text;
+alter table public.orders add column if not exists razorpay_payment_id text;
+alter table public.orders add column if not exists paid_at timestamptz;
+create unique index if not exists orders_razorpay_order_key on public.orders(razorpay_order_id) where razorpay_order_id is not null;
 
--- Checkout uses the price break for each line.
-create or replace function public.place_order(items jsonb, customer jsonb, coupon_code text default null)
-returns jsonb language plpgsql security definer set search_path = public as $$
-declare
-  v_order_id     uuid;
-  v_order_number text;
-  v_subtotal     numeric(10,2) := 0;
-  v_discount     numeric(10,2) := 0;
-  v_shipping     numeric(10,2);
-  v_taxable      numeric(10,2);
-  v_gst          numeric(10,2);
-  v_gst_rate     numeric(5,2) := public.gst_rate();
-  v_hsn          text;
-  v_coupon       jsonb;
-  v_item         jsonb;
-  v_qty          int;
-  v_product      public.products%rowtype;
-  v_price        numeric(10,2);
-  v_phone        text := regexp_replace(coalesce(customer->>'phone',''), '\D', '', 'g');
-  v_gstin        text := upper(nullif(regexp_replace(coalesce(customer->>'gstin',''), '\s', '', 'g'), ''));
-  v_company      text := nullif(trim(coalesce(customer->>'company','')), '');
+create table if not exists public.app_secrets (
+  name       text primary key,
+  value      text not null,
+  updated_at timestamptz not null default now()
+);
+alter table public.app_secrets enable row level security;  -- no policies: never readable through the API
+revoke all on public.app_secrets from anon, authenticated;
+
+-- Admin → Payments saves the key secret here (and on the server for creating payments).
+create or replace function public.admin_set_secret(p_name text, p_value text)
+returns void language plpgsql security definer set search_path = public as $$
 begin
-  if auth.uid() is null then
-    raise exception 'Please log in to place an order';
+  if not public.is_admin() then raise exception 'Admins only'; end if;
+  if p_name not in ('razorpay_key_secret') then raise exception 'Unknown setting'; end if;
+  if nullif(trim(coalesce(p_value, '')), '') is null then
+    delete from public.app_secrets where name = p_name;
+  else
+    insert into public.app_secrets (name, value) values (p_name, trim(p_value))
+    on conflict (name) do update set value = excluded.value, updated_at = now();
   end if;
-  if jsonb_typeof(items) <> 'array' or jsonb_array_length(items) = 0 then
-    raise exception 'Your cart is empty';
-  end if;
-  if jsonb_array_length(items) > 50 then
-    raise exception 'Too many different items in one order';
-  end if;
-  if length(trim(coalesce(customer->>'name',''))) < 2 then
-    raise exception 'Please enter your name';
-  end if;
-  if v_phone ~ '^91\d{10}$' then v_phone := substr(v_phone, 3); end if;
-  if v_phone !~ '^[6-9]\d{9}$' then
-    raise exception 'Please enter a valid 10-digit Indian mobile number';
-  end if;
-  if coalesce(customer->>'pincode','') !~ '^[1-9]\d{5}$' then
-    raise exception 'Please enter a valid 6-digit PIN code';
-  end if;
-  if length(trim(coalesce(customer->>'address_line',''))) < 5
-     or length(trim(coalesce(customer->>'city',''))) < 2
-     or length(trim(coalesce(customer->>'state',''))) < 2 then
-    raise exception 'Please enter your full address';
-  end if;
-
-  -- Business buyers: GSTIN on the invoice for input tax credit (15 characters, e.g. 27AAACP1234Q1Z5).
-  if v_gstin is not null and v_gstin !~ '^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$' then
-    raise exception 'Please enter a valid 15-character GSTIN (or leave it empty)';
-  end if;
-  if v_gstin is not null and v_company is null then
-    raise exception 'Please enter the company name for the GST invoice';
-  end if;
-  if length(coalesce(v_company, '')) > 120 then
-    raise exception 'Company name is too long';
-  end if;
-
-  v_order_number := 'PD' || to_char(now() at time zone 'Asia/Kolkata', 'YYMMDD')
-                    || upper(substr(md5(gen_random_uuid()::text), 1, 5));
-
-  insert into public.orders (order_number, user_id, customer_name, phone, email, address_line,
-                             city, state, pincode, notes, buyer_company, buyer_gstin, subtotal, shipping, total)
-  values (v_order_number, auth.uid(),
-          trim(customer->>'name'), v_phone,
-          coalesce(nullif(trim(customer->>'email'),''), (select email from auth.users where id = auth.uid())),
-          trim(customer->>'address_line'), trim(customer->>'city'), trim(customer->>'state'),
-          customer->>'pincode', nullif(trim(customer->>'notes'),''), v_company, v_gstin, 0, 0, 0)
-  returning id into v_order_id;
-
-  for v_item in select * from jsonb_array_elements(items) loop
-    v_qty := (v_item->>'quantity')::int;
-    if v_qty is null or v_qty < 1 or v_qty > 999 then
-      raise exception 'Invalid quantity';
-    end if;
-    select * into v_product from public.products
-      where id = (v_item->>'product_id')::uuid and is_active
-      for update;
-    if not found then
-      raise exception 'A product in your cart is no longer available';
-    end if;
-    if v_product.stock < v_qty then
-      raise exception 'Only % left in stock for %', v_product.stock, v_product.name;
-    end if;
-
-    -- Quantity price breaks (e.g. 10+ at a lower price per unit).
-    v_price := public.tier_price(v_product.price, v_product.price_tiers, v_qty);
-
-    select coalesce(nullif(v_product.hsn_code, ''), c.hsn_code) into v_hsn
-      from public.categories c where c.id = v_product.category_id;
-
-    update public.products
-       set stock = stock - v_qty, sold_count = sold_count + v_qty, updated_at = now()
-     where id = v_product.id;
-
-    insert into public.order_items (order_id, product_id, name, sku, slug, hsn_code, image_url, unit_price, quantity, line_total)
-    values (v_order_id, v_product.id, v_product.name, v_product.sku, v_product.slug, v_hsn,
-            coalesce(v_product.images[1], v_product.image_url),
-            v_price, v_qty, v_price * v_qty);
-
-    v_subtotal := v_subtotal + v_price * v_qty;
-  end loop;
-
-  if nullif(trim(coalesce(coupon_code,'')), '') is not null then
-    v_coupon := public.check_coupon(coupon_code, v_subtotal);
-    if not (v_coupon->>'valid')::boolean then
-      raise exception '%', v_coupon->>'message';
-    end if;
-    v_discount := (v_coupon->>'discount')::numeric;
-    update public.coupons set used_count = used_count + 1 where code = v_coupon->>'code';
-  end if;
-
-  v_shipping := public.shipping_for(v_subtotal);
-  -- Prices are excluding GST. GST applies to the goods after discount, plus shipping.
-  v_taxable := v_subtotal - v_discount + v_shipping;
-  v_gst := round(v_taxable * v_gst_rate / 100, 2);
-
-  update public.orders
-     set subtotal = v_subtotal, discount = v_discount, coupon_code = v_coupon->>'code',
-         shipping = v_shipping, gst_rate = v_gst_rate, gst_amount = v_gst,
-         total = v_taxable + v_gst
-   where id = v_order_id;
-
-  return jsonb_build_object(
-    'order_number', v_order_number,
-    'subtotal', v_subtotal,
-    'discount', v_discount,
-    'shipping', v_shipping,
-    'gst_rate', v_gst_rate,
-    'gst', v_gst,
-    'total', v_taxable + v_gst
-  );
 end;
 $$;
+revoke all on function public.admin_set_secret(text, text) from public;
+grant execute on function public.admin_set_secret(text, text) to authenticated;
+
+create or replace function public.admin_secret_is_set(p_name text)
+returns boolean language sql stable security definer set search_path = public as $$
+  select public.is_admin() and exists (select 1 from public.app_secrets where name = p_name);
+$$;
+revoke all on function public.admin_secret_is_set(text) from public;
+grant execute on function public.admin_secret_is_set(text) to authenticated;
+
+-- HMAC-SHA256 (hex) with the Razorpay key secret – the same signature Razorpay sends after a payment.
+create or replace function public.razorpay_sign(p_payload text)
+returns text language plpgsql stable security definer set search_path = public as $$
+declare s text;
+begin
+  select value into s from public.app_secrets where name = 'razorpay_key_secret';
+  if s is null then raise exception 'Online payment is not set up'; end if;
+  return encode(extensions.hmac(convert_to(p_payload, 'UTF8'), convert_to(s, 'UTF8'), 'sha256'), 'hex');
+end;
+$$;
+revoke all on function public.razorpay_sign(text) from public, anon, authenticated;
+
+-- Link a Razorpay order to the customer's order. The website signs (order, Razorpay order, amount) with the
+-- secret, so nobody can attach a cheaper payment to an expensive order.
+create or replace function public.attach_payment(p_order_id uuid, p_razorpay_order_id text, p_amount bigint, p_sig text)
+returns void language plpgsql security definer set search_path = public as $$
+declare o public.orders%rowtype;
+begin
+  select * into o from public.orders where id = p_order_id for update;
+  if not found or (o.user_id is distinct from auth.uid() and not public.is_admin()) then raise exception 'Order not found'; end if;
+  if o.status = 'cancelled' then raise exception 'This order is cancelled'; end if;
+  if o.payment_status <> 'pending' then raise exception 'This order is already paid'; end if;
+  if p_amount <> round(o.total * 100) then raise exception 'Amount does not match the order'; end if;
+  if public.razorpay_sign(o.id::text || '|' || p_razorpay_order_id || '|' || p_amount::text) <> lower(coalesce(p_sig, '')) then
+    raise exception 'Payment link could not be verified';
+  end if;
+  update public.orders set razorpay_order_id = p_razorpay_order_id, payment_method = 'online' where id = o.id;
+end;
+$$;
+revoke all on function public.attach_payment(uuid, text, bigint, text) from public;
+grant execute on function public.attach_payment(uuid, text, bigint, text) to authenticated;
+
+-- Mark the order paid when Razorpay's signature (order_id|payment_id) is correct. Used by the checkout
+-- (customer's browser) and by the Razorpay webhook (if the browser closed before it could report back).
+create or replace function public.confirm_payment(p_razorpay_order_id text, p_payment_id text, p_signature text)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare o public.orders%rowtype;
+begin
+  select * into o from public.orders where razorpay_order_id = p_razorpay_order_id for update;
+  if not found then raise exception 'Payment could not be verified'; end if;
+  if coalesce(p_payment_id, '') !~ '^pay_[A-Za-z0-9]{6,40}$'
+     or public.razorpay_sign(p_razorpay_order_id || '|' || p_payment_id) <> lower(coalesce(p_signature, '')) then
+    raise exception 'Payment could not be verified';
+  end if;
+  if o.payment_status <> 'paid' then
+    update public.orders set payment_status = 'paid', razorpay_payment_id = p_payment_id, paid_at = now() where id = o.id;
+  end if;
+  return jsonb_build_object('order_id', o.id, 'order_number', o.order_number, 'already_paid', o.payment_status = 'paid');
+end;
+$$;
+revoke all on function public.confirm_payment(text, text, text) from public;
+grant execute on function public.confirm_payment(text, text, text) to anon, authenticated;

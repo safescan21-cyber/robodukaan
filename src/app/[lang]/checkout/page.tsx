@@ -8,6 +8,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { CouponBox, useCoupon } from "@/components/CouponBox";
 import { RequireAuth } from "@/components/RequireAuth";
 import { postAsUser } from "@/lib/api-client";
+import { onlinePaymentEnabled, payForOrder } from "@/lib/pay-client";
 import { getSupabase } from "@/lib/supabase-browser";
 import { formatINR, GST_RATE, gstFor, shippingFor } from "@/lib/format";
 import { unitPrice } from "@/lib/pricing";
@@ -28,6 +29,11 @@ function Checkout() {
   const [saveAddress, setSaveAddress] = useState(true);
   const [business, setBusiness] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [onlineOn, setOnlineOn] = useState(false);
+  const [method, setMethod] = useState<"online" | "cod">("cod");
+  useEffect(() => {
+    onlinePaymentEnabled().then((on) => { setOnlineOn(on); if (on) setMethod("online"); });
+  }, []);
   const [error, setError] = useState<string | null>(null);
   const shipping = shippingFor(subtotal);
   const gst = gstFor(subtotal - discount + shipping);
@@ -99,6 +105,21 @@ function Checkout() {
       sessionStorage.setItem("robodukaan-last-order", JSON.stringify(data));
     } catch {
       /* ignore */
+    }
+    if (method === "online") {
+      // The order is saved (stock reserved); now take the payment. If the customer closes the window,
+      // the order stays with "payment pending" and can be paid from their order page.
+      clear();
+      const r = await payForOrder(data.order_number);
+      await postAsUser("/api/email/order", { orderNumber: data.order_number });
+      if (r.status === "paid") {
+        router.push(`/order-success?order=${encodeURIComponent(data.order_number)}&paid=1`);
+      } else if (r.orderId) {
+        router.push(`/account/orders/${r.orderId}?pay=${r.status}`);
+      } else {
+        router.push(`/order-success?order=${encodeURIComponent(data.order_number)}`);
+      }
+      return;
     }
     await postAsUser("/api/email/order", { orderNumber: data.order_number });
     clear();
@@ -189,13 +210,25 @@ function Checkout() {
             <div className="flex justify-between"><dt>{t("cart.gst", { rate: GST_RATE })}</dt><dd>{formatINR(gst)}</dd></div>
             <div className="flex justify-between border-t border-slate-200 pt-3 text-lg font-bold"><dt>{t("cart.total")}</dt><dd>{formatINR(subtotal - discount + shipping + gst)}</dd></div>
           </dl>
-          <div className="rounded-md border-2 border-brand-600 bg-brand-50 p-3 text-sm">
-            <p className="font-semibold">💵 {t("trust.cod")}</p>
-            <p className="text-xs text-slate-600">{t("checkout.codText")}</p>
-          </div>
+          {onlineOn ? (
+            <fieldset className="space-y-2">
+              <legend className="mb-1 text-sm font-semibold">{t("pay.choose")}</legend>
+              {([["online", "💳 " + t("pay.online"), t("pay.onlineText")], ["cod", "💵 " + t("trust.cod"), t("checkout.codText")]] as const).map(([v, label, text]) => (
+                <label key={v} className={`flex cursor-pointer gap-3 rounded-md border-2 p-3 text-sm ${method === v ? "border-brand-600 bg-brand-50" : "border-slate-200"}`}>
+                  <input type="radio" name="payment_method" value={v} checked={method === v} onChange={() => setMethod(v)} className="mt-0.5 h-4 w-4 accent-brand-600" />
+                  <span><span className="block font-semibold">{label}</span><span className="text-xs text-slate-600">{text}</span></span>
+                </label>
+              ))}
+            </fieldset>
+          ) : (
+            <div className="rounded-md border-2 border-brand-600 bg-brand-50 p-3 text-sm">
+              <p className="font-semibold">💵 {t("trust.cod")}</p>
+              <p className="text-xs text-slate-600">{t("checkout.codText")}</p>
+            </div>
+          )}
           {error && <p className="rounded-md bg-red-50 p-3 text-sm text-red-700" role="alert">{error}</p>}
           <button type="submit" disabled={submitting} className="w-full rounded-md bg-accent-500 px-4 py-3 font-bold uppercase tracking-wide text-white hover:bg-accent-600 disabled:opacity-60">
-            {submitting ? t("checkout.placing") : t("checkout.place")}
+            {submitting ? t("checkout.placing") : method === "online" ? t("pay.placeAndPay", { total: formatINR(subtotal - discount + shipping + gst) }) : t("checkout.place")}
           </button>
           <p className="text-center text-xs text-slate-500">{t("checkout.finalNote")}</p>
         </aside>

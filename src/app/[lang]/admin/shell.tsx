@@ -17,6 +17,7 @@ const ITEMS = [
   { href: "/admin/case-studies", label: "Case studies", icon: "📝" },
   { href: "/admin/visitors", label: "Visitors", icon: "👥" },
   { href: "/admin/interested", label: "Interested customers", icon: "🎯" },
+  { href: "/admin/payments", label: "Payments", icon: "💳" },
   { href: "/admin/whatsapp", label: "WhatsApp", icon: "💬" },
   { href: "/admin/server", label: "Server move", icon: "🖥️" },
   { href: "/admin/health", label: "Site health", icon: "🩺" },

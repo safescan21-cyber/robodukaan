@@ -91,7 +91,7 @@ ${line("Subtotal", formatINR(order.subtotal))}
 ${Number(order.discount) > 0 ? line(`Discount${order.coupon_code ? ` (${esc(order.coupon_code)})` : ""}`, `− ${formatINR(order.discount)}`) : ""}
 ${line("Shipping", Number(order.shipping) === 0 ? "Free" : formatINR(order.shipping))}
 ${Number(order.gst_amount ?? 0) > 0 ? line(`GST (${Number(order.gst_rate)}%)`, formatINR(Number(order.gst_amount))) : ""}
-${line("Total (cash on delivery)", formatINR(order.total), true)}</table>`;
+${line(order.payment_status === "paid" ? "Total (paid online)" : order.payment_method === "online" ? "Total (online payment pending)" : "Total (cash on delivery)", formatINR(order.total), true)}</table>`;
 }
 
 function address(order: Order) {
@@ -107,7 +107,11 @@ export async function sendOrderEmails(order: Order) {
         `Order ${order.order_number} received – PCBDukaan`,
         layout(
           `Thank you for your order, ${order.customer_name.split(" ")[0]}!`,
-          `<p>We’ve received your order <b>${esc(order.order_number)}</b> and will call you to confirm it soon. You’ll pay <b>${formatINR(order.total)}</b> in cash or UPI when it arrives.</p>${itemsTable(order)}<p style="margin:12px 0 0;font-weight:600">Delivering to</p>${address(order)}`,
+          `<p>We’ve received your order <b>${esc(order.order_number)}</b> and will call you to confirm it soon. ${order.payment_status === "paid"
+            ? `Your payment of <b>${formatINR(order.total)}</b> has been received ✅ – thank you.`
+            : order.payment_method === "online"
+              ? `Your online payment of <b>${formatINR(order.total)}</b> is not complete yet – you can pay from your order page (button below), or pay in cash on delivery.`
+              : `You’ll pay <b>${formatINR(order.total)}</b> in cash or UPI when it arrives.`}</p>${itemsTable(order)}<p style="margin:12px 0 0;font-weight:600">Delivering to</p>${address(order)}`,
           { label: "View your order", href: `${SITE}/account/orders/${order.id}` },
         ),
         adminEmail() || undefined,
@@ -122,7 +126,7 @@ export async function sendOrderEmails(order: Order) {
         `🛒 New order ${order.order_number} – ${formatINR(order.total)}`,
         layout(
           `New order ${order.order_number}`,
-          `<p>${esc(order.customer_name)} placed an order for <b>${formatINR(order.total)}</b> (cash on delivery).</p>${itemsTable(order)}${address(order)}${order.notes ? `<p><b>Note:</b> ${esc(order.notes)}</p>` : ""}`,
+          `<p>${esc(order.customer_name)} placed an order for <b>${formatINR(order.total)}</b> (${order.payment_status === "paid" ? "PAID ONLINE ✅" : order.payment_method === "online" ? "online payment pending" : "cash on delivery"}).</p>${itemsTable(order)}${address(order)}${order.notes ? `<p><b>Note:</b> ${esc(order.notes)}</p>` : ""}`,
           { label: "Open in admin", href: `${SITE}/admin/orders/${order.id}` },
         ),
         order.email || undefined,

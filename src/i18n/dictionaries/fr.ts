@@ -676,6 +676,14 @@ const dict: Record<string, string> = {
   "tiers.card": "{qty}+ pcs : {price} l’unité",
   "orders.buyAgain": "Commander à nouveau",
   "orders.buyAgainNone": "Ces articles ne sont plus disponibles.",
+  "pay.choose": "Mode de paiement",
+  "pay.online": "Payer en ligne",
+  "pay.onlineText": "UPI, cartes, virement bancaire, portefeuilles – paiement sécurisé par Razorpay",
+  "pay.placeAndPay": "Commander et payer {total}",
+  "pay.paidOk": "Paiement reçu – merci !",
+  "pay.notDone": "Votre paiement n’a pas abouti. Votre commande est enregistrée – appuyez sur « Payer maintenant » ou payez à la livraison.",
+  "pay.payNow": "Payer maintenant",
+  "pay.opening": "Ouverture…",
 };
 
 export default dict;
