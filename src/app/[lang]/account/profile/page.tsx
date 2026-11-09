@@ -40,6 +40,7 @@ export default function ProfilePage() {
         full_name: get("full_name"),
         phone: get("phone") || null,
         ...detailsPatch({ company: get("company"), gstin: get("gstin").replace(/\s/g, "").toUpperCase(), city: get("city"), state: get("state") }, profile),
+        ...((f.get("marketing_ok") === "on") !== !!profile?.marketing_ok ? { marketing_ok: f.get("marketing_ok") === "on" } : {}),
       })
       .eq("id", user.id);
     setMsg(error
@@ -128,6 +129,7 @@ export default function ProfilePage() {
             <label className="text-sm font-medium">GSTIN<input name="gstin" defaultValue={profile?.gstin ?? ""} maxLength={15} pattern={GSTIN_PATTERN} title="15 characters, e.g. 27AAACR1234Q1Z5" placeholder="27AAACR1234Q1Z5" className={`${field} uppercase`} /></label>
           </div>
         </div>
+        <label className="flex items-start gap-2 border-t border-slate-100 pt-4 text-sm text-slate-700"><input name="marketing_ok" type="checkbox" defaultChecked={!!profile?.marketing_ok} className="mt-1 h-4 w-4 accent-brand-600" />{t("consent.marketing")}</label>
         {msg && <p className={`text-sm ${msg.ok ? "text-emerald-700" : "text-red-600"}`}>{msg.text}</p>}
         <button className="rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">{t("profile.save")}</button>
       </form>

@@ -16,6 +16,8 @@ export default async function PrivacyPage() {
       <ul>
         <li>{t("privacy.li1")}</li>
         <li>{t("privacy.li2")}</li>
+        <li>{t("privacy.li4")}</li>
+        <li>{t("privacy.li5")}</li>
         <li>{t("privacy.li3")}</li>
       </ul>
       <h2>{t("privacy.storageTitle")}</h2>

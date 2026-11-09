@@ -166,6 +166,7 @@ export type Profile = {
   city?: string | null;
   state?: string | null;
   created_at: string;
+  marketing_ok?: boolean;
 };
 
 export type CartItem = {

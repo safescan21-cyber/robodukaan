@@ -1,7 +1,9 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
+import { VisitTracker } from "@/components/VisitTracker";
 import { CartProvider } from "@/components/CartProvider";
 import { WishlistProvider } from "@/components/WishlistProvider";
 import { Header } from "@/components/Header";
@@ -90,6 +92,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
                 <div className="print:hidden"><Header /></div>
                 <main className="flex-1">{children}</main>
                 <div className="print:hidden"><Footer /><ChatLoader /></div>
+                <Suspense fallback={null}><VisitTracker /></Suspense>
               </WishlistProvider>
             </CartProvider>
           </AuthProvider>

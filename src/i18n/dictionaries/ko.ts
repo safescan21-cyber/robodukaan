@@ -628,6 +628,9 @@ const dict: Record<string, string> = {
   "forgot.spamHint": "2분이 지나도 이메일이 없나요? 스팸함을 확인하세요. 이메일의 링크를 사용할 수도 있습니다.",
   "meta.track": "주문 번호 또는 수리 번호와 휴대폰 번호로 PCBDukaan 주문과 PCB 수리 진행 상황을 실시간으로 확인하세요.",
   "nav.repairGuides": "수리 가이드",
+  "consent.marketing": "관심 있는 제품의 혜택과 소식을 이메일로 받겠습니다. 내 계정에서 언제든지 끌 수 있습니다.",
+  "privacy.li4": "쇼핑몰 개선을 위해 방문자 수를 집계하고, 로그인한 경우 조회한 제품을 기록합니다(최대 180일 보관)",
+  "privacy.li5": "‘혜택 이메일 받기’를 선택한 경우에만 혜택이나 제품 소식을 이메일로 보냅니다. 내 계정에서 언제든지 끌 수 있습니다",
 };
 
 export default dict;

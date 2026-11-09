@@ -628,6 +628,9 @@ const dict: Record<string, string> = {
   "forgot.spamHint": "Pas d’e-mail après 2 minutes ? Vérifiez vos courriers indésirables. Vous pouvez aussi utiliser le lien de l’e-mail.",
   "meta.track": "Suivez votre commande PCBDukaan ou votre réparation de carte avec votre numéro et votre mobile – statut en direct jusqu’à la livraison.",
   "nav.repairGuides": "Guides de réparation",
+  "consent.marketing": "Envoyez-moi par e-mail des offres et nouveautés sur les produits qui m’intéressent. Je peux désactiver cela à tout moment dans Mon compte.",
+  "privacy.li4": "Pour améliorer la boutique : nous comptons les visiteurs et, lorsque vous êtes connecté, enregistrons les produits consultés (conservés 180 jours au maximum)",
+  "privacy.li5": "Nous vous envoyons des offres uniquement si vous avez coché « M’envoyer des offres » – vous pouvez le désactiver à tout moment dans Mon compte",
 };
 
 export default dict;

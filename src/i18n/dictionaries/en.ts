@@ -629,6 +629,9 @@ const dict: Record<string, string> = {
   "forgot.spamHint": "No email after 2 minutes? Check your spam folder. You can also use the link in the email.",
   "meta.track": "Track your PCBDukaan order or PCB repair with your order or repair number and mobile number – live status from order to delivery.",
   "nav.repairGuides": "Repair guides",
+  "consent.marketing": "Email me offers and updates about products I’m interested in. I can switch this off any time in My account.",
+  "privacy.li4": "To improve the shop: we count visitors and, when you are logged in, record which products you view (kept for up to 180 days)",
+  "privacy.li5": "We email you offers or product updates only if you ticked “Email me offers” – you can switch it off any time in My account",
 };
 
 export default dict;

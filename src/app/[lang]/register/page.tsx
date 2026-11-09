@@ -37,7 +37,7 @@ export default function RegisterPage() {
       email: address,
       password,
       options: {
-        data: { full_name: String(form.get("name")).trim(), phone: String(form.get("phone")).trim() },
+        data: { full_name: String(form.get("name")).trim(), phone: String(form.get("phone")).trim(), marketing_ok: form.get("marketing_ok") === "on" },
         emailRedirectTo: `${window.location.origin}/account`,
       },
     });
@@ -109,6 +109,7 @@ export default function RegisterPage() {
         <label className="block text-sm font-medium">{t("form.emailAddress")}<input name="email" type="email" required autoComplete="email" className={authField} /></label>
         <label className="block text-sm font-medium">{t("login.tabPassword")}<input name="password" type="password" required minLength={8} autoComplete="new-password" className={authField} /></label>
         <label className="block text-sm font-medium">{t("register.confirmPassword")}<input name="confirm" type="password" required minLength={8} autoComplete="new-password" className={authField} /></label>
+        <label className="flex items-start gap-2 text-sm text-slate-700"><input name="marketing_ok" type="checkbox" className="mt-1 h-4 w-4 accent-brand-600" />{t("consent.marketing")}</label>
         {error && <p className="rounded bg-red-50 p-3 text-sm text-red-700" role="alert">{error}</p>}
         <button disabled={busy} className={authButton}>{busy ? t("register.creating") : t("auth.register")}</button>
       </form>

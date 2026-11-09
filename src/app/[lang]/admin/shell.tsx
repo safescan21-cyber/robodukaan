@@ -15,6 +15,8 @@ const ITEMS = [
   { href: "/admin/partners", label: "Partners", icon: "🤝" },
   { href: "/admin/vendors", label: "Vendors", icon: "🏭" },
   { href: "/admin/case-studies", label: "Case studies", icon: "📝" },
+  { href: "/admin/visitors", label: "Visitors", icon: "👥" },
+  { href: "/admin/interested", label: "Interested customers", icon: "🎯" },
   { href: "/admin/server", label: "Server move", icon: "🖥️" },
   { href: "/admin/health", label: "Site health", icon: "🩺" },
   { href: "/admin/products", label: "Products", icon: "🧩" },

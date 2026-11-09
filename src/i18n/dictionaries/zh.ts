@@ -628,6 +628,9 @@ const dict: Record<string, string> = {
   "forgot.spamHint": "2 分钟后仍未收到邮件？请检查垃圾邮件文件夹。您也可以使用邮件中的链接。",
   "meta.track": "使用订单号或维修编号和手机号码，实时查询 PCBDukaan 订单或电路板维修进度。",
   "nav.repairGuides": "维修指南",
+  "consent.marketing": "通过邮件向我发送感兴趣产品的优惠和更新。我可以随时在“我的账户”中关闭。",
+  "privacy.li4": "为改进商店：我们统计访客数量，并在您登录时记录您查看的产品（最多保存 180 天）",
+  "privacy.li5": "只有当您勾选“向我发送优惠邮件”时，我们才会发送优惠或产品更新——您可以随时在“我的账户”中关闭",
 };
 
 export default dict;
