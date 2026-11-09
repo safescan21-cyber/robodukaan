@@ -37,6 +37,9 @@ db_move_pickup() {
 }
 db_move_pickup
 
+# Site monitor: checks pages, APIs, database and server every 5 minutes, emails the admin on problems.
+[ -f "$APP_DIR/deploy/ensure-monitor.sh" ] && APP_DIR="$APP_DIR" bash "$APP_DIR/deploy/ensure-monitor.sh" || true
+
 # Extra domains (e.g. pcbdukaan.in) → 301 redirect to pcbdukaan.com once their DNS points here.
 [ -f "$APP_DIR/deploy/ensure-domain-redirects.sh" ] && bash "$APP_DIR/deploy/ensure-domain-redirects.sh" || true
 
