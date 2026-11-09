@@ -37,6 +37,9 @@ db_move_pickup() {
 }
 db_move_pickup
 
+# Admin panel settings saved by the website (e.g. Admin → WhatsApp): a private folder only the app can read.
+install -d -m 700 -o "$APP_USER" -g "$APP_USER" /var/lib/robodukaan-settings
+
 # Site monitor: checks pages, APIs, database and server every 5 minutes, emails the admin on problems.
 [ -f "$APP_DIR/deploy/ensure-monitor.sh" ] && APP_DIR="$APP_DIR" bash "$APP_DIR/deploy/ensure-monitor.sh" || true
 

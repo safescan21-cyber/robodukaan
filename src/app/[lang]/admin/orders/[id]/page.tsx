@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { useParams } from "next/navigation";
 import { getSupabase } from "@/lib/supabase-browser";
 import { adminButton, adminField, revalidateCatalog } from "@/lib/admin";
+import { formatINR } from "@/lib/format";
 import { ORDER_STATUSES, STATUS_LABEL } from "@/lib/constants";
 import { OrderDetail } from "@/components/OrderDetail";
 import { VendorAssign } from "@/components/admin/VendorAssign";
@@ -49,7 +50,13 @@ function AdminOrderPage() {
   if (order === undefined) return <div className="h-96 animate-pulse rounded-md bg-slate-100" />;
   if (order === null) return <p>Order not found. <Link href="/admin/orders" className="text-brand-700 underline">Back</Link></p>;
 
-  const waText = encodeURIComponent(`Hello ${order.customer_name}, your PCBDukaan order ${order.order_number} is now: ${STATUS_LABEL[order.status]}.${order.tracking_url ? ` Track it here: ${order.tracking_url}` : ""}`);
+  const waText = encodeURIComponent(
+    order.status === "pending" || order.status === "confirmed"
+      ? `Hello ${order.customer_name}, thank you for your order ${order.order_number} at PCBDukaan.\n\n${(order.order_items ?? []).map((i) => `• ${i.name} × ${i.quantity}`).join("\n")}\nTotal: ${formatINR(order.total)} (${order.payment_method === "cod" ? "cash on delivery" : order.payment_method})\n\nYour order is ${order.status === "confirmed" ? "confirmed" : "received"} and will be dispatched soon. View it here: ${location.origin}/account/orders/${order.id}`
+      : `Hello ${order.customer_name}, your PCBDukaan order ${order.order_number} is now: ${STATUS_LABEL[order.status]}.${order.tracking_url ? ` Track it here: ${order.tracking_url}` : ""}`,
+  );
+  const digits = order.phone.replace(/\D/g, "").replace(/^0(?=\d{10}$)/, "");
+  const waPhone = digits.length === 10 ? `91${digits}` : digits;
 
   return (
     <div className="space-y-5">
@@ -72,8 +79,8 @@ function AdminOrderPage() {
         {msg && <p className={`text-sm md:col-span-4 ${msg.ok ? "text-emerald-700" : "text-red-600"}`}>{msg.text}</p>}
       </form>
       <div className="flex flex-wrap gap-3 text-sm">
-        <a href={`https://wa.me/91${order.phone}?text=${waText}`} target="_blank" rel="noopener noreferrer" className="rounded-md bg-emerald-600 px-3 py-1.5 font-semibold text-white hover:bg-emerald-700">Message customer on WhatsApp</a>
-        <a href={`tel:+91${order.phone}`} className="rounded-md bg-slate-800 px-3 py-1.5 font-semibold text-white hover:bg-slate-700">Call customer</a>
+        <a href={`https://wa.me/${waPhone}?text=${waText}`} target="_blank" rel="noopener noreferrer" className="rounded-md bg-emerald-600 px-3 py-1.5 font-semibold text-white hover:bg-emerald-700">Message customer on WhatsApp</a>
+        <a href={`tel:+${waPhone}`} className="rounded-md bg-slate-800 px-3 py-1.5 font-semibold text-white hover:bg-slate-700">Call customer</a>
         <Link href={`/admin/orders/${order.id}/invoice`} className="rounded-md bg-brand-600 px-3 py-1.5 font-semibold text-white hover:bg-brand-700">🧾 Print invoice</Link>
       </div>
       <VendorAssign order={order} onChange={load} />
