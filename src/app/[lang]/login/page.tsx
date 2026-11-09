@@ -108,6 +108,7 @@ export default function LoginPage() {
             {error && <p className="rounded bg-red-50 p-3 text-sm text-red-700" role="alert">{error}</p>}
             <button disabled={busy} className={authButton}>{busy ? t("common.sending") : t("login.sendCode")}</button>
             <p className="text-center text-xs text-slate-500">{t("login.codeHint")}</p>
+            <p className="text-center text-sm"><Link href="/forgot-password" className="text-brand-700 hover:underline">{t("login.forgot")}</Link></p>
           </form>
         ) : (
           <form onSubmit={verifyCode} className="space-y-4">

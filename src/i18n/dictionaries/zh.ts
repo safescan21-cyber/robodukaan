@@ -618,6 +618,14 @@ const dict: Record<string, string> = {
   "exchange.formTitle": "以旧换新申请",
   "exchange.formIntro": "请介绍您的旧电路板——我们会回复换新价格和寄送方式。",
   "exchange.message": "我想用同型号的旧故障板换购此电路板。故障情况：",
+  "forgot.sendCode": "发送重置验证码",
+  "forgot.codeSent": "我们已向 {email} 发送 6 位验证码（如果账户存在）。请在下方输入验证码和新密码。",
+  "forgot.code": "邮件中的 6 位验证码",
+  "forgot.badCode": "验证码错误或已过期。请查看最新邮件或重新获取验证码。",
+  "forgot.samePassword": "请设置与旧密码不同的新密码。",
+  "forgot.resent": "新的验证码已发送。",
+  "forgot.wait": "请等待一分钟后再获取新的验证码。",
+  "forgot.spamHint": "2 分钟后仍未收到邮件？请检查垃圾邮件文件夹。您也可以使用邮件中的链接。",
 };
 
 export default dict;

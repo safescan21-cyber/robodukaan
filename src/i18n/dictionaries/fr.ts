@@ -618,6 +618,14 @@ const dict: Record<string, string> = {
   "exchange.formTitle": "Demande d’échange",
   "exchange.formIntro": "Décrivez votre ancienne carte – nous répondons avec le prix d’échange et la façon de l’envoyer.",
   "exchange.message": "Je souhaite cette carte en échange de mon ancienne carte défectueuse du même modèle. Panne : ",
+  "forgot.sendCode": "Envoyer le code",
+  "forgot.codeSent": "Nous avons envoyé un code à 6 chiffres à {email} (si un compte existe). Saisissez-le ci-dessous avec votre nouveau mot de passe.",
+  "forgot.code": "Code à 6 chiffres reçu par e-mail",
+  "forgot.badCode": "Ce code est incorrect ou a expiré. Vérifiez le dernier e-mail ou demandez un nouveau code.",
+  "forgot.samePassword": "Choisissez un mot de passe différent de l’ancien.",
+  "forgot.resent": "Un nouveau code est en route.",
+  "forgot.wait": "Veuillez patienter une minute avant de demander un autre code.",
+  "forgot.spamHint": "Pas d’e-mail après 2 minutes ? Vérifiez vos courriers indésirables. Vous pouvez aussi utiliser le lien de l’e-mail.",
 };
 
 export default dict;

@@ -619,6 +619,14 @@ const dict: Record<string, string> = {
   "exchange.formTitle": "Exchange request",
   "exchange.formIntro": "Tell us about your old board – we reply with the exchange price and how to send it.",
   "exchange.message": "I want this board in exchange for my old faulty board of the same model. Fault: ",
+  "forgot.sendCode": "Send reset code",
+  "forgot.codeSent": "We emailed a 6-digit code to {email} (if an account exists). Enter it below with your new password.",
+  "forgot.code": "6-digit code from the email",
+  "forgot.badCode": "That code is wrong or has expired. Check the latest email or ask for a new code.",
+  "forgot.samePassword": "Please choose a password different from your old one.",
+  "forgot.resent": "A new code is on its way.",
+  "forgot.wait": "Please wait a minute before asking for another code.",
+  "forgot.spamHint": "No email after 2 minutes? Check your spam folder. You can also use the link in the email.",
 };
 
 export default dict;

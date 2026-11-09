@@ -618,6 +618,14 @@ const dict: Record<string, string> = {
   "exchange.formTitle": "交換の依頼",
   "exchange.formIntro": "お手元の基板について教えてください。交換価格と発送方法をご案内します。",
   "exchange.message": "同じ型式の故障した基板と交換で、この基板を希望します。故障内容：",
+  "forgot.sendCode": "リセットコードを送信",
+  "forgot.codeSent": "{email} に6桁のコードを送信しました（アカウントがある場合）。下にコードと新しいパスワードを入力してください。",
+  "forgot.code": "メールに記載の6桁のコード",
+  "forgot.badCode": "コードが正しくないか期限切れです。最新のメールを確認するか、新しいコードを請求してください。",
+  "forgot.samePassword": "以前とは異なるパスワードを設定してください。",
+  "forgot.resent": "新しいコードを送信しました。",
+  "forgot.wait": "別のコードを請求するまで1分お待ちください。",
+  "forgot.spamHint": "2分経ってもメールが届かない場合は迷惑メールフォルダを確認してください。メール内のリンクも使えます。",
 };
 
 export default dict;
