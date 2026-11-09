@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
-import { sendOrderShippedEmail, sendVendorUpdateToAdmin } from "@/lib/email";
+import { sendVendorUpdateToAdmin } from "@/lib/email";
+import { notifyOrderUpdate } from "@/lib/order-updates";
 import { clientIp } from "@/lib/client-ip";
 import type { VendorOrderView } from "@/lib/types";
 
@@ -41,7 +42,8 @@ export async function POST(request: Request, ctx: { params: Promise<{ token: str
   const m = (meta ?? {}) as { order_id?: string; customer_email?: string | null };
   await Promise.all([
     sendVendorUpdateToAdmin(view, m.order_id ?? null).catch(() => false),
-    action === "dispatch" ? sendOrderShippedEmail(m.customer_email, view).catch(() => false) : Promise.resolve(false),
+    // Dispatched → the customer gets "on its way" with courier + tracking (email + WhatsApp).
+    action === "dispatch" && m.order_id ? notifyOrderUpdate(supabase, m.order_id, token).catch(() => null) : Promise.resolve(null),
   ]);
   return Response.json({ ok: true, order: view });
 }

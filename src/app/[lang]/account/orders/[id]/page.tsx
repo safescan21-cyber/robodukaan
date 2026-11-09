@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Suspense } from "react";
 import { useParams } from "next/navigation";
 import { getSupabase } from "@/lib/supabase-browser";
+import { postAsUser } from "@/lib/api-client";
 import { useI18n } from "@/i18n/client";
 import { OrderDetail } from "@/components/OrderDetail";
 import type { Order } from "@/lib/types";
@@ -46,7 +47,7 @@ function MyOrderPage() {
               if (!confirm(t("orders.confirmCancel"))) return;
               const { error } = await getSupabase().rpc("cancel_my_order", { p_order_id: order.id });
               if (error) setError(error.message);
-              else load();
+              else { postAsUser("/api/order-update", { orderId: order.id }); load(); }
             }}
             className="rounded-md px-3 py-1.5 text-sm font-semibold text-red-600 ring-1 ring-red-300 hover:bg-red-50"
           >

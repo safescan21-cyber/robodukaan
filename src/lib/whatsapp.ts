@@ -13,11 +13,12 @@ export const SETTINGS_DIR = process.env.SETTINGS_DIR || "/var/lib/robodukaan-set
 const FILE = `${SETTINGS_DIR}/whatsapp.json`;
 const LOG = `${SETTINGS_DIR}/whatsapp-log.json`;
 
-export type WaConfig = { token: string; phoneId: string; template: string; invoiceTemplate: string; lang: string; apiVersion: string; fromEnv: boolean };
-type Saved = Partial<Pick<WaConfig, "token" | "phoneId" | "template" | "invoiceTemplate" | "lang">>;
+export type WaConfig = { token: string; phoneId: string; template: string; invoiceTemplate: string; updateTemplate: string; lang: string; apiVersion: string; fromEnv: boolean };
+type Saved = Partial<Pick<WaConfig, "token" | "phoneId" | "template" | "invoiceTemplate" | "updateTemplate" | "lang">>;
 
 export const DEFAULT_TEMPLATE = "order_confirmation";
 export const DEFAULT_INVOICE_TEMPLATE = "order_invoice";
+export const DEFAULT_UPDATE_TEMPLATE = "order_update";
 
 async function readSaved(): Promise<Saved> {
   try {
@@ -36,6 +37,7 @@ export async function waSettings() {
     phoneId,
     template: process.env.WHATSAPP_ORDER_TEMPLATE || saved.template || DEFAULT_TEMPLATE,
     invoiceTemplate: process.env.WHATSAPP_INVOICE_TEMPLATE || saved.invoiceTemplate || DEFAULT_INVOICE_TEMPLATE,
+    updateTemplate: process.env.WHATSAPP_UPDATE_TEMPLATE || saved.updateTemplate || DEFAULT_UPDATE_TEMPLATE,
     lang: saved.lang || "en",
     apiVersion: process.env.WHATSAPP_API_VERSION || "v24.0",
     fromEnv: !!(process.env.WHATSAPP_TOKEN && process.env.WHATSAPP_PHONE_ID),
@@ -104,7 +106,7 @@ export function orderTemplateParams(order: Pick<Order, "id" | "customer_name" | 
   return [order.customer_name.split(" ")[0] || order.customer_name, order.order_number, formatINR(order.total), `${SITE}/account/orders/${order.id}`];
 }
 
-async function logResult(entry: Record<string, unknown>) {
+export async function logResult(entry: Record<string, unknown>) {
   try {
     const old = JSON.parse(await fs.readFile(LOG, "utf8").catch(() => "[]")) as unknown[];
     await fs.writeFile(LOG, JSON.stringify([{ at: new Date().toISOString(), ...entry }, ...old].slice(0, 30)), { mode: 0o600 });

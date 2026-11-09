@@ -5,7 +5,7 @@ import { getSupabase } from "@/lib/supabase-browser";
 import { adminButton, adminField } from "@/lib/admin";
 
 type Status = {
-  connected: boolean; phoneId: string; tokenEnd: string; template: string; invoiceTemplate: string; lang: string; fromEnv: boolean;
+  connected: boolean; phoneId: string; tokenEnd: string; template: string; invoiceTemplate: string; updateTemplate: string; lang: string; fromEnv: boolean;
   log: { at: string; order?: string; to?: string; ok: boolean; error?: string }[];
 };
 
@@ -14,6 +14,9 @@ const TEMPLATE_BODY =
 const SAMPLES = ["Ravi", "PD261109001", "₹2,537", "https://pcbdukaan.com/account/orders/123"];
 const INVOICE_BODY =
   "Hi {{1}}, your PCBDukaan order {{2}} is confirmed. Invoice no: {{3}}. Products: {{4}}. Total payable: {{5}} (incl. GST). View or download your invoice: {{6}} – Team PCBDukaan";
+const UPDATE_BODY =
+  "Hi {{1}}, update on your PCBDukaan order {{2}}: {{3}}. Details: {{4}} – Reply here if you have any questions. Team PCBDukaan";
+const UPDATE_SAMPLES = ["Ravi", "PD261109001", "Dispatched 🚚 by Delhivery, tracking no. 1234567890", "https://pcbdukaan.com/account/orders/123"];
 const INVOICE_SAMPLES = ["Ravi", "PD261109001", "PD/2026-27/0001", "1 × Mean Well EDR-120-24 (MW-EDR-120-24) ₹2,150", "₹2,537", "https://pcbdukaan.com/account/orders/123/invoice"];
 
 async function call(method: "GET" | "POST", body?: unknown) {
@@ -61,13 +64,13 @@ export default function WhatsAppSettingsPage() {
     const form = e.currentTarget;
     const f = new FormData(form);
     setBusy("save"); setMsg(null);
-    const r = await call("POST", { action: "save", phoneId: f.get("phoneId"), token: f.get("token"), template: f.get("template"), invoiceTemplate: f.get("invoiceTemplate"), lang: f.get("lang") });
+    const r = await call("POST", { action: "save", phoneId: f.get("phoneId"), token: f.get("token"), template: f.get("template"), invoiceTemplate: f.get("invoiceTemplate"), updateTemplate: f.get("updateTemplate"), lang: f.get("lang") });
     setBusy(null);
     if (r.ok) { setS(r.json); (form.elements.namedItem("token") as HTMLInputElement).value = ""; setMsg({ ok: true, text: "Saved. Now send a test message below." }); }
     else setMsg({ ok: false, text: r.error });
   }
 
-  async function test(kind: "hello" | "order" | "invoice", to: string) {
+  async function test(kind: "hello" | "order" | "invoice" | "update", to: string) {
     setBusy(kind); setMsg(null);
     const r = await call("POST", { action: "test", kind, to });
     setBusy(null);
@@ -83,13 +86,13 @@ export default function WhatsAppSettingsPage() {
   return (
     <div className="max-w-3xl space-y-5">
       <h1 className="text-2xl font-bold">WhatsApp order messages</h1>
-      <p className="text-sm text-slate-600">When a customer places an order they get the confirmation <b>email</b> and, once this is connected, a <b>WhatsApp message</b> from your business number – automatically, within seconds. When you set an order to <b>Confirmed</b>, they get the <b>invoice with all product details</b> the same way. It uses Meta&apos;s official WhatsApp Business API (about ₹0.12 per order message, billed by Meta).</p>
+      <p className="text-sm text-slate-600">When a customer places an order they get the confirmation <b>email</b> and, once this is connected, a <b>WhatsApp message</b> from your business number – automatically, within seconds. When you set an order to <b>Confirmed</b>, they get the <b>invoice with all product details</b>, and after that every event – packed, dispatched (courier + tracking), delivered, cancelled, payment received, refund – the same way. It uses Meta&apos;s official WhatsApp Business API (about ₹0.12 per order message, billed by Meta).</p>
 
       {!s && !msg && <div className="h-24 animate-pulse rounded-md bg-slate-100" />}
       {s && (
         <div className={`rounded-md p-4 text-sm font-semibold ${s.connected ? "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200" : "bg-amber-50 text-amber-900 ring-1 ring-amber-200"}`}>
           {s.connected ? "✓ Connected – order confirmations go out on WhatsApp" : "Not connected yet – customers get the email only"}
-          {s.connected && <span className="block text-xs font-normal">Phone number ID {s.phoneId} · token …{s.tokenEnd} · templates “{s.template}”, “{s.invoiceTemplate}” ({s.lang}){s.fromEnv ? " · set on the server" : ""}</span>}
+          {s.connected && <span className="block text-xs font-normal">Phone number ID {s.phoneId} · token …{s.tokenEnd} · templates “{s.template}”, “{s.invoiceTemplate}”, “{s.updateTemplate}” ({s.lang}){s.fromEnv ? " · set on the server" : ""}</span>}
         </div>
       )}
       {msg && <p role="status" className={`rounded-md p-3 text-sm ${msg.ok ? "bg-emerald-50 text-emerald-800" : "bg-red-50 text-red-700"}`}>{msg.text}</p>}
@@ -118,6 +121,14 @@ export default function WhatsAppSettingsPage() {
               <CopyBox label="Sample values {{1}} … {{6}}" text={INVOICE_SAMPLES.join("   ")} />
             </div>
           </li>
+          <li>
+            And a <b>third</b> template (category <b>Utility</b>) for every later update – packed, dispatched, tracking, delivered, cancelled, payment, refund:
+            <div className="mt-2 space-y-2">
+              <CopyBox label="Template name" text="order_update" />
+              <CopyBox label="Body" text={UPDATE_BODY} />
+              <CopyBox label="Sample values {{1}} … {{4}}" text={UPDATE_SAMPLES.join("   ")} />
+            </div>
+          </li>
           <li>Permanent token: <b>business.facebook.com → Settings → Users → System users</b> → Add (Admin) → <b>Assign assets</b> → your WhatsApp app (full control) → <b>Generate token</b>, expiry <b>Never</b>, tick <b>whatsapp_business_messaging</b> and <b>whatsapp_business_management</b>. Copy the token.</li>
           <li>Copy the <b>Phone number ID</b> from <b>WhatsApp → API Setup</b> (a long number, not your mobile number). Paste both below and press Save.</li>
         </ol>
@@ -134,6 +145,7 @@ export default function WhatsAppSettingsPage() {
         <div className="grid grid-cols-2 gap-3">
           <label className="block text-sm font-medium">Order template<input name="template" defaultValue={s?.template ?? "order_confirmation"} key={s?.template} className={adminField} /></label>
           <label className="block text-sm font-medium">Invoice template<input name="invoiceTemplate" defaultValue={s?.invoiceTemplate ?? "order_invoice"} key={s?.invoiceTemplate} className={adminField} /></label>
+          <label className="block text-sm font-medium">Update template<input name="updateTemplate" defaultValue={s?.updateTemplate ?? "order_update"} key={s?.updateTemplate} className={adminField} /></label>
           <label className="block text-sm font-medium">Language code<input name="lang" defaultValue={s?.lang ?? "en"} key={s?.lang} className={adminField} /></label>
         </div>
         <p className="text-xs text-slate-500">The token is stored only on your server and never shown again. If the template language in WhatsApp Manager is “English (US)”, use <code>en_US</code>.</p>
@@ -151,6 +163,7 @@ export default function WhatsAppSettingsPage() {
             <button type="button" disabled={!!busy} onClick={() => test("hello", (document.getElementById("wa-test-to") as HTMLInputElement).value)} className="rounded-md bg-slate-800 px-4 py-2 text-sm font-semibold text-white">{busy === "hello" ? "Sending…" : "1. Test connection (hello_world)"}</button>
             <button type="button" disabled={!!busy} onClick={() => test("order", (document.getElementById("wa-test-to") as HTMLInputElement).value)} className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white">{busy === "order" ? "Sending…" : "2. Test order message"}</button>
             <button type="button" disabled={!!busy} onClick={() => test("invoice", (document.getElementById("wa-test-to") as HTMLInputElement).value)} className="rounded-md bg-sky-700 px-4 py-2 text-sm font-semibold text-white">{busy === "invoice" ? "Sending…" : "3. Test invoice message"}</button>
+            <button type="button" disabled={!!busy} onClick={() => test("update", (document.getElementById("wa-test-to") as HTMLInputElement).value)} className="rounded-md bg-violet-700 px-4 py-2 text-sm font-semibold text-white">{busy === "update" ? "Sending…" : "4. Test update message"}</button>
           </div>
           <p className="text-xs text-slate-500">While your Meta app is new, test messages only reach numbers added under WhatsApp → API Setup → “To”. After you add the payment method and your number is approved, every customer receives them.</p>
         </form>

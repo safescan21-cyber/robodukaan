@@ -26,6 +26,9 @@ export async function POST(request: Request) {
     if (!order) return Response.json({ error: "Order not found" }, { status: 404 });
   }
 
+  // The invoice is the "confirmed" message: mark this event as told so it isn't sent twice.
+  await auth.supabase.rpc("claim_order_update", { p_order_id: orderId });
+
   const [emailed, whatsapp] = await Promise.all([
     order.email && emailConfigured() ? sendInvoiceEmail(order as Order) : Promise.resolve(false),
     sendInvoiceWhatsApp(order as Order),

@@ -1,5 +1,5 @@
 import { userFromRequest } from "@/lib/server-auth";
-import { DEFAULT_INVOICE_TEMPLATE, DEFAULT_TEMPLATE, invoiceTemplateParams, orderTemplateParams, saveWaSettings, sendWaTemplate, waNumber, waRecentLog, waSettings } from "@/lib/whatsapp";
+import { DEFAULT_INVOICE_TEMPLATE, DEFAULT_TEMPLATE, DEFAULT_UPDATE_TEMPLATE, invoiceTemplateParams, orderTemplateParams, saveWaSettings, sendWaTemplate, waNumber, waRecentLog, waSettings } from "@/lib/whatsapp";
 
 // Admin → WhatsApp: connect the WhatsApp Business API, send test messages, see recent results. Admins only.
 // The access token is stored on the server only; the browser just sees its last 4 characters.
@@ -18,6 +18,7 @@ async function status() {
     tokenEnd: s.token ? s.token.slice(-4) : "",
     template: s.template,
     invoiceTemplate: s.invoiceTemplate,
+    updateTemplate: s.updateTemplate,
     lang: s.lang,
     fromEnv: s.fromEnv,
     log: (await waRecentLog()).slice(0, 15),
@@ -41,13 +42,14 @@ export async function POST(request: Request) {
     const token = str(body.token, 1000).replace(/\s/g, "") || current.token;
     const template = str(body.template, 100) || DEFAULT_TEMPLATE;
     const invoiceTemplate = str(body.invoiceTemplate, 100) || DEFAULT_INVOICE_TEMPLATE;
+    const updateTemplate = str(body.updateTemplate, 100) || DEFAULT_UPDATE_TEMPLATE;
     const lang = str(body.lang, 10) || "en";
     if (!/^\d{6,30}$/.test(phoneId)) return Response.json({ error: "Phone number ID is the long number shown in Meta → WhatsApp → API Setup (digits only) – not your mobile number." }, { status: 400 });
     if (!token || token.length < 20) return Response.json({ error: "Paste the access token from Meta (it is long, usually starts with EAA)." }, { status: 400 });
-    if (!/^[a-z0-9_]+$/.test(template) || !/^[a-z0-9_]+$/.test(invoiceTemplate)) return Response.json({ error: "Template name: small letters, numbers and _ only, exactly as in WhatsApp Manager." }, { status: 400 });
+    if (!/^[a-z0-9_]+$/.test(template) || !/^[a-z0-9_]+$/.test(invoiceTemplate) || !/^[a-z0-9_]+$/.test(updateTemplate)) return Response.json({ error: "Template name: small letters, numbers and _ only, exactly as in WhatsApp Manager." }, { status: 400 });
     if (!/^[a-z]{2,3}(_[A-Z]{2})?$/.test(lang)) return Response.json({ error: "Language code like en, en_US or hi." }, { status: 400 });
     try {
-      await saveWaSettings({ phoneId, token, template, invoiceTemplate, lang });
+      await saveWaSettings({ phoneId, token, template, invoiceTemplate, updateTemplate, lang });
     } catch (e) {
       return Response.json({ error: `Could not save on the server (${e instanceof Error ? e.message : "error"}). Wait 5 minutes after the latest update and try again.` }, { status: 500 });
     }
@@ -67,6 +69,8 @@ export async function POST(request: Request) {
       order_items: [{ name: "Mean Well EDR-120-24 SMPS 24V 5A", sku: "MW-EDR-120-24", quantity: 1, line_total: 1046 }] };
     const r = body.kind === "order"
       ? await sendWaTemplate(current, to, current.template, current.lang, orderTemplateParams(sample))
+      : body.kind === "update"
+        ? await sendWaTemplate(current, to, current.updateTemplate, current.lang, ["Test", "PD-TEST-001", "Dispatched 🚚 by Delhivery, tracking no. 1234567890", "https://pcbdukaan.com/account/orders/test"])
       : body.kind === "invoice"
         ? await sendWaTemplate(current, to, current.invoiceTemplate, current.lang, invoiceTemplateParams(sample))
         : await sendWaTemplate(current, to, "hello_world", "en_US");

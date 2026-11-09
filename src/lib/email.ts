@@ -3,7 +3,8 @@ import nodemailer from "nodemailer";
 import { formatINR, formatINR2 } from "./format";
 import { REPAIR_STATUS_LABEL, SELLER, STORE } from "./constants";
 import { invoiceTotals } from "./invoice";
-import type { Job, JobApplication, Order, OrderItem, PartnerApplication, QuoteRequest, RepairRequest, Vendor, VendorOrderView } from "./types";
+import { ORDER_STEPS, type OrderEvent } from "./order-events";
+import type { Job, JobApplication, Order, OrderItem, OrderStatus, PartnerApplication, QuoteRequest, RepairRequest, Vendor, VendorOrderView } from "./types";
 
 // Emails are sent from this server with the SMTP mailbox set in .env.local
 // (deploy/set-email.sh). If SMTP isn't configured, emails are skipped and logged.
@@ -171,6 +172,33 @@ ${line(order.payment_status === "paid" ? "Total (paid)" : order.payment_method =
     order.email,
     `Order ${order.order_number} confirmed – Invoice ${order.invoice_number ?? ""}`.trim(),
     layout(`Order confirmed, ${order.customer_name.split(" ")[0]}!`, body, { label: "View / download invoice", href: `${SITE}/account/orders/${order.id}/invoice` }),
+    adminEmail() || undefined,
+  );
+}
+
+// Every later order event (packed, dispatched, tracking, delivered, cancelled, payment, refund) – see lib/order-updates.ts.
+export async function sendOrderUpdateEmail(
+  to: string | null | undefined,
+  o: { order_number: string; customer_name: string; status: OrderStatus },
+  ev: OrderEvent,
+  items: { name: string; sku: string; quantity: number }[],
+  courier?: { courier?: string | null; tracking_number?: string | null },
+) {
+  if (!to) return false;
+  const reached = ORDER_STEPS.findIndex(([s]) => s === o.status);
+  const steps = o.status === "cancelled" ? "" : `<table style="width:100%;border-collapse:collapse;margin:14px 0;font-size:12px;text-align:center"><tr>${ORDER_STEPS.map(([, label], i) =>
+    `<td style="padding:6px 2px;border-top:4px solid ${i <= reached ? "#16a34a" : "#e2e8f0"};color:${i <= reached ? "#166534" : "#94a3b8"};font-weight:${i === reached ? 700 : 400}">${i <= reached ? "✓ " : ""}${label}</td>`).join("")}</tr></table>`;
+  const ship = courier?.courier || courier?.tracking_number
+    ? `<p style="padding:12px;background:#f8fafc;border-radius:6px">${courier.courier ? `Courier: <b>${esc(courier.courier)}</b><br>` : ""}${courier.tracking_number ? `Tracking / AWB number: <b>${esc(courier.tracking_number)}</b>` : ""}</p>`
+    : "";
+  const list = items.length
+    ? `<p style="margin:12px 0 4px;font-weight:600">Items</p><ul style="margin:0;padding-left:18px;font-size:14px">${items.map((i) => `<li>${esc(i.name)} × ${i.quantity} <span style="color:#64748b">(${esc(i.sku)})</span></li>`).join("")}</ul>`
+    : "";
+  return send(
+    to,
+    `${ev.title.replace(/[^\p{L}\p{N}\s–-]/gu, "").trim()} – order ${o.order_number}`,
+    layout(ev.title, `<p>Hi ${esc(o.customer_name.split(" ")[0])}, here is an update on your order <b>${esc(o.order_number)}</b>:</p>
+<p style="font-size:16px;font-weight:600">${esc(ev.text)}.</p>${steps}${ship}${list}`, { label: ev.linkLabel, href: ev.link }),
     adminEmail() || undefined,
   );
 }
@@ -398,15 +426,4 @@ export async function sendVendorUpdateToAdmin(v: VendorOrderView, orderId: strin
     layout(`Order ${v.order_number} ${what}`,
       `${body}${v.vendor_note ? `<p style="font-size:14px"><b>Vendor note:</b> ${esc(v.vendor_note)}</p>` : ""}${vendorItems(v.items)}`,
       orderId ? { label: "Open order in admin", href: `${SITE}/admin/orders/${orderId}` } : undefined));
-}
-
-// Customer: your order is on its way.
-export async function sendOrderShippedEmail(to: string | null | undefined, v: VendorOrderView) {
-  if (!to) return false;
-  return send(to, `Your PCBDukaan order ${v.order_number} has been shipped`,
-    layout("Your order is on its way 🚚",
-      `<p>Hi ${esc(v.ship_to.name.split(" ")[0])}, your order <b>${esc(v.order_number)}</b> has been shipped.</p>
-<p style="padding:12px;background:#f8fafc;border-radius:6px">Courier: <b>${esc(v.courier)}</b><br>Tracking / AWB number: <b>${esc(v.tracking_number)}</b></p>
-${vendorItems(v.items)}`,
-      v.tracking_url ? { label: "Track your shipment", href: v.tracking_url } : { label: "View your order", href: `${SITE}/account/orders` }));
 }
