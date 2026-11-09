@@ -144,7 +144,7 @@ export const REPAIR_SERVICES: RepairService[] = [
   {
     slug: "vfd-drive-repair",
     name: "VFD / AC drive repair",
-    title: "VFD repair in India – AC drive board repair, all brands",
+    title: "VFD repair in India – AC drive board repair",
     description: "Component-level VFD and AC drive repair: power boards, IGBT gate drivers, control cards. Delta, Yaskawa, Siemens, ABB and more. Free photo quote.",
     intro: "A stopped VFD stops the whole machine. We repair AC drives at component level – power boards, IGBT and gate driver stages, DC bus and pre-charge circuits, SMPS sections and control cards – and test them before they go back to you.",
     faults: ["Overcurrent or short-circuit trips (oc, OC, F0001, E.OC1)", "No display or drive won't power up", "DC bus overvoltage / undervoltage faults", "Ground fault and phase-loss errors", "Burnt IGBT, gate driver or pre-charge resistor", "Control card or keypad faults"],
@@ -157,7 +157,7 @@ export const REPAIR_SERVICES: RepairService[] = [
   {
     slug: "smps-repair",
     name: "SMPS / power supply repair",
-    title: "SMPS repair – industrial power supply repair in India",
+    title: "SMPS repair – industrial power supply repair",
     description: "Industrial SMPS and power supply repair at component level: no output, low voltage, blinking LED, burnt parts. DIN-rail and enclosed SMPS. Free photo quote.",
     intro: "Power supplies are the most common failure in control panels and machines. We repair DIN-rail, enclosed and open-frame SMPS, DC-DC converters and power sections of machines – replacing failed capacitors, MOSFETs, controllers and protection parts.",
     faults: ["No output or output keeps cycling (blinking LED)", "Low or unstable output voltage", "Blown fuse / burnt MOSFET or rectifier", "Swollen or leaking capacitors", "Fan or overheating faults"],
@@ -169,7 +169,7 @@ export const REPAIR_SERVICES: RepairService[] = [
   {
     slug: "inverter-ups-repair",
     name: "Inverter & UPS card repair",
-    title: "Inverter & UPS card repair – PCB repair in India",
+    title: "Inverter & UPS card repair in India",
     description: "Inverter and UPS control card repair: no backup, no charging, overload or beeping faults, burnt MOSFETs. Home and industrial units. Free photo quote.",
     intro: "We repair inverter and online/offline UPS control cards and power boards – charging circuits, MOSFET banks, driver and controller ICs – for home, shop and industrial units.",
     faults: ["No backup or no output on battery", "Battery not charging or overcharging", "Overload / short-circuit beeping", "Burnt MOSFETs or driver section", "Display or relay faults"],
@@ -192,7 +192,7 @@ export const REPAIR_SERVICES: RepairService[] = [
   {
     slug: "machine-control-board-repair",
     name: "Machine control board repair",
-    title: "Machine control board repair – CNC, injection moulding, packing",
+    title: "Machine control board repair – CNC & moulding",
     description: "Repair of machine control boards for CNC, injection moulding, packing, textile and food machines. Component-level repair and testing. Free photo quote.",
     intro: "Imported and Indian machines often use custom control boards that are expensive or no longer available. We repair them at component level – power sections, I/O, drivers and controllers – for CNC, injection moulding, packing, textile, printing and food-processing machines.",
     faults: ["Board doesn't power up", "Inputs or outputs not working", "Display or keypad faults", "Burnt tracks, connectors or components", "Intermittent faults when warm"],
@@ -204,7 +204,7 @@ export const REPAIR_SERVICES: RepairService[] = [
   {
     slug: "weighing-indicator-repair",
     name: "Weighing indicator repair",
-    title: "Weighing indicator & load cell amplifier repair in India",
+    title: "Weighing indicator & load cell amplifier repair",
     description: "Repair of weighing indicators, load cell amplifiers and weighbridge electronics: unstable readings, no display, ADC faults. Free photo quote.",
     intro: "We repair weighing indicators and load cell amplifiers used in platform scales, weighbridges, packing and batching machines – power supplies, ADC and input sections, displays and output cards.",
     faults: ["Unstable or drifting weight", "No display or blank segments", "Overload / ADC error messages", "RS232 or 4–20 mA output not working", "Calibration not holding"],
@@ -215,7 +215,7 @@ export const REPAIR_SERVICES: RepairService[] = [
   {
     slug: "servo-drive-repair",
     name: "Servo drive repair",
-    title: "Servo drive repair – AC servo amplifier repair in India",
+    title: "Servo drive repair – AC servo amplifier repair",
     description: "AC servo drive and amplifier repair: overcurrent, encoder, power board and control faults. Delta, Mitsubishi, Yaskawa, Panasonic and more. Free photo quote.",
     intro: "We repair AC servo drives and amplifiers – power stages, gate drivers, encoder interfaces and control boards – for CNC machines, robots and automation lines.",
     faults: ["Overcurrent or power-stage alarms", "Encoder or feedback errors", "No display or drive won't start", "Regeneration / overvoltage alarms", "Burnt power components"],
@@ -227,7 +227,7 @@ export const REPAIR_SERVICES: RepairService[] = [
   {
     slug: "hmi-repair",
     name: "HMI & touch panel repair",
-    title: "HMI repair – touch screen & operator panel repair in India",
+    title: "HMI repair – touch screen & operator panels",
     description: "HMI and touch panel repair: unresponsive touch, blank or dim display, power and communication faults. Delta, Siemens, Weintek and more. Free photo quote.",
     intro: "We repair HMI operator panels and touch screens – touch panels, backlights and display drivers, power sections and communication ports – so you can keep your existing screens and program.",
     faults: ["Touch not responding or wrong touch position", "Blank, dim or flickering display", "HMI doesn't power up", "No communication with the PLC", "Cracked touch glass"],

@@ -6,8 +6,8 @@ import { getT } from "@/i18n/server";
 import { DRIVE_BRANDS } from "@/lib/fault-codes";
 
 export const metadata: Metadata = {
-  title: "VFD fault codes – meaning, causes & fixes (Delta, Yaskawa, Siemens, ABB…)",
-  description: "What VFD error codes like oc, ov, Lv, GF, E.OC1, F0001 mean, their common causes and what to check – for Delta, Yaskawa, Mitsubishi, Siemens, ABB, Schneider and Danfoss drives.",
+  title: "VFD fault codes – meaning, causes & fixes",
+  description: "What VFD error codes like oc, ov, Lv, GF, E.OC1 and F0001 mean, common causes and what to check – Delta, Yaskawa, Mitsubishi, Siemens, ABB, Schneider, Danfoss.",
   alternates: { canonical: "/fault-codes" },
 };
 

@@ -627,6 +627,7 @@ const dict: Record<string, string> = {
   "forgot.resent": "A new code is on its way.",
   "forgot.wait": "Please wait a minute before asking for another code.",
   "forgot.spamHint": "No email after 2 minutes? Check your spam folder. You can also use the link in the email.",
+  "meta.track": "Track your PCBDukaan order or PCB repair with your order or repair number and mobile number – live status from order to delivery.",
 };
 
 export default dict;

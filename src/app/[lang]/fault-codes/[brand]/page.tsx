@@ -21,9 +21,12 @@ export async function generateMetadata(props: PageProps<"/[lang]/fault-codes/[br
   const { brand } = await props.params;
   const b = getDriveBrand(brand);
   if (!b) return { title: "Not found" };
-  const codes = b.codes.slice(0, 4).map((c) => c.code.split(" ")[0]).join(", ");
+  const codes = b.codes.slice(0, 4).map((c) => c.code).join(", ");
+  const short = b.codes.slice(0, 2).map((c) => c.code).join(", ");
+  // Keep titles under ~60 characters (with " | PCBDukaan") so Google shows them in full.
+  const main = `${b.brand} VFD fault codes – meaning & fix`;
   return {
-    title: `${b.brand} VFD fault codes (${codes}…) – meaning & fix`,
+    title: `${main} (${short}…)`.length <= 52 ? `${main} (${short}…)` : main,
     description: `${b.brand} drive error codes ${codes} and more explained: meaning, common causes and what to check. ${b.series}.`.slice(0, 158),
     alternates: { canonical: `/fault-codes/${b.slug}` },
   };

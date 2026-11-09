@@ -5,7 +5,7 @@ import { PartnerForm } from "@/components/PartnerForm";
 import { getT } from "@/i18n/server";
 
 export const metadata: Metadata = {
-  title: "Repair technician partner programme – earn on boards you can't fix",
+  title: "Become a PCB repair technician partner",
   description: "Field and panel technicians: send us the hard boards – VFD power stages, servo drives, PLCs, HMIs – and earn a referral fee on every repair. Free sign-up, all India.",
   alternates: { canonical: "/repair-partners" },
 };

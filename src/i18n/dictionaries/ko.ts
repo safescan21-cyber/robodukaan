@@ -626,6 +626,7 @@ const dict: Record<string, string> = {
   "forgot.resent": "새 코드를 보내는 중입니다.",
   "forgot.wait": "새 코드를 요청하기 전에 1분 기다려 주세요.",
   "forgot.spamHint": "2분이 지나도 이메일이 없나요? 스팸함을 확인하세요. 이메일의 링크를 사용할 수도 있습니다.",
+  "meta.track": "주문 번호 또는 수리 번호와 휴대폰 번호로 PCBDukaan 주문과 PCB 수리 진행 상황을 실시간으로 확인하세요.",
 };
 
 export default dict;

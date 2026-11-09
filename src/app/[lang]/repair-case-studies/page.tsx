@@ -7,7 +7,7 @@ import { getT } from "@/i18n/server";
 import { formatDate } from "@/lib/format";
 
 export const metadata: Metadata = {
-  title: "Industrial PCB repair case studies – real VFD, SMPS and PLC repairs",
+  title: "Industrial PCB repair case studies",
   description: "Real repair jobs from PCBDukaan: the fault, what we found, what we replaced and the result – VFD drives, SMPS, PLCs, servo drives and machine boards.",
   alternates: { canonical: "/repair-case-studies" },
 };

@@ -27,7 +27,12 @@ type TrackedOrder = {
 const STEPS = ["pending", "confirmed", "packed", "shipped", "delivered"] as const;
 
 export default function Page() {
-  return <Suspense fallback={<div className="mx-auto h-96 max-w-2xl animate-pulse px-4 py-12" />}><TrackPage /></Suspense>;
+  const { t } = useI18n();
+  return (
+    <Suspense fallback={<div className="mx-auto max-w-2xl px-4 py-12"><h1 className="text-3xl font-bold">{t("track.title")}</h1><div className="mt-6 h-40 animate-pulse rounded-xl bg-slate-100" /></div>}>
+      <TrackPage />
+    </Suspense>
+  );
 }
 
 function TrackPage() {

@@ -23,7 +23,7 @@ export async function generateMetadata(props: PageProps<"/[lang]/locations/[stat
   const s = getState(state);
   if (!x || !s) return { title: "Not found" };
   return {
-    title: `PCB repair & electronics in ${x.name}, ${x.city}`,
+    title: [`PCB repair & electronics in ${x.name}, ${x.city}`, `PCB repair in ${x.name}, ${x.city}`, `PCB repair in ${x.name}`].find((v) => v.length <= 52) ?? `PCB repair in ${x.name}`,
     description: clip(`Industrial PCB repair and supply for ${listText(x.industries.map((i) => INDUSTRY_LABEL[i]))} units in ${x.name}, ${x.city} (${s.name}). SMPS, drive boards, PLC modules, sensors. Free repair quote.`),
     alternates: { canonical: `/locations/${s.slug}/${x.slug}` },
     // Only the biggest clusters are shown to search engines; the rest stay for visitors (see FEATURED_AREAS).
