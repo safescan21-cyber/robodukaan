@@ -640,6 +640,9 @@ const dict: Record<string, string> = {
   "gallery.open": "Open full screen",
   "gallery.close": "Close",
   "gallery.hint": "Swipe or use ← → keys · click / double-tap to zoom · Esc to close",
+  "invoice.view": "View invoice",
+  "invoice.print": "Print / Save as PDF",
+  "invoice.notYet": "Your invoice will be available here once we confirm your order.",
 };
 
 export default dict;

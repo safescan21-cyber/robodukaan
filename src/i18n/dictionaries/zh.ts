@@ -639,6 +639,9 @@ const dict: Record<string, string> = {
   "gallery.open": "全屏查看",
   "gallery.close": "关闭",
   "gallery.hint": "滑动或使用 ← → 键 · 点击 / 双击放大 · 按 Esc 关闭",
+  "invoice.view": "查看发票",
+  "invoice.print": "打印 / 保存为 PDF",
+  "invoice.notYet": "订单确认后即可在此查看您的发票。",
 };
 
 export default dict;

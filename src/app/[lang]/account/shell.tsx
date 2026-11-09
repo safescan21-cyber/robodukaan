@@ -19,10 +19,10 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
   const { t } = useI18n();
   return (
     <RequireAuth>
-      <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] gap-6 px-4 py-6 lg:grid-cols-[230px_minmax(0,1fr)]">
-        <Suspense fallback={<div className="h-64 rounded-md bg-white ring-1 ring-slate-200" />}>
+      <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] gap-6 px-4 py-6 print:block print:p-0 lg:grid-cols-[230px_minmax(0,1fr)]">
+        <div className="print:hidden"><Suspense fallback={<div className="h-64 rounded-md bg-white ring-1 ring-slate-200" />}>
           <SideNav title={t("account.my")} items={ITEMS.map((i) => ({ ...i, label: t(i.label) }))} footer={<LogoutButton />} />
-        </Suspense>
+        </Suspense></div>
         <div className="min-w-0">{children}</div>
       </div>
     </RequireAuth>

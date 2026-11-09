@@ -1,7 +1,8 @@
 import "server-only";
 import nodemailer from "nodemailer";
 import { formatINR, formatINR2 } from "./format";
-import { REPAIR_STATUS_LABEL } from "./constants";
+import { REPAIR_STATUS_LABEL, SELLER, STORE } from "./constants";
+import { invoiceTotals } from "./invoice";
 import type { Job, JobApplication, Order, OrderItem, PartnerApplication, QuoteRequest, RepairRequest, Vendor, VendorOrderView } from "./types";
 
 // Emails are sent from this server with the SMTP mailbox set in .env.local
@@ -128,6 +129,50 @@ export async function sendOrderEmails(order: Order) {
     );
   }
   return results.some(Boolean);
+}
+
+// Sent when the admin confirms an order: the GST invoice details with every product, plus a link to the
+// printable / PDF invoice in the customer's account.
+export async function sendInvoiceEmail(order: Order) {
+  if (!order.email) return false;
+  const tot = invoiceTotals(order);
+  const td = "padding:6px 4px;border-bottom:1px solid #e2e8f0;vertical-align:top";
+  const rows = (order.order_items ?? [])
+    .map((i: OrderItem, n) => `<tr>
+<td style="${td}">${n + 1}</td>
+<td style="${td}"><b>${esc(i.name)}</b><br><span style="color:#64748b;font-size:12px">SKU ${esc(i.sku)}${i.hsn_code ? ` · HSN ${esc(i.hsn_code)}` : ""}</span></td>
+<td style="${td};text-align:center">${i.quantity}</td>
+<td style="${td};text-align:right">${formatINR2(i.unit_price)}</td>
+<td style="${td};text-align:right">${formatINR2(i.line_total)}</td></tr>`)
+    .join("");
+  const line = (label: string, value: string, bold = false) =>
+    `<tr><td colspan="4" style="padding:4px;text-align:right;${bold ? "font-weight:700;font-size:16px" : ""}">${label}</td><td style="padding:4px;text-align:right;white-space:nowrap;${bold ? "font-weight:700;font-size:16px" : ""}">${value}</td></tr>`;
+  const company = SELLER.companyName || STORE.name;
+  const invoiceDate = order.invoice_date ? new Date(order.invoice_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "";
+  const body = `<p>Good news – your order <b>${esc(order.order_number)}</b> is <b>confirmed</b> and is being prepared for dispatch. Here is your invoice.</p>
+<table style="width:100%;font-size:14px;margin:8px 0 4px;background:#f8fafc;border-radius:6px"><tr>
+<td style="padding:8px"><span style="color:#64748b;font-size:12px">Invoice no.</span><br><b>${esc(order.invoice_number ?? "—")}</b></td>
+<td style="padding:8px"><span style="color:#64748b;font-size:12px">Invoice date</span><br><b>${esc(invoiceDate)}</b></td>
+<td style="padding:8px"><span style="color:#64748b;font-size:12px">Order no.</span><br><b>${esc(order.order_number)}</b></td></tr></table>
+<p style="margin:10px 0 0;font-size:12px;color:#64748b">Sold by <b>${esc(company)}</b>${SELLER.gstin ? ` · GSTIN ${esc(SELLER.gstin)}` : ""}${order.buyer_gstin ? ` → ${esc(order.buyer_company)} · GSTIN ${esc(order.buyer_gstin)}` : ""}</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin:8px 0">
+<tr style="background:#14306f;color:#fff;font-size:12px"><th style="padding:6px 4px;text-align:left">#</th><th style="padding:6px 4px;text-align:left">Product</th><th style="padding:6px 4px">Qty</th><th style="padding:6px 4px;text-align:right">Rate</th><th style="padding:6px 4px;text-align:right">Amount</th></tr>
+${rows}
+${line("Subtotal", formatINR2(tot.subtotal))}
+${tot.discount > 0 ? line(`Discount${order.coupon_code ? ` (${esc(order.coupon_code)})` : ""}`, `− ${formatINR2(tot.discount)}`) : ""}
+${line("Shipping", tot.shipping === 0 ? "Free" : formatINR2(tot.shipping))}
+${tot.taxLines.length ? line("Taxable value", formatINR2(tot.taxable)) : ""}
+${tot.taxLines.map(([l, v]) => line(esc(l), formatINR2(v))).join("")}
+${line(order.payment_status === "paid" ? "Total (paid)" : order.payment_method === "cod" ? "Total – pay on delivery" : "Total", formatINR2(tot.total), true)}
+</table>
+<p style="margin:12px 0 0;font-weight:600">Delivering to</p>${address(order)}
+<p style="font-size:13px;color:#64748b">Prices in ₹. Open the link below to print or save the full GST tax invoice as PDF. Questions? Just reply to this email.</p>`;
+  return send(
+    order.email,
+    `Order ${order.order_number} confirmed – Invoice ${order.invoice_number ?? ""}`.trim(),
+    layout(`Order confirmed, ${order.customer_name.split(" ")[0]}!`, body, { label: "View / download invoice", href: `${SITE}/account/orders/${order.id}/invoice` }),
+    adminEmail() || undefined,
+  );
 }
 
 export async function sendWelcomeEmail(to: string, name: string | null) {

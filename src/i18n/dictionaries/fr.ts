@@ -639,6 +639,9 @@ const dict: Record<string, string> = {
   "gallery.open": "Afficher en plein écran",
   "gallery.close": "Fermer",
   "gallery.hint": "Balayez ou utilisez ← → · clic / double appui pour zoomer · Échap pour fermer",
+  "invoice.view": "Voir la facture",
+  "invoice.print": "Imprimer / Enregistrer en PDF",
+  "invoice.notYet": "Votre facture sera disponible ici dès que nous aurons confirmé votre commande.",
 };
 
 export default dict;

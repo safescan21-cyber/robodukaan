@@ -36,7 +36,11 @@ function MyOrderPage() {
       {error && <p className="mb-3 rounded bg-red-50 p-3 text-sm text-red-700" role="alert">{error}</p>}
       <OrderDetail
         order={order}
-        actions={canCancel ? (
+        actions={<>
+          {order.invoice_number && (
+            <Link href={`/account/orders/${order.id}/invoice`} className="rounded-md bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-brand-700">🧾 {t("invoice.view")}</Link>
+          )}
+          {canCancel ? (
           <button
             onClick={async () => {
               if (!confirm(t("orders.confirmCancel"))) return;
@@ -48,7 +52,8 @@ function MyOrderPage() {
           >
             {t("orders.cancel")}
           </button>
-        ) : null}
+          ) : null}
+        </>}
       />
     </>
   );

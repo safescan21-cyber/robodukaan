@@ -1,28 +1,12 @@
 import { SELLER, STORE } from "@/lib/constants";
 import { formatDate, formatINR2, rupeesInWords } from "@/lib/format";
+import { invoiceTotals } from "@/lib/invoice";
 import type { Order } from "@/lib/types";
-
-const round2 = (n: number) => Math.round(n * 100) / 100;
 
 // GST tax invoice for one order (A4, print-friendly). Seller details come from SELLER in lib/constants.
 export function InvoiceView({ order }: { order: Order }) {
   const items = order.order_items ?? [];
-  const subtotal = Number(order.subtotal);
-  const discount = Number(order.discount);
-  const shipping = Number(order.shipping);
-  const taxable = round2(subtotal - discount + shipping);
-  const rate = Number(order.gst_rate ?? 0);
-  const gst = Number(order.gst_amount ?? 0);
-
-  // Same state as the seller → CGST + SGST; other state → IGST. Unknown seller state → one GST line.
-  const sameState = SELLER.state && SELLER.state.toLowerCase() === order.state.toLowerCase();
-  const taxLines: [string, number][] = !rate
-    ? []
-    : !SELLER.state
-      ? [[`GST @ ${rate}%`, gst]]
-      : sameState
-        ? [[`CGST @ ${rate / 2}%`, round2(gst / 2)], [`SGST @ ${rate / 2}%`, round2(gst - round2(gst / 2))]]
-        : [[`IGST @ ${rate}%`, gst]];
+  const { subtotal, discount, shipping, taxable, taxLines } = invoiceTotals(order);
 
   const company = SELLER.companyName || STORE.name;
   const issued = Boolean(order.invoice_number);

@@ -1,7 +1,7 @@
 import "server-only";
 import { promises as fs } from "node:fs";
-import { formatINR } from "./format";
-import type { Order } from "./types";
+import { formatINR, formatINR2 } from "./format";
+import type { Order, OrderItem } from "./types";
 
 // Automatic WhatsApp messages through Meta's official WhatsApp Business (Cloud) API.
 // Admin → WhatsApp saves the settings into SETTINGS_DIR/whatsapp.json on the server (never in GitHub,
@@ -13,10 +13,11 @@ export const SETTINGS_DIR = process.env.SETTINGS_DIR || "/var/lib/robodukaan-set
 const FILE = `${SETTINGS_DIR}/whatsapp.json`;
 const LOG = `${SETTINGS_DIR}/whatsapp-log.json`;
 
-export type WaConfig = { token: string; phoneId: string; template: string; lang: string; apiVersion: string; fromEnv: boolean };
-type Saved = Partial<Pick<WaConfig, "token" | "phoneId" | "template" | "lang">>;
+export type WaConfig = { token: string; phoneId: string; template: string; invoiceTemplate: string; lang: string; apiVersion: string; fromEnv: boolean };
+type Saved = Partial<Pick<WaConfig, "token" | "phoneId" | "template" | "invoiceTemplate" | "lang">>;
 
 export const DEFAULT_TEMPLATE = "order_confirmation";
+export const DEFAULT_INVOICE_TEMPLATE = "order_invoice";
 
 async function readSaved(): Promise<Saved> {
   try {
@@ -34,6 +35,7 @@ export async function waSettings() {
     token,
     phoneId,
     template: process.env.WHATSAPP_ORDER_TEMPLATE || saved.template || DEFAULT_TEMPLATE,
+    invoiceTemplate: process.env.WHATSAPP_INVOICE_TEMPLATE || saved.invoiceTemplate || DEFAULT_INVOICE_TEMPLATE,
     lang: saved.lang || "en",
     apiVersion: process.env.WHATSAPP_API_VERSION || "v24.0",
     fromEnv: !!(process.env.WHATSAPP_TOKEN && process.env.WHATSAPP_PHONE_ID),
@@ -132,5 +134,47 @@ export async function sendOrderWhatsApp(order: Order, cfg?: WaConfig | null): Pr
   const r = await sendWaTemplate(cfg, to, cfg.template, cfg.lang, orderTemplateParams(order));
   if (!r.ok) console.error(`[whatsapp] order ${order.order_number}: ${r.error}`);
   await logResult({ order: order.order_number, to: masked, ok: r.ok, error: r.error });
+  return r;
+}
+
+// Products for the invoice template on one line (template values can't contain line breaks):
+// "2 × Mean Well EDR-120-24 (MW-EDR-120-24) ₹4,300; 1 × SSR-40DA (SSR-40DA) ₹320" – shortened if very long.
+export function productsLine(items: Pick<OrderItem, "name" | "sku" | "quantity" | "line_total">[], max = 600) {
+  const parts = items.map((i) => `${i.quantity} × ${i.name} (${i.sku}) ${formatINR2(i.line_total)}`);
+  let out = "";
+  for (let n = 0; n < parts.length; n++) {
+    const next = out ? `${out}; ${parts[n]}` : parts[n];
+    if (next.length > max) return `${out}; +${parts.length - n} more item${parts.length - n > 1 ? "s" : ""}`;
+    out = next;
+  }
+  return out;
+}
+
+// Values for the invoice template, in order: {{1}} name, {{2}} order number, {{3}} invoice number,
+// {{4}} products, {{5}} total incl. GST, {{6}} invoice link.
+export function invoiceTemplateParams(order: Pick<Order, "id" | "customer_name" | "order_number" | "invoice_number" | "total"> & { order_items?: Pick<OrderItem, "name" | "sku" | "quantity" | "line_total">[] }) {
+  return [
+    order.customer_name.split(" ")[0] || order.customer_name,
+    order.order_number,
+    order.invoice_number || "-",
+    productsLine(order.order_items ?? []),
+    formatINR2(order.total),
+    `${SITE}/account/orders/${order.id}/invoice`,
+  ];
+}
+
+// "Order confirmed + invoice" WhatsApp to the customer. Returns null when WhatsApp isn't set up.
+export async function sendInvoiceWhatsApp(order: Order, cfg?: WaConfig | null): Promise<WaResult | null> {
+  cfg ??= await waConfig();
+  if (!cfg) return null;
+  const to = waNumber(order.phone);
+  const label = `${order.order_number} invoice`;
+  if (!to) {
+    await logResult({ order: label, to: order.phone, ok: false, error: "not a valid Indian mobile number" });
+    return { ok: false, error: "not a valid Indian mobile number" };
+  }
+  const r = await sendWaTemplate(cfg, to, cfg.invoiceTemplate, cfg.lang, invoiceTemplateParams(order));
+  if (!r.ok) console.error(`[whatsapp] invoice ${order.order_number}: ${r.error}`);
+  await logResult({ order: label, to: `…${to.slice(-4)}`, ok: r.ok, error: r.error });
   return r;
 }
