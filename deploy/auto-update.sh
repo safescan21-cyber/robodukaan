@@ -37,6 +37,9 @@ db_move_pickup() {
 }
 db_move_pickup
 
+# Extra domains (e.g. pcbdukaan.in) → 301 redirect to pcbdukaan.com once their DNS points here.
+[ -f "$APP_DIR/deploy/ensure-domain-redirects.sh" ] && bash "$APP_DIR/deploy/ensure-domain-redirects.sh" || true
+
 as_app "git fetch -q origin main" || { log "git fetch failed"; exit 1; }
 current=$(as_app "git rev-parse HEAD")
 latest=$(as_app "git rev-parse origin/main")
