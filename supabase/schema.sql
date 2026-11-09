@@ -2018,3 +2018,8 @@ create policy "case studies: admin all" on public.case_studies for all using (pu
 -- exchange_price: price when the customer sends back their old faulty board of the same model.
 alter table public.products add column if not exists exchange_available boolean not null default false;
 alter table public.products add column if not exists exchange_price numeric(10,2) check (exchange_price is null or exchange_price > 0);
+
+-- PCBDukaan update 019: vendor phone + website (for supplier prospects and enquiries).
+-- Paste into Supabase → SQL Editor → Run. Safe to run more than once.
+alter table public.vendors add column if not exists phone   text check (phone is null or length(phone) <= 40);
+alter table public.vendors add column if not exists website text check (website is null or (website ~ '^https?://' and length(website) <= 300));

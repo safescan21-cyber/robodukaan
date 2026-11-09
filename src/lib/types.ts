@@ -281,6 +281,8 @@ export type Vendor = {
   contact_name: string | null;
   email: string | null;
   whatsapp: string | null;
+  phone?: string | null;
+  website?: string | null;
   city: string | null;
   notes: string | null;
   is_active: boolean;
