@@ -627,6 +627,7 @@ const dict: Record<string, string> = {
   "forgot.wait": "请等待一分钟后再获取新的验证码。",
   "forgot.spamHint": "2 分钟后仍未收到邮件？请检查垃圾邮件文件夹。您也可以使用邮件中的链接。",
   "meta.track": "使用订单号或维修编号和手机号码，实时查询 PCBDukaan 订单或电路板维修进度。",
+  "nav.repairGuides": "维修指南",
 };
 
 export default dict;

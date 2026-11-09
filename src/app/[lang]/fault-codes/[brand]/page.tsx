@@ -7,6 +7,7 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
 import { RepairCta } from "@/components/LocationBlocks";
 import { getT } from "@/i18n/server";
+import { getRepairGuide } from "@/lib/repair-guides";
 import { DRIVE_BRANDS, getDriveBrand } from "@/lib/fault-codes";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://pcbdukaan.com";
@@ -92,6 +93,12 @@ async function BrandFaults({ params }: Pick<PageProps<"/[lang]/fault-codes/[bran
       </div>
 
       <p className="mt-6 rounded bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">⚠️ {t("fault.note")}</p>
+      <p className="mt-4 text-sm">📘 {t("nav.repairGuides")}:{" "}
+        {["vfd-overcurrent-fault", "how-to-test-igbt-module", "vfd-capacitor-failure"].map((slug, i) => {
+          const g = getRepairGuide(slug)!;
+          return <span key={slug}>{i ? " · " : ""}<Link href={`/repair-guides/${slug}`} className="text-brand-700 hover:underline">{g.title}</Link></span>;
+        })}
+      </p>
       <p className="mt-4 text-sm">{t("fault.other")}{" "}
         {DRIVE_BRANDS.filter((x) => x.slug !== b.slug).map((x, i) => (
           <span key={x.slug}>{i ? " · " : ""}<Link href={`/fault-codes/${x.slug}`} className="text-brand-700 hover:underline">{x.brand}</Link></span>

@@ -627,6 +627,7 @@ const dict: Record<string, string> = {
   "forgot.wait": "別のコードを請求するまで1分お待ちください。",
   "forgot.spamHint": "2分経ってもメールが届かない場合は迷惑メールフォルダを確認してください。メール内のリンクも使えます。",
   "meta.track": "注文番号または修理番号と携帯番号で、PCBDukaanのご注文や基板修理の状況をリアルタイムで確認できます。",
+  "nav.repairGuides": "修理ガイド",
 };
 
 export default dict;

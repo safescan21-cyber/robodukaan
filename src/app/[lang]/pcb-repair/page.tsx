@@ -68,6 +68,7 @@ export default async function PcbRepairPage() {
             <ul className="mt-3 space-y-1.5 text-sm">
               {REPAIR_SERVICES.map((r) => <li key={r.slug}><Link href={`/pcb-repair/${r.slug}`} className="text-brand-700 hover:underline">{r.name}</Link></li>)}
               <li><Link href="/fault-codes" className="text-brand-700 hover:underline">⚠️ {t("nav.faultCodes")}</Link></li>
+              <li><Link href="/repair-guides" className="text-brand-700 hover:underline">📘 {t("nav.repairGuides")}</Link></li>
               <li><Link href="/repair-case-studies" className="text-brand-700 hover:underline">📝 {t("nav.caseStudies")}</Link></li>
               <li><Link href="/track?repair=" className="text-brand-700 hover:underline">📍 {t("track.repairTitle")}</Link></li>
               <li><Link href="/repair-partners" className="text-brand-700 hover:underline">🤝 {t("nav.partners")}</Link></li>

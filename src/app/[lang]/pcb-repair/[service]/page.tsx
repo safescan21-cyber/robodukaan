@@ -8,6 +8,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { getT } from "@/i18n/server";
 import { REPAIR_SERVICES, getRepairService } from "@/lib/seo-content";
 import { DRIVE_BRANDS } from "@/lib/fault-codes";
+import { guidesForService } from "@/lib/repair-guides";
 import { STATES } from "@/lib/locations";
 import { RepairPrices, RepairPromise } from "@/components/RepairPromise";
 import { getCaseStudies } from "@/lib/data";
@@ -95,6 +96,15 @@ async function Service({ params }: Pick<PageProps<"/[lang]/pcb-repair/[service]"
         {s.prices?.length ? <RepairPrices service={s} /> : null}
         <RepairPromise className={s.prices?.length ? "" : "md:col-span-2"} />
       </div>
+
+      {guidesForService(s.slug).length > 0 && (
+        <section className="mt-6 rounded-md bg-white p-5 ring-1 ring-slate-200">
+          <h2 className="text-lg font-bold">Check it yourself first</h2>
+          <ul className="mt-2 space-y-1 text-sm">
+            {guidesForService(s.slug).map((g) => <li key={g.slug}>📘 <Link href={`/repair-guides/${g.slug}`} className="text-brand-700 hover:underline">{g.title}</Link></li>)}
+          </ul>
+        </section>
+      )}
 
       {cases.length > 0 && (
         <section className="mt-6 rounded-md bg-white p-5 ring-1 ring-slate-200">
