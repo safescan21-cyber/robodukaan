@@ -38,7 +38,8 @@ export default function ServerMovePage() {
 
   async function start(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const f = new FormData(e.currentTarget);
+    const form = e.currentTarget;   // React clears e.currentTarget after the first await
+    const f = new FormData(form);
     setBusy(true); setMsg(null); setError(null);
     try {
       await call("POST", {
@@ -49,7 +50,7 @@ export default function ServerMovePage() {
         s3_region: String(f.get("s3_region") ?? ""),
         night: f.get("night") === "on",
       });
-      e.currentTarget?.reset();
+      form.reset();   // don't leave the password and keys on screen
       setMsg("Saved. The server starts the move within 5 minutes – progress appears below. You'll also get an email at the end.");
       load();
     } catch (err) { setError(err instanceof Error ? err.message : String(err)); }
