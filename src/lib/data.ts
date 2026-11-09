@@ -7,7 +7,7 @@ import type { Banner, CaseStudy, Category, Product } from "./types";
 
 const PRODUCT_FIELDS = "*, category:categories(*)";
 const CARD_FIELDS =
-  "id, slug, sku, name, brand, category_id, short_description, price, mrp, stock, image_url, images, rating_avg, rating_count, sold_count, is_featured, is_active, created_at, category:categories(slug, name, icon)";
+  "id, slug, sku, name, brand, category_id, short_description, price, mrp, price_tiers, stock, image_url, images, rating_avg, rating_count, sold_count, is_featured, is_active, created_at, category:categories(slug, name, icon)";
 
 function normalize(rows: unknown[] | null): Product[] {
   return ((rows ?? []) as Product[]).map((p) => ({

@@ -70,6 +70,7 @@ export async function Header() {
             {([
               ["/products", t("nav.shop")],
               ["/products?new=1", t("nav.newArrivals")],
+              ["/quick-order", t("nav.quickOrder"), "hidden lg:block"],
               ["/bulk-quote", t("nav.bulkQuote")],
               ["/fault-codes", t("nav.faultCodes")],
               ["/repair-case-studies", t("nav.caseStudies"), "hidden xl:block"],

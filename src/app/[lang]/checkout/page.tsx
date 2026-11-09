@@ -10,6 +10,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { postAsUser } from "@/lib/api-client";
 import { getSupabase } from "@/lib/supabase-browser";
 import { formatINR, GST_RATE, gstFor, shippingFor } from "@/lib/format";
+import { unitPrice } from "@/lib/pricing";
 import { INDIAN_STATES } from "@/lib/constants";
 import type { Address } from "@/lib/types";
 
@@ -176,7 +177,7 @@ function Checkout() {
             {items.map((i) => (
               <li key={i.productId} className="flex justify-between gap-3">
                 <span className="text-slate-700">{i.name} <span className="font-semibold">× {i.quantity}</span></span>
-                <span className="shrink-0">{formatINR(i.price * i.quantity)}</span>
+                <span className="shrink-0">{formatINR(unitPrice(i.price, i.tiers, i.quantity) * i.quantity)}</span>
               </li>
             ))}
           </ul>

@@ -22,6 +22,7 @@ const MAIN = [
   ["/pcb-repair", "nav.pcbRepairService"],
   ["/careers", "nav.careers"],
   ["/locations", "nav.areas"],
+  ["/quick-order", "nav.quickOrder"],
   ["/bulk-quote", "nav.bulkQuote"],
   ["/replacement-finder", "nav.finder"],
   ["/fault-codes", "nav.faultCodes"],

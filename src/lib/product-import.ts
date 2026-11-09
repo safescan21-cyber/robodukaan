@@ -1,9 +1,11 @@
 // Bulk product upload (admin → Products → Bulk upload): reads a CSV saved from Excel / Google Sheets,
 // checks every row and turns it into product records. Pure functions – no network – so they are easy to test.
 import { slugify } from "./format";
+import { parseTiers, tiersText } from "./pricing";
+export { tiersText };
 
 export const IMPORT_COLUMNS = [
-  "sku", "name", "brand", "category", "price", "mrp", "stock", "short_description", "description",
+  "sku", "name", "brand", "category", "price", "mrp", "price_tiers", "stock", "short_description", "description",
   "specs", "equivalents", "hsn_code", "bis_number", "country_of_origin", "manufacturer", "warranty_months", "new_arrival", "ready_to_dispatch", "active", "photos",
 ] as const;
 type Column = (typeof IMPORT_COLUMNS)[number];
@@ -18,6 +20,7 @@ const ALIASES: Record<string, Column> = {
   category_slug: "category", category_name: "category",
   selling_price: "price", rate: "price", "price_(₹)": "price", price_inr: "price",
   quantity: "stock", qty: "stock",
+  bulk_price: "price_tiers", bulk_prices: "price_tiers", price_breaks: "price_tiers", tiers: "price_tiers",
   short_description_: "short_description", summary: "short_description",
   specifications: "specs", specification: "specs",
   replaces: "equivalents", replaces_part_numbers: "equivalents",
@@ -203,6 +206,14 @@ export function planImport(
       else values.hsn_code = hsn;
     }
     if (has("bis_number")) values.bis_number = get("bis_number").toUpperCase().slice(0, 40);
+    if (has("price_tiers")) {
+      const tiers = parseTiers(get("price_tiers"));
+      const base = Number(values.price ?? NaN);
+      if (typeof tiers === "string") err(`Bulk price breaks: ${tiers}`);
+      else if (tiers.length > 5) err("Bulk price breaks: up to 5");
+      else if (tiers.some((t) => t.min_qty < 2 || (Number.isFinite(base) && t.price >= base))) err("Bulk price breaks: quantity 2+ and each price lower than the normal price");
+      else values.price_tiers = tiers.sort((a, b) => a.min_qty - b.min_qty);
+    }
     if (has("country_of_origin")) values.country_of_origin = get("country_of_origin").slice(0, 60);
     if (has("manufacturer")) values.manufacturer = get("manufacturer").slice(0, 300);
     for (const [col, field] of [["new_arrival", "is_new_arrival"], ["ready_to_dispatch", "ready_to_dispatch"], ["active", "is_active"]] as const) {
@@ -249,9 +260,9 @@ export function planImport(
 
 export const TEMPLATE_ROWS: string[][] = [
   [...IMPORT_COLUMNS],
-  ["MW-EDR-120-24", "Mean Well EDR-120-24 DIN-rail SMPS 24V 5A 120W", "Mean Well", "smps-power-supplies", "2150", "2600", "15",
+  ["MW-EDR-120-24", "Mean Well EDR-120-24 DIN-rail SMPS 24V 5A 120W", "Mean Well", "smps-power-supplies", "2150", "2600", "10:2050; 25:1990", "15",
     "Genuine Mean Well 24 V 5 A DIN-rail power supply", "Industrial DIN-rail SMPS for control panels.",
     "Output: 24 V DC; Current: 5 A; Power: 120 W; Input: 88–264 V AC", "Omron S8VK-G12024", "85044090", "R-41000000", "Taiwan", "Mean Well Enterprises, New Taipei, Taiwan", "12", "yes", "yes", "yes", "MW-EDR-120-24.jpg"],
-  ["SSR-40DA", "40A solid state relay SSR-40DA (3–32 V DC control)", "Fotek", "relays-power-components", "320", "", "50",
+  ["SSR-40DA", "40A solid state relay SSR-40DA (3–32 V DC control)", "Fotek", "relays-power-components", "320", "", "", "50",
     "", "", "Load: 24–380 V AC; Current: 40 A; Control: 3–32 V DC", "", "85364900", "", "", "", "6", "no", "yes", "yes", ""],
 ];

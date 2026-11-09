@@ -13,7 +13,7 @@ export function AddToCartButton({
   buyNow = false,
   compact = false,
 }: {
-  product: Pick<Product, "id" | "slug" | "name" | "price" | "stock" | "image_url" | "images" | "category">;
+  product: Pick<Product, "id" | "slug" | "name" | "price" | "stock" | "image_url" | "images" | "category" | "price_tiers">;
   withQuantity?: boolean;
   buyNow?: boolean;
   compact?: boolean;
@@ -36,6 +36,7 @@ export function AddToCartButton({
         icon: product.category?.icon ?? "chip",
         imageUrl: productImage(product),
         stock: product.stock,
+        ...(product.price_tiers?.length ? { tiers: product.price_tiers } : {}),
       },
       quantity,
     );

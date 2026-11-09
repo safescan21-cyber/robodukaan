@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { getSupabase } from "@/lib/supabase-browser";
 import { DOC_ACCEPT, uploadDocument, adminButton, adminField, revalidateCatalog, uploadImage, uploadVideo } from "@/lib/admin";
 import { slugify } from "@/lib/format";
+import { parseTiers, tiersText, type PriceTier } from "@/lib/pricing";
 import type { Category, Faq, Product, ProductDocument } from "@/lib/types";
 
 type Row = { k: string; v: string };
@@ -86,6 +87,13 @@ export function ProductForm({ product }: { product?: Product }) {
     const price = num("price") ?? 0;
     const mrp = num("mrp");
     if (mrp != null && mrp < price) return setError("MRP can't be lower than the selling price.");
+    // Bulk price breaks: only sent when used, so saving still works before migration 023.
+    const tiersRaw = String(f.get("price_tiers") ?? "").trim();
+    const parsed = tiersRaw ? parseTiers(tiersRaw) : [];
+    if (typeof parsed === "string") return setError(`Bulk price breaks: ${parsed}`);
+    if (parsed.some((tier) => tier.min_qty < 2 || tier.price >= price)) return setError("Bulk price breaks: quantity must be 2 or more and each price lower than the normal price.");
+    if (parsed.length > 5) return setError("Bulk price breaks: up to 5.");
+    const tiersPatch: { price_tiers?: PriceTier[] } = parsed.length || product?.price_tiers?.length ? { price_tiers: [...parsed].sort((a, b) => a.min_qty - b.min_qty) } : {};
     const values = {
       name: name.trim(),
       slug: slugify(slug || name),
@@ -99,6 +107,7 @@ export function ProductForm({ product }: { product?: Product }) {
       stock: num("stock") ?? 0,
       warranty_months: num("warranty_months") ?? 0,
       hsn_code: String(f.get("hsn_code") ?? "").trim() || null,
+      ...tiersPatch,
       ...originPatch(String(f.get("manufacturer") ?? "").trim(), String(f.get("country_of_origin") ?? "").trim(), product),
       ...bisPatch(String(f.get("bis_number") ?? "").trim().toUpperCase(), product?.bis_number),
       // Only sent when used, so saving still works before migration 009 adds the column.
@@ -262,6 +271,9 @@ export function ProductForm({ product }: { product?: Product }) {
           <div className="grid grid-cols-2 gap-3">
             <label className="block text-sm font-medium">Price excl. GST (₹) *<input name="price" type="number" min={0} step="0.01" required defaultValue={product?.price} className={adminField} /></label>
             <label className="block text-sm font-medium">MRP (₹)<input name="mrp" type="number" min={0} step="0.01" defaultValue={product?.mrp ?? ""} className={adminField} /></label>
+            <label className="col-span-2 block text-sm font-medium">Bulk price breaks <span className="font-normal text-slate-500">(optional – quantity:price excl. GST, e.g. <code>10:2050; 25:1990</code> = 10+ pcs ₹2,050 each, 25+ pcs ₹1,990 each)</span>
+              <input name="price_tiers" defaultValue={tiersText(product?.price_tiers)} placeholder="10:2050; 25:1990" className={adminField} />
+            </label>
             <label className="block text-sm font-medium">Stock *<input name="stock" type="number" min={0} required defaultValue={product?.stock ?? 0} className={adminField} /></label>
             <label className="block text-sm font-medium">Warranty (months)<input name="warranty_months" type="number" min={0} defaultValue={product?.warranty_months ?? 0} className={adminField} /></label>
             <label className="col-span-2 block text-sm font-medium">HSN code<input name="hsn_code" defaultValue={product?.hsn_code ?? ""} placeholder="blank = use the category’s HSN" className={adminField} /></label>

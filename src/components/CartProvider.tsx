@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { CartItem } from "@/lib/types";
+import { unitPrice } from "@/lib/pricing";
 
 type CartContextValue = {
   items: CartItem[];
@@ -105,7 +106,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       items,
       ready,
       count: items.reduce((n, i) => n + i.quantity, 0),
-      subtotal: items.reduce((n, i) => n + i.quantity * i.price, 0),
+      subtotal: items.reduce((n, i) => n + i.quantity * unitPrice(i.price, i.tiers, i.quantity), 0),
       add,
       setQuantity,
       remove,

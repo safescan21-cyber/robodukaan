@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Link from "@/i18n/client";
 import { getProduct, getRelatedProducts } from "@/lib/data";
+import { validTiers } from "@/lib/pricing";
 import { discountPercent, formatINR, FREE_SHIPPING_FROM, GST_RATE, gstFor, productImage, shippingFor } from "@/lib/format";
 import { JsonLd } from "@/components/JsonLd";
 
@@ -57,6 +58,7 @@ async function ProductDetail({ params }: Pick<PageProps<"/[lang]/products/[slug]
   if (!product) notFound();
   const related = await getRelatedProducts(product, 10);
   const off = discountPercent(product.price, product.mrp);
+  const tiers = validTiers(product.price_tiers, product.price);
   const { t } = await getT();
   const specs = Object.entries(product.specs ?? {});
   const images = [...product.images, ...(product.image_url && !product.images.includes(product.image_url) ? [product.image_url] : [])];
@@ -222,6 +224,23 @@ async function ProductDetail({ params }: Pick<PageProps<"/[lang]/products/[slug]
               {t("product.exclGst")} · <span className="font-semibold text-slate-700">{formatINR(product.price + gstFor(product.price))}</span> {t("product.inclGst", { rate: GST_RATE })}
             </span>
           </div>
+
+          {tiers.length > 0 && (
+            <div className="mt-4 overflow-hidden rounded-md ring-1 ring-emerald-200">
+              <p className="bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-900">💰 {t("tiers.title")}</p>
+              <table className="w-full text-sm">
+                <tbody>
+                  {[{ min_qty: 1, price: product.price }, ...tiers].map((tier, i, all) => (
+                    <tr key={tier.min_qty} className="border-t border-emerald-100">
+                      <td className="px-3 py-1.5 text-slate-700">{all[i + 1] ? t("tiers.range", { from: tier.min_qty, to: all[i + 1].min_qty - 1 }) : t("tiers.plus", { from: tier.min_qty })}</td>
+                      <td className="px-3 py-1.5 text-end font-semibold">{formatINR(tier.price)} <span className="text-xs font-normal text-slate-500">{t("tiers.each")}</span></td>
+                      <td className="w-20 px-3 py-1.5 text-end text-xs font-semibold text-emerald-700">{i > 0 ? t("tiers.save", { pct: Math.round((1 - tier.price / product.price) * 100) }) : ""}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
           {product.short_description && <p className="mt-4 text-slate-700">{product.short_description}</p>}
           {product.equivalents && (

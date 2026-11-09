@@ -57,6 +57,7 @@ export function MobileMenu({ categories }: { categories: Category[] }) {
               <li><Link href="/pcb-repair" className="block px-4 py-2.5 font-semibold text-accent-700 hover:bg-brand-50">🔧 {t("nav.pcbRepairService")}</Link></li>
               <li><Link href="/products?new=1" className="block px-4 py-2.5 hover:bg-brand-50">{t("nav.newArrivals")}</Link></li>
               <li><Link href="/products?sort=best-selling" className="block px-4 py-2.5 hover:bg-brand-50">{t("nav.bestSellers")}</Link></li>
+              <li><Link href="/quick-order" className="block px-4 py-2.5 hover:bg-brand-50">{t("nav.quickOrder")}</Link></li>
               <li><Link href="/bulk-quote" className="block px-4 py-2.5 hover:bg-brand-50">{t("nav.bulkQuote")}</Link></li>
               <li><Link href="/fault-codes" className="block px-4 py-2.5 hover:bg-brand-50">{t("nav.faultCodes")}</Link></li>
               <li><Link href="/repair-guides" className="block px-4 py-2.5 hover:bg-brand-50">{t("nav.repairGuides")}</Link></li>

@@ -1,3 +1,4 @@
+import type { PriceTier } from "./pricing";
 export type Category = {
   id: number;
   slug: string;
@@ -35,6 +36,7 @@ export type Product = {
   hsn_code?: string | null;
   bis_number?: string | null;
   manufacturer?: string | null;
+  price_tiers?: PriceTier[];
   country_of_origin?: string | null;
   ready_to_dispatch: boolean;
   rating_avg: number;
@@ -180,6 +182,7 @@ export type CartItem = {
   imageUrl: string | null;
   stock: number;
   quantity: number;
+  tiers?: PriceTier[]; // quantity price breaks, see lib/pricing.ts
 };
 
 export type RepairStatus =

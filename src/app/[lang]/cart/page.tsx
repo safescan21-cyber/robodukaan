@@ -6,6 +6,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { useI18n } from "@/i18n/client";
 import { ProductImage } from "@/components/ProductImage";
 import { CouponBox, useCoupon } from "@/components/CouponBox";
+import { nextTier, unitPrice } from "@/lib/pricing";
 import { formatINR, FREE_SHIPPING_FROM, GST_RATE, gstFor, shippingFor } from "@/lib/format";
 
 export default function CartPage() {
@@ -49,13 +50,22 @@ export default function CartPage() {
                   <Link href={`/products/${item.slug}`} className="text-sm font-medium hover:text-brand-700">{item.name}</Link>
                   <button onClick={() => remove(item.productId)} className="mt-1 block text-xs text-red-600 hover:underline">✕ {t("common.remove")}</button>
                 </div>
-                <p className="col-start-2 text-sm md:col-start-auto">{formatINR(item.price)}</p>
+                <div className="col-start-2 text-sm md:col-start-auto">
+                  {unitPrice(item.price, item.tiers, item.quantity) < item.price ? (
+                    <><span className="font-semibold text-emerald-700">{formatINR(unitPrice(item.price, item.tiers, item.quantity))}</span> <s className="text-xs text-slate-400">{formatINR(item.price)}</s><span className="block text-xs text-emerald-700">{t("tiers.applied")}</span></>
+                  ) : formatINR(item.price)}
+                  {(() => { const n = nextTier(item.price, item.tiers, item.quantity); return n && n.min_qty <= item.stock ? (
+                    <button onClick={() => setQuantity(item.productId, n.min_qty)} className="block text-start text-xs text-brand-700 hover:underline">{t("tiers.addMore", { n: n.min_qty - item.quantity, price: formatINR(n.price) })}</button>
+                  ) : null; })()}
+                </div>
                 <div className="col-start-2 flex w-fit items-center rounded border border-slate-300 md:col-start-auto">
                   <button onClick={() => setQuantity(item.productId, item.quantity - 1)} className="px-3 py-1 hover:bg-slate-100" aria-label={`${t("cart.decrease")}: ${item.name}`}>−</button>
-                  <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
+                  <input type="number" inputMode="numeric" min={1} max={item.stock} value={item.quantity} aria-label={`${t("form.quantity")}: ${item.name}`}
+                    onChange={(e) => { const v = parseInt(e.target.value, 10); if (v > 0) setQuantity(item.productId, v); }}
+                    className="w-12 appearance-none border-0 bg-transparent p-0 text-center text-sm font-medium [-moz-appearance:textfield] focus:outline-none [&::-webkit-inner-spin-button]:appearance-none" />
                   <button onClick={() => setQuantity(item.productId, item.quantity + 1)} disabled={item.quantity >= item.stock} className="px-3 py-1 hover:bg-slate-100 disabled:opacity-40" aria-label={`${t("cart.increase")}: ${item.name}`}>+</button>
                 </div>
-                <p className="col-start-2 text-sm font-semibold md:col-start-auto md:text-end">{formatINR(item.price * item.quantity)}</p>
+                <p className="col-start-2 text-sm font-semibold md:col-start-auto md:text-end">{formatINR(unitPrice(item.price, item.tiers, item.quantity) * item.quantity)}</p>
               </li>
             ))}
           </ul>

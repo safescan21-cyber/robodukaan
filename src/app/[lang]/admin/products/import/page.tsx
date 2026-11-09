@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getSupabase } from "@/lib/supabase-browser";
 import { adminField, revalidateCatalog, uploadImage } from "@/lib/admin";
 import {
-  IMPORT_COLUMNS, TEMPLATE_ROWS, parseCsv, planImport, toCsv,
+  IMPORT_COLUMNS, TEMPLATE_ROWS, tiersText, parseCsv, planImport, toCsv,
   type ExistingProduct, type ImportCategory, type PlannedRow,
 } from "@/lib/product-import";
 
@@ -58,7 +58,7 @@ export default function ProductImportPage() {
     type Row = Record<string, unknown> & { category?: { slug: string } | null; specs?: Record<string, string> | null; images?: string[] | null };
     const yn = (v: unknown) => (v ? "yes" : "no");
     const rows = (data as Row[]).map((p) => [
-      p.sku as string, p.name as string, (p.brand as string) ?? "", p.category?.slug ?? "", p.price as number, (p.mrp as number) ?? "",
+      p.sku as string, p.name as string, (p.brand as string) ?? "", p.category?.slug ?? "", p.price as number, (p.mrp as number) ?? "", tiersText(p.price_tiers),
       p.stock as number, (p.short_description as string) ?? "", (p.description as string) ?? "",
       Object.entries(p.specs ?? {}).map(([k, v]) => `${k}: ${v}`).join("; "), (p.equivalents as string) ?? "",
       (p.hsn_code as string) ?? "", (p.bis_number as string) ?? "", (p.country_of_origin as string) ?? "", (p.manufacturer as string) ?? "", (p.warranty_months as number) ?? 0,
@@ -143,6 +143,7 @@ export default function ProductImportPage() {
             <li><b>category</b> – one of: {categories.map((c) => <code key={c.id} className="me-1 rounded bg-slate-100 px-1">{c.slug}</code>)}</li>
             <li><b>brand</b> – the real make (Mean Well, Delta, Omron …) helps customers find it on Google.</li>
             <li><b>specs</b> – <code>Voltage: 24 V; Current: 5 A</code> · <b>equivalents</b> – part numbers it replaces.</li>
+            <li><b>price_tiers</b> – bulk price breaks, e.g. <code>10:2050; 25:1990</code> (10+ pcs ₹2,050 each, 25+ ₹1,990 each, before GST).</li>
             <li><b>country_of_origin</b> – e.g. India, China, Taiwan · <b>manufacturer</b> – manufacturer / importer name &amp; address (shown on the product page).</li>
             <li><b>new_arrival</b>, <b>ready_to_dispatch</b>, <b>active</b> – yes / no. <b>warranty_months</b>, <b>stock</b> – whole numbers.</li>
             <li><b>photos</b> – photo file names (e.g. <code>MW-EDR-120-24.jpg</code>, several separated by commas, up to 10 per product) or web links. Leave empty and name the photos after the SKU (<code>SKU.jpg</code>, <code>SKU-2.jpg</code>) – they are matched automatically.</li>

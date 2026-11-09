@@ -6,6 +6,9 @@ import { Suspense } from "react";
 import { useParams } from "next/navigation";
 import { getSupabase } from "@/lib/supabase-browser";
 import { postAsUser } from "@/lib/api-client";
+import { useCart } from "@/components/CartProvider";
+import { useRouter } from "@/i18n/client";
+import { productImage } from "@/lib/format";
 import { useI18n } from "@/i18n/client";
 import { OrderDetail } from "@/components/OrderDetail";
 import type { Order } from "@/lib/types";
@@ -15,6 +18,27 @@ function MyOrderPage() {
   const { t } = useI18n();
   const [order, setOrder] = useState<Order | null | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
+  const { add } = useCart();
+  const router = useRouter();
+  const [buying, setBuying] = useState(false);
+
+  // Buy again: the same items at today's price and stock.
+  async function buyAgain(o: Order) {
+    const ids = (o.order_items ?? []).map((i) => i.product_id).filter((x): x is string => !!x);
+    if (!ids.length) return setError(t("orders.buyAgainNone"));
+    setBuying(true);
+    const { data } = await getSupabase().from("products")
+      .select("id, slug, name, price, price_tiers, stock, image_url, images, category:categories(icon)").in("id", ids).eq("is_active", true);
+    setBuying(false);
+    type P = { id: string; slug: string; name: string; price: number; price_tiers: { min_qty: number; price: number }[]; stock: number; image_url: string | null; images: string[]; category: { icon: string } | null };
+    const list = ((data ?? []) as unknown as P[]).filter((p) => p.stock > 0);
+    if (!list.length) return setError(t("orders.buyAgainNone"));
+    for (const p of list) {
+      const qty = (o.order_items ?? []).filter((i) => i.product_id === p.id).reduce((n, i) => n + i.quantity, 0);
+      add({ productId: p.id, slug: p.slug, name: p.name, price: p.price, icon: p.category?.icon ?? "chip", imageUrl: productImage(p), stock: p.stock, ...(p.price_tiers?.length ? { tiers: p.price_tiers } : {}) }, qty);
+    }
+    router.push("/cart");
+  }
 
   const load = useCallback(async () => {
     const { data } = await getSupabase().from("orders").select("*, order_items(*)").eq("id", id).maybeSingle();
@@ -38,6 +62,7 @@ function MyOrderPage() {
       <OrderDetail
         order={order}
         actions={<>
+          <button onClick={() => buyAgain(order)} disabled={buying} className="rounded-md bg-accent-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-accent-600 disabled:opacity-60">🔁 {t("orders.buyAgain")}</button>
           {order.invoice_number && (
             <Link href={`/account/orders/${order.id}/invoice`} className="rounded-md bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-brand-700">🧾 {t("invoice.view")}</Link>
           )}

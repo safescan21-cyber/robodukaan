@@ -17,7 +17,7 @@ function langs(path: string) {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [categories, products, jobs, cases] = await Promise.all([getCategories(), getAllProductLinks(), getOpenJobs(), getCaseStudies()]);
-  const pages = ["", "/products", "/pcb-repair", "/careers", "/about", "/contact", "/shipping-returns", "/privacy", "/track", "/site-map", "/locations", "/bulk-quote", "/replacement-finder", "/fault-codes", "/repair-partners", "/repair-case-studies", "/repair-guides"].map((p) => ({
+  const pages = ["", "/products", "/pcb-repair", "/careers", "/about", "/contact", "/shipping-returns", "/privacy", "/track", "/site-map", "/locations", "/bulk-quote", "/quick-order", "/replacement-finder", "/fault-codes", "/repair-partners", "/repair-case-studies", "/repair-guides"].map((p) => ({
     url: `${SITE}${p}`,
     changeFrequency: "weekly" as const,
     priority: p === "" ? 1 : p === "/pcb-repair" || p === "/products" ? 0.9 : 0.4,

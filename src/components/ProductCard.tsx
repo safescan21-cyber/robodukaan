@@ -1,3 +1,4 @@
+import { validTiers } from "@/lib/pricing";
 import Link from "@/i18n/client";
 import type { Product } from "@/lib/types";
 import { discountPercent, formatINR, productImage } from "@/lib/format";
@@ -41,6 +42,9 @@ export async function ProductCard({ product }: { product: Product }) {
           )}
         </div>
         <p className="text-[11px] text-slate-500">{t("product.plusGst")}</p>
+        {(() => { const best = validTiers(product.price_tiers, product.price).at(-1); return best ? (
+          <p className="text-[11px] font-semibold text-emerald-700">💰 {t("tiers.card", { qty: best.min_qty, price: formatINR(best.price) })}</p>
+        ) : null; })()}
         <div className="mt-auto pt-1">
           <AddToCartButton product={product} compact />
         </div>
