@@ -65,16 +65,20 @@ export async function Header() {
       <nav className="hidden bg-brand-700 text-white lg:block" aria-label={t("nav.main")}>
         <div className="mx-auto flex max-w-7xl items-stretch px-4">
           <CategoryMenu categories={categories} />
+          {/* Main sections – clear, stable links help Google pick sitelinks for pcbdukaan.com. */}
           <ul className="flex items-center text-sm font-medium">
-            <li><Link href="/products?new=1" className="block px-4 py-3 hover:bg-white/10">{t("nav.newArrivals")}</Link></li>
-            <li><Link href="/products?sort=best-selling" className="block px-4 py-3 hover:bg-white/10">{t("nav.bestSellers")}</Link></li>
-            {categories.slice(0, 3).map((c) => (
-              <li key={c.id}>
-                <Link href={`/category/${c.slug}`} className="block px-4 py-3 hover:bg-white/10">{c.name}</Link>
-              </li>
+            {([
+              ["/products", t("nav.shop")],
+              ["/products?new=1", t("nav.newArrivals")],
+              ["/bulk-quote", t("nav.bulkQuote")],
+              ["/fault-codes", t("nav.faultCodes")],
+              ["/repair-case-studies", t("nav.caseStudies"), "hidden xl:block"],
+              ["/contact", t("nav.contact")],
+            ] as [string, string, string?][]).map(([href, label, only]) => (
+              <li key={href} className={only}><Link href={href} className="block whitespace-nowrap px-3 py-3 hover:bg-white/10 xl:px-4">{label}</Link></li>
             ))}
           </ul>
-          <Link href="/pcb-repair" className="ml-auto flex items-center gap-1 bg-accent-500 px-4 text-sm font-semibold hover:bg-accent-600">
+          <Link href="/pcb-repair" className="ml-auto flex items-center gap-1 whitespace-nowrap bg-accent-500 px-4 text-sm font-semibold hover:bg-accent-600">
             🔧 {t("nav.pcbRepair")}
           </Link>
         </div>
