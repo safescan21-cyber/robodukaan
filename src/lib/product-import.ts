@@ -4,7 +4,7 @@ import { slugify } from "./format";
 
 export const IMPORT_COLUMNS = [
   "sku", "name", "brand", "category", "price", "mrp", "stock", "short_description", "description",
-  "specs", "equivalents", "hsn_code", "bis_number", "warranty_months", "new_arrival", "ready_to_dispatch", "active", "photos",
+  "specs", "equivalents", "hsn_code", "bis_number", "country_of_origin", "manufacturer", "warranty_months", "new_arrival", "ready_to_dispatch", "active", "photos",
 ] as const;
 type Column = (typeof IMPORT_COLUMNS)[number];
 
@@ -12,7 +12,9 @@ type Column = (typeof IMPORT_COLUMNS)[number];
 const ALIASES: Record<string, Column> = {
   product: "name", product_name: "name", title: "name", item: "name",
   part_number: "sku", part_no: "sku", model: "sku", code: "sku",
-  make: "brand", manufacturer: "brand",
+  make: "brand",
+  origin: "country_of_origin", country: "country_of_origin", made_in: "country_of_origin", coo: "country_of_origin",
+  manufacturer_name: "manufacturer", manufactured_by: "manufacturer", importer: "manufacturer", manufacturer_importer: "manufacturer",
   category_slug: "category", category_name: "category",
   selling_price: "price", rate: "price", "price_(₹)": "price", price_inr: "price",
   quantity: "stock", qty: "stock",
@@ -201,6 +203,8 @@ export function planImport(
       else values.hsn_code = hsn;
     }
     if (has("bis_number")) values.bis_number = get("bis_number").toUpperCase().slice(0, 40);
+    if (has("country_of_origin")) values.country_of_origin = get("country_of_origin").slice(0, 60);
+    if (has("manufacturer")) values.manufacturer = get("manufacturer").slice(0, 300);
     for (const [col, field] of [["new_arrival", "is_new_arrival"], ["ready_to_dispatch", "ready_to_dispatch"], ["active", "is_active"]] as const) {
       if (has(col)) {
         if (yes(get(col))) values[field] = true;
@@ -247,7 +251,7 @@ export const TEMPLATE_ROWS: string[][] = [
   [...IMPORT_COLUMNS],
   ["MW-EDR-120-24", "Mean Well EDR-120-24 DIN-rail SMPS 24V 5A 120W", "Mean Well", "smps-power-supplies", "2150", "2600", "15",
     "Genuine Mean Well 24 V 5 A DIN-rail power supply", "Industrial DIN-rail SMPS for control panels.",
-    "Output: 24 V DC; Current: 5 A; Power: 120 W; Input: 88–264 V AC", "Omron S8VK-G12024", "85044090", "R-41000000", "12", "yes", "yes", "yes", "MW-EDR-120-24.jpg"],
+    "Output: 24 V DC; Current: 5 A; Power: 120 W; Input: 88–264 V AC", "Omron S8VK-G12024", "85044090", "R-41000000", "Taiwan", "Mean Well Enterprises, New Taipei, Taiwan", "12", "yes", "yes", "yes", "MW-EDR-120-24.jpg"],
   ["SSR-40DA", "40A solid state relay SSR-40DA (3–32 V DC control)", "Fotek", "relays-power-components", "320", "", "50",
-    "", "", "Load: 24–380 V AC; Current: 40 A; Control: 3–32 V DC", "", "85364900", "", "6", "no", "yes", "yes", ""],
+    "", "", "Load: 24–380 V AC; Current: 40 A; Control: 3–32 V DC", "", "85364900", "", "", "", "6", "no", "yes", "yes", ""],
 ];

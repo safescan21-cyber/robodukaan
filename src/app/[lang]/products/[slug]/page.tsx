@@ -140,6 +140,8 @@ async function ProductDetail({ params }: Pick<PageProps<"/[lang]/products/[slug]
     ...(images.length ? { image: images } : {}),
     ...(product.brand ? { brand: { "@type": "Brand", name: product.brand } } : {}),
     ...(product.category ? { category: product.category.name } : {}),
+    ...(product.country_of_origin ? { countryOfOrigin: { "@type": "Country", name: product.country_of_origin } } : {}),
+    ...(product.manufacturer ? { manufacturer: { "@type": "Organization", name: product.manufacturer.split("\n")[0].trim() } } : {}),
     offers: {
       "@type": "Offer",
       url: `${SITE}/products/${product.slug}`,
@@ -235,6 +237,8 @@ async function ProductDetail({ params }: Pick<PageProps<"/[lang]/products/[slug]
             {product.stock > 0 && product.ready_to_dispatch && <li className="text-slate-600">⚡ {t("product.readyDispatch")}</li>}
             {product.warranty_months > 0 && <li className="text-slate-600">🛡 {t("product.warranty", { n: product.warranty_months })}</li>}
             {product.bis_number && <li className="text-slate-600">✅ {t("product.bis")}: <span className="font-mono">{product.bis_number}</span></li>}
+            {product.country_of_origin && <li className="text-slate-600">🌐 {t("product.origin")}: <span className="font-medium text-slate-800">{product.country_of_origin}</span></li>}
+            {product.manufacturer && <li className="whitespace-pre-line text-slate-600">🏭 {t("product.manufacturer")}: <span className="text-slate-800">{product.manufacturer}</span></li>}
           </ul>
 
           <div className="mt-5">
@@ -259,7 +263,8 @@ async function ProductDetail({ params }: Pick<PageProps<"/[lang]/products/[slug]
               </div>
             )}
             <QuoteForm productId={product.id} productName={product.name} />
-            <WhatsAppButton text={`${t("whatsapp.productMsg")} ${product.name} (${product.sku})`} />
+            <WhatsAppButton text={`${t("whatsapp.productMsg")} ${product.name} (${product.sku}) ${SITE}/products/${product.slug}`} />
+            <WhatsAppButton share text={`${product.name} – ${formatINR(priceWithGst)} ${SITE}/products/${product.slug}`} />
           </div>
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">

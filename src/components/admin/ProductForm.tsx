@@ -33,12 +33,15 @@ export function ProductForm({ product }: { product?: Product }) {
 
   async function onFiles(files: FileList | null) {
     if (!files?.length) return;
+    const room = MAX_IMAGES - images.length;
+    if (room <= 0) { setError(`A product can have up to ${MAX_IMAGES} photos. Remove one to add another.`); return; }
+    const picked = Array.from(files).slice(0, room);
     setUploading(true);
-    setError(null);
+    setError(files.length > room ? `Only ${room} more photo${room === 1 ? "" : "s"} added – a product can have up to ${MAX_IMAGES}.` : null);
     try {
       const urls: string[] = [];
-      for (const f of Array.from(files)) urls.push(await uploadImage(f));
-      setImages((cur) => [...cur, ...urls]);
+      for (const f of picked) urls.push(await uploadImage(f));
+      setImages((cur) => [...cur, ...urls].slice(0, MAX_IMAGES));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Upload failed");
     }
@@ -96,6 +99,7 @@ export function ProductForm({ product }: { product?: Product }) {
       stock: num("stock") ?? 0,
       warranty_months: num("warranty_months") ?? 0,
       hsn_code: String(f.get("hsn_code") ?? "").trim() || null,
+      ...originPatch(String(f.get("manufacturer") ?? "").trim(), String(f.get("country_of_origin") ?? "").trim(), product),
       ...bisPatch(String(f.get("bis_number") ?? "").trim().toUpperCase(), product?.bis_number),
       // Only sent when used, so saving still works before migration 009 adds the column.
       ...equivalentsPatch(String(f.get("equivalents") ?? "").trim(), product?.equivalents),
@@ -151,6 +155,13 @@ export function ProductForm({ product }: { product?: Product }) {
               </select>
             </label>
             <label className="block text-sm font-medium">Brand<input name="brand" defaultValue={product?.brand ?? ""} className={adminField} /></label>
+            <label className="block text-sm font-medium">Country of origin
+              <input name="country_of_origin" list="origin-countries" defaultValue={product?.country_of_origin ?? ""} maxLength={60} placeholder="e.g. India, China, Japan" className={adminField} />
+              <datalist id="origin-countries">{ORIGIN_COUNTRIES.map((c) => <option key={c} value={c} />)}</datalist>
+            </label>
+            <label className="block text-sm font-medium sm:col-span-2">Manufacturer / importer <span className="font-normal text-slate-500">(name &amp; address – shown on the product page, required by Legal Metrology rules for online sale)</span>
+              <textarea name="manufacturer" rows={2} defaultValue={product?.manufacturer ?? ""} maxLength={300} placeholder="e.g. Delta Electronics, Taoyuan, Taiwan – Imported &amp; sold by: PCBDukaan, your city" className={adminField} />
+            </label>
             <label className="block text-sm font-medium sm:col-span-2">Replaces part numbers <span className="font-normal text-slate-500">(other brands, comma separated – customers can search by these)</span>
               <input name="equivalents" defaultValue={product?.equivalents ?? ""} maxLength={500} placeholder="e.g. Omron E2E-X8MD1, Autonics PR18-8DN, Mean Well NDR-120-24" className={adminField} />
             </label>
@@ -160,7 +171,7 @@ export function ProductForm({ product }: { product?: Product }) {
         </section>
 
         <section className="space-y-4 rounded-md bg-white p-5 ring-1 ring-slate-200">
-          <h2 className="text-sm font-bold uppercase tracking-wide">Images</h2>
+          <h2 className="flex items-center justify-between text-sm font-bold uppercase tracking-wide">Photos <span className={`rounded-full px-2 py-0.5 text-xs normal-case ${images.length >= MAX_IMAGES ? "bg-amber-100 text-amber-800" : "bg-slate-100 text-slate-600"}`}>{images.length} / {MAX_IMAGES}</span></h2>
           <div className="flex flex-wrap gap-3">
             {images.map((src, i) => (
               <div key={src} className="relative h-24 w-24 overflow-hidden rounded border border-slate-200 bg-white">
@@ -173,12 +184,14 @@ export function ProductForm({ product }: { product?: Product }) {
                 </div>
               </div>
             ))}
-            <label className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed border-slate-300 text-center text-xs text-slate-500 hover:border-brand-600">
-              {uploading ? "Uploading…" : <><span className="text-2xl">＋</span>Add images</>}
-              <input type="file" accept="image/*" multiple className="sr-only" onChange={(e) => { onFiles(e.target.files); e.target.value = ""; }} />
-            </label>
+            {images.length < MAX_IMAGES && (
+              <label className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed border-slate-300 text-center text-xs text-slate-500 hover:border-brand-600">
+                {uploading ? "Uploading…" : <><span className="text-2xl">＋</span>Add photos</>}
+                <input type="file" accept="image/*" multiple disabled={uploading} className="sr-only" onChange={(e) => { onFiles(e.target.files); e.target.value = ""; }} />
+              </label>
+            )}
           </div>
-          <p className="text-xs text-slate-500">JPG, PNG or WebP under 5 MB. The first image is the main one.</p>
+          <p className="text-xs text-slate-500">Up to {MAX_IMAGES} photos – JPG, PNG or WebP under 5 MB (large photos are shrunk automatically). Select several at once. The first photo is the main one; use ◀ to change the order. Tip: front, back, both sides of the board, label / part number, connectors, and the product in use.</p>
         </section>
 
         <section className="space-y-4 rounded-md bg-white p-5 ring-1 ring-slate-200">
@@ -282,6 +295,17 @@ function equivalentsPatch(value: string, current: string | null | undefined): { 
 function newArrivalPatch(checked: boolean, current: boolean | undefined): { is_new_arrival?: boolean } {
   if (checked) return { is_new_arrival: true };
   return current ? { is_new_arrival: false } : {};
+}
+
+const MAX_IMAGES = 10;
+const ORIGIN_COUNTRIES = ["India", "China", "Taiwan", "Japan", "South Korea", "Germany", "USA", "Italy", "France", "United Kingdom", "Switzerland", "Singapore", "Malaysia", "Thailand", "Vietnam", "Czech Republic", "Denmark", "Sweden"];
+
+// Manufacturer / origin (migration 021) are only sent when used, so saving still works before the update.
+function originPatch(manufacturer: string, origin: string, product?: { manufacturer?: string | null; country_of_origin?: string | null } | null) {
+  const patch: { manufacturer?: string | null; country_of_origin?: string | null } = {};
+  if (manufacturer || product?.manufacturer) patch.manufacturer = manufacturer || null;
+  if (origin || product?.country_of_origin) patch.country_of_origin = origin || null;
+  return patch;
 }
 
 // Only include "bis_number" when it's used, so saving still works before migration 016 adds the column.

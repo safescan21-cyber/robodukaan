@@ -631,6 +631,14 @@ const dict: Record<string, string> = {
   "consent.marketing": "관심 있는 제품의 혜택과 소식을 이메일로 받겠습니다. 내 계정에서 언제든지 끌 수 있습니다.",
   "privacy.li4": "쇼핑몰 개선을 위해 방문자 수를 집계하고, 로그인한 경우 조회한 제품을 기록합니다(최대 180일 보관)",
   "privacy.li5": "‘혜택 이메일 받기’를 선택한 경우에만 혜택이나 제품 소식을 이메일로 보냅니다. 내 계정에서 언제든지 끌 수 있습니다",
+  "product.origin": "원산지",
+  "product.manufacturer": "제조사 / 수입사",
+  "whatsapp.share": "WhatsApp으로 공유",
+  "gallery.prev": "이전",
+  "gallery.next": "다음",
+  "gallery.open": "전체 화면으로 보기",
+  "gallery.close": "닫기",
+  "gallery.hint": "스와이프하거나 ← → 키 사용 · 클릭 / 두 번 탭하여 확대 · Esc로 닫기",
 };
 
 export default dict;

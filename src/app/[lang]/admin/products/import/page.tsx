@@ -61,7 +61,7 @@ export default function ProductImportPage() {
       p.sku as string, p.name as string, (p.brand as string) ?? "", p.category?.slug ?? "", p.price as number, (p.mrp as number) ?? "",
       p.stock as number, (p.short_description as string) ?? "", (p.description as string) ?? "",
       Object.entries(p.specs ?? {}).map(([k, v]) => `${k}: ${v}`).join("; "), (p.equivalents as string) ?? "",
-      (p.hsn_code as string) ?? "", (p.bis_number as string) ?? "", (p.warranty_months as number) ?? 0,
+      (p.hsn_code as string) ?? "", (p.bis_number as string) ?? "", (p.country_of_origin as string) ?? "", (p.manufacturer as string) ?? "", (p.warranty_months as number) ?? 0,
       yn(p.is_new_arrival), yn(p.ready_to_dispatch), yn(p.is_active), (p.images ?? []).join(" | "),
     ]);
     download(`pcbdukaan-products-${new Date().toISOString().slice(0, 10)}.csv`, toCsv([[...IMPORT_COLUMNS], ...rows]));
@@ -143,8 +143,9 @@ export default function ProductImportPage() {
             <li><b>category</b> – one of: {categories.map((c) => <code key={c.id} className="me-1 rounded bg-slate-100 px-1">{c.slug}</code>)}</li>
             <li><b>brand</b> – the real make (Mean Well, Delta, Omron …) helps customers find it on Google.</li>
             <li><b>specs</b> – <code>Voltage: 24 V; Current: 5 A</code> · <b>equivalents</b> – part numbers it replaces.</li>
+            <li><b>country_of_origin</b> – e.g. India, China, Taiwan · <b>manufacturer</b> – manufacturer / importer name &amp; address (shown on the product page).</li>
             <li><b>new_arrival</b>, <b>ready_to_dispatch</b>, <b>active</b> – yes / no. <b>warranty_months</b>, <b>stock</b> – whole numbers.</li>
-            <li><b>photos</b> – photo file names (e.g. <code>MW-EDR-120-24.jpg</code>, several separated by commas) or web links. Leave empty and name the photos after the SKU (<code>SKU.jpg</code>, <code>SKU-2.jpg</code>) – they are matched automatically.</li>
+            <li><b>photos</b> – photo file names (e.g. <code>MW-EDR-120-24.jpg</code>, several separated by commas, up to 10 per product) or web links. Leave empty and name the photos after the SKU (<code>SKU.jpg</code>, <code>SKU-2.jpg</code>) – they are matched automatically.</li>
             <li>Empty cells don&apos;t change existing products.</li>
           </ul>
         </details>

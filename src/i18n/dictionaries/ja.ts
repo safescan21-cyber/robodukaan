@@ -631,6 +631,14 @@ const dict: Record<string, string> = {
   "consent.marketing": "興味のある製品のお得な情報や更新をメールで受け取る。マイアカウントでいつでも停止できます。",
   "privacy.li4": "ショップ改善のため、訪問者数を集計し、ログイン中は閲覧した製品を記録します（最長180日間保存）",
   "privacy.li5": "「お得な情報をメールで受け取る」を選んだ場合のみ、お知らせをメールします。マイアカウントでいつでも停止できます",
+  "product.origin": "原産国",
+  "product.manufacturer": "製造元 / 輸入元",
+  "whatsapp.share": "WhatsAppで共有",
+  "gallery.prev": "前へ",
+  "gallery.next": "次へ",
+  "gallery.open": "全画面で表示",
+  "gallery.close": "閉じる",
+  "gallery.hint": "スワイプまたは ← → キー · クリック / ダブルタップで拡大 · Esc で閉じる",
 };
 
 export default dict;

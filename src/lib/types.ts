@@ -34,6 +34,8 @@ export type Product = {
   warranty_months: number;
   hsn_code?: string | null;
   bis_number?: string | null;
+  manufacturer?: string | null;
+  country_of_origin?: string | null;
   ready_to_dispatch: boolean;
   rating_avg: number;
   rating_count: number;

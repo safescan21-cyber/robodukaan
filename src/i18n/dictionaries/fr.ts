@@ -631,6 +631,14 @@ const dict: Record<string, string> = {
   "consent.marketing": "Envoyez-moi par e-mail des offres et nouveautés sur les produits qui m’intéressent. Je peux désactiver cela à tout moment dans Mon compte.",
   "privacy.li4": "Pour améliorer la boutique : nous comptons les visiteurs et, lorsque vous êtes connecté, enregistrons les produits consultés (conservés 180 jours au maximum)",
   "privacy.li5": "Nous vous envoyons des offres uniquement si vous avez coché « M’envoyer des offres » – vous pouvez le désactiver à tout moment dans Mon compte",
+  "product.origin": "Pays d’origine",
+  "product.manufacturer": "Fabricant / importateur",
+  "whatsapp.share": "Partager sur WhatsApp",
+  "gallery.prev": "Précédent",
+  "gallery.next": "Suivant",
+  "gallery.open": "Afficher en plein écran",
+  "gallery.close": "Fermer",
+  "gallery.hint": "Balayez ou utilisez ← → · clic / double appui pour zoomer · Échap pour fermer",
 };
 
 export default dict;

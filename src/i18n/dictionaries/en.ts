@@ -632,6 +632,14 @@ const dict: Record<string, string> = {
   "consent.marketing": "Email me offers and updates about products I’m interested in. I can switch this off any time in My account.",
   "privacy.li4": "To improve the shop: we count visitors and, when you are logged in, record which products you view (kept for up to 180 days)",
   "privacy.li5": "We email you offers or product updates only if you ticked “Email me offers” – you can switch it off any time in My account",
+  "product.origin": "Country of origin",
+  "product.manufacturer": "Manufacturer / importer",
+  "whatsapp.share": "Share on WhatsApp",
+  "gallery.prev": "Previous",
+  "gallery.next": "Next",
+  "gallery.open": "Open full screen",
+  "gallery.close": "Close",
+  "gallery.hint": "Swipe or use ← → keys · click / double-tap to zoom · Esc to close",
 };
 
 export default dict;

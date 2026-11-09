@@ -631,6 +631,14 @@ const dict: Record<string, string> = {
   "consent.marketing": "通过邮件向我发送感兴趣产品的优惠和更新。我可以随时在“我的账户”中关闭。",
   "privacy.li4": "为改进商店：我们统计访客数量，并在您登录时记录您查看的产品（最多保存 180 天）",
   "privacy.li5": "只有当您勾选“向我发送优惠邮件”时，我们才会发送优惠或产品更新——您可以随时在“我的账户”中关闭",
+  "product.origin": "原产国",
+  "product.manufacturer": "制造商 / 进口商",
+  "whatsapp.share": "分享到 WhatsApp",
+  "gallery.prev": "上一张",
+  "gallery.next": "下一张",
+  "gallery.open": "全屏查看",
+  "gallery.close": "关闭",
+  "gallery.hint": "滑动或使用 ← → 键 · 点击 / 双击放大 · 按 Esc 关闭",
 };
 
 export default dict;
