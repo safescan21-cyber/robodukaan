@@ -13,8 +13,11 @@ export default function AdminCustomersPage() {
   const [q, setQ] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
+  const [only, setOnly] = useState<"all" | "admin" | "blocked">("all");
   const PAGE = 25;
-  const shown = people?.slice(page * PAGE, page * PAGE + PAGE);
+  const filtered = people?.filter((p) => only === "all" || (only === "admin" ? p.role === "admin" : p.is_blocked));
+  const shown = filtered?.slice(page * PAGE, page * PAGE + PAGE);
+  const count = (k: "admin" | "blocked") => people?.filter((p) => (k === "admin" ? p.role === "admin" : p.is_blocked)).length ?? 0;
 
   const load = useCallback(async () => {
     const { data, error } = await getSupabase().rpc("admin_customers", { p_search: q.trim() || null });
@@ -29,6 +32,13 @@ export default function AdminCustomersPage() {
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">Customers <span className="text-base font-normal text-slate-500">({people?.length ?? "…"})</span></h1>
+      <div className="flex flex-wrap gap-2">
+        {([["all", `All (${people?.length ?? 0})`], ["admin", `Admins (${count("admin")})`], ["blocked", `Blocked (${count("blocked")})`]] as const).map(([k, label]) => (
+          <button key={k} onClick={() => { setOnly(k); setPage(0); }}
+            className={`rounded-full px-3 py-1 text-sm ring-1 ${only === k ? "bg-brand-600 text-white ring-brand-600" : "bg-white ring-slate-300 hover:ring-brand-600"}`}>{label}</button>
+        ))}
+      </div>
+      <p className="text-xs text-slate-500">To add another admin: open the person (they must have registered on the website) → “Make admin”.</p>
       <input value={q} onChange={(e) => { setQ(e.target.value); setPage(0); }} placeholder="Search name, email, phone…" className={`${adminField} mt-0 max-w-md`} aria-label="Search customers" />
       {error && <p className="rounded bg-red-50 p-3 text-sm text-red-700">{error}</p>}
       <div className="overflow-x-auto rounded-md bg-white ring-1 ring-slate-200">
@@ -38,7 +48,7 @@ export default function AdminCustomersPage() {
           </thead>
           <tbody className="divide-y divide-slate-100">
             {people === null && <tr><td colSpan={8} className="p-4 text-slate-500">Loading…</td></tr>}
-            {people?.length === 0 && <tr><td colSpan={8} className="p-4 text-slate-500">No customers found.</td></tr>}
+            {filtered?.length === 0 && <tr><td colSpan={8} className="p-4 text-slate-500">No customers found.</td></tr>}
             {shown?.map((p) => (
               <tr key={p.id} className="hover:bg-slate-50">
                 <td className="px-4 py-3">
@@ -57,7 +67,7 @@ export default function AdminCustomersPage() {
           </tbody>
         </table>
       </div>
-      {people && <Pager page={page} pageSize={PAGE} total={people.length} onPage={setPage} />}
+      {filtered && <Pager page={page} pageSize={PAGE} total={filtered.length} onPage={setPage} />}
     </div>
   );
 }
