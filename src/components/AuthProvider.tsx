@@ -69,7 +69,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isAdmin: profile?.role === "admin",
       refreshProfile: () => loadProfile(session?.user.id),
       signOut: async () => {
-        await getSupabase().auth.signOut();
+        const supabase = getSupabase();
+        const { error } = await supabase.auth.signOut().catch((e: unknown) => ({ error: e }));
+        // Internet down or login server unreachable: still forget the login on this device.
+        if (error) await supabase.auth.signOut({ scope: "local" }).catch(() => {});
+        try {
+          for (const k of Object.keys(window.localStorage)) if (/^sb-.+-auth-token/.test(k)) window.localStorage.removeItem(k);
+        } catch {
+          /* storage unavailable */
+        }
+        setSession(null);
         setProfile(null);
       },
     }),
