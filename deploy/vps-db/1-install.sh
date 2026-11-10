@@ -103,29 +103,9 @@ else
   echo "Note: /etc/robodukaan/email.env not found – set up email first (deploy/set-email.sh) so login emails work."
 fi
 
-# Only listen on 127.0.0.1 – the database is never reachable from the internet.
-cat > docker-compose.pcbdukaan.yml <<YML
-# PCBDukaan: keep every Supabase port on 127.0.0.1 (nginx publishes the API with HTTPS).
-services:
-  api-gw:
-    ports: !override
-      - "127.0.0.1:$GW_PORT:8000/tcp"
-  supavisor:
-    ports: !override
-      - "127.0.0.1:$PG_PORT:5432"
-      - "127.0.0.1:$PG_TX_PORT:6543"
-  auth:
-    environment:
-      GOTRUE_MAILER_OTP_LENGTH: "6"
-      GOTRUE_RATE_LIMIT_EMAIL_SENT: "60"
-      GOTRUE_MAILER_SUBJECTS_CONFIRMATION: "{{ .Token }} is your PCBDukaan verification code"
-      GOTRUE_MAILER_SUBJECTS_MAGIC_LINK: "{{ .Token }} is your PCBDukaan login code"
-      GOTRUE_MAILER_SUBJECTS_RECOVERY: "Reset your PCBDukaan password"
-      GOTRUE_MAILER_TEMPLATES_CONFIRMATION: "$TEMPLATES_URL/confirmation.html"
-      GOTRUE_MAILER_TEMPLATES_MAGIC_LINK: "$TEMPLATES_URL/magic-link.html"
-      GOTRUE_MAILER_TEMPLATES_RECOVERY: "$TEMPLATES_URL/recovery.html"
-YML
-setenv COMPOSE_FILE "docker-compose.yml:docker-compose.pcbdukaan.yml"
+# Only listen on 127.0.0.1 – the database is never reachable from the internet; PCBDukaan login emails.
+GW_PORT=$GW_PORT PG_PORT=$PG_PORT PG_TX_PORT=$PG_TX_PORT \
+  bash "$(cd "$(dirname "$0")" && pwd)/write-override.sh" "$SB_DIR"
 
 bad=$(docker compose config --format json | python3 -c '
 import json, sys
@@ -144,6 +124,9 @@ for i in $(seq 1 60); do
 done
 [ "${code:-}" = 200 ] || die "Supabase did not start. Run: cd $SB_DIR && docker compose ps   and send me the output."
 echo "Supabase is running."
+# PCBDukaan login email layouts into the server's storage (the login service reads them from there).
+[ -f "$STATE" ] || printf 'SB_DIR=%s\n' "$SB_DIR" > "$STATE"
+APP_DIR="$(cd "$(dirname "$0")/../.." && pwd)" GW_PORT=$GW_PORT bash "$(cd "$(dirname "$0")" && pwd)/ensure-auth-email.sh" || true
 
 if [ "$SKIP_NGINX" != 1 ]; then
   say "Publishing https://$API_HOST through nginx"

@@ -120,6 +120,18 @@ def check_selfhost_db():
     return not bad and r.returncode == 0, ("all containers up" if not bad else "; ".join(bad)[:200])
 
 
+def check_auth_email():
+    if "api.pcbdukaan.com" not in DB_URL:
+        return None  # Supabase cloud sends the login emails
+    r = subprocess.run(["docker", "inspect", "supabase-auth", "--format", "{{range .Config.Env}}{{println .}}{{end}}"], capture_output=True, text=True)
+    ok = "PCBDukaan login code" in r.stdout and "storage:5000/object/public/email-templates" in r.stdout
+    try:
+        note = open(os.path.join(OUT_DIR, "auth-email.txt")).read().strip()
+    except OSError:
+        note = ""
+    return ok, ("sends a 6-digit code" if ok else "sends the default link email") + (f" ({note})" if note and not note.startswith("ok") else "")
+
+
 CHECKS = [
     ("Home page", check_page("/")),
     ("Products page", check_page("/products")),
@@ -143,6 +155,7 @@ CHECKS = [
     ("SSL pcbdukaan.com", check_cert("pcbdukaan.com")),
     ("SSL api.pcbdukaan.com", check_cert("api.pcbdukaan.com")),
     ("VPS database containers", check_selfhost_db),
+    ("Login emails (6-digit code)", check_auth_email),
 ]
 
 
