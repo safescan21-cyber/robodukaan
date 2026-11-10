@@ -50,6 +50,10 @@ const nonLatin = (s: string) => /[^\x00-\x7f]/.test(s);
 
 // The facts that match the customer's message best (custom answers first when they match equally).
 export function pickFacts(message: string, facts: Fact[], max = 3): Fact[] {
+  return scoreFacts(message, facts, max).map((x) => x.f);
+}
+
+export function scoreFacts(message: string, facts: Fact[], max = 3): { f: Fact; score: number }[] {
   const text = ` ${norm(message)} `;
   const words = new Set(text.split(/\s+/).filter((w) => w.length >= 3));
   return facts
@@ -68,8 +72,7 @@ export function pickFacts(message: string, facts: Fact[], max = 3): Fact[] {
     })
     .filter((x) => x.score >= 2)
     .sort((a, b) => b.score - a.score)
-    .slice(0, max)
-    .map((x) => x.f);
+    .slice(0, max);
 }
 
 // Admin answers → facts (keywords: the admin's own, plus the important words of the question).

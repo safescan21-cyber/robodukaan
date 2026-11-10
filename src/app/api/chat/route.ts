@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { STORE } from "@/lib/constants";
 import { clientIp } from "@/lib/client-ip";
 import { formatINR, productImage } from "@/lib/format";
-import { builtInFacts, customFacts, pickFacts, type Fact } from "@/lib/ai-knowledge";
+import { builtInFacts, customFacts, scoreFacts, type Fact } from "@/lib/ai-knowledge";
 import { rzpEnabled } from "@/lib/razorpay";
 
 // Website chat assistant. Answers with a small AI model running on this server
@@ -148,10 +148,10 @@ export async function POST(request: Request) {
 
   // Search with the last two customer messages so follow-ups keep context.
   const userTexts = messages.filter((m) => m.role === "user").slice(-2).map((m) => m.content).join(" ");
-  const [{ products, categories }, facts] = await Promise.all([
+  const [{ products, categories }, facts, scored] = await Promise.all([
     findProducts(userTexts).catch(() => ({ products: [] as FoundProduct[], categories: [] as { name: string; slug: string }[] })),
-    allFacts().then((f) => pickFacts(lastUser.content, f, 3)).catch(() => [] as Fact[]),
-  ]);
+    allFacts().then((f) => scoreFacts(lastUser.content, f, 3)).catch(() => [] as { f: Fact; score: number }[]),
+  ]).then(([found, scored]) => [found, scored.map((x) => x.f), scored] as const);
   // Remember the question (no personal data) so the admin can teach better answers.
   db().rpc("log_chat_question", { p_question: lastUser.content, p_products: products.length, p_knowledge: facts.length, p_mode: aiActive >= CHAT_MAX_AI ? "busy" : "ai" }).then(() => {}, () => {});
 
@@ -161,6 +161,13 @@ export async function POST(request: Request) {
     "X-Accel-Buffering": "no",
     "X-Chat-Products": encodeURIComponent(JSON.stringify(products.slice(0, 4))),
   };
+
+  // A clear match with one of the shop's own answers (Admin → AI assistant) and no product question:
+  // reply with that answer word for word, instantly – the small AI model can garble short facts.
+  const top = scored[0];
+  if (!replyLanguage && !products.length && top?.f.custom && top.score >= 3 && (scored.length === 1 || scored[1].score < top.score)) {
+    return new Response(top.f.text, { headers: { ...headers, "X-Chat-Mode": "faq" } });
+  }
 
   if (aiActive >= CHAT_MAX_AI) {
     return new Response(fallbackReply(products, categories, facts), { headers: { ...headers, "X-Chat-Mode": "busy" } });
