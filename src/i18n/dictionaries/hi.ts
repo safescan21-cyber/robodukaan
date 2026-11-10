@@ -684,6 +684,7 @@ const dict: Record<string, string> = {
   "pay.notDone": "आपका भुगतान पूरा नहीं हुआ। आपका ऑर्डर सेव है – ऑनलाइन भुगतान के लिए “अभी भुगतान करें” दबाएँ, या डिलीवरी पर नकद दें।",
   "pay.payNow": "अभी भुगतान करें",
   "pay.opening": "खुल रहा है…",
+  "invoice.downloadPdf": "PDF डाउनलोड करें",
 };
 
 export default dict;

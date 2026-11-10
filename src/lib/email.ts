@@ -3,6 +3,7 @@ import nodemailer from "nodemailer";
 import { formatINR, formatINR2 } from "./format";
 import { REPAIR_STATUS_LABEL, SELLER, STORE } from "./constants";
 import { invoiceTotals } from "./invoice";
+import { invoiceFileName, invoicePdf } from "./invoice-pdf";
 import { ORDER_STEPS, type OrderEvent } from "./order-events";
 import type { Job, JobApplication, Order, OrderItem, OrderStatus, PartnerApplication, QuoteRequest, RepairRequest, Vendor, VendorOrderView } from "./types";
 
@@ -35,7 +36,9 @@ export function isPlainEmail(value: string | null | undefined): value is string 
   return !!value && value.length <= 254 && PLAIN_EMAIL.test(value);
 }
 
-async function send(to: string, subject: string, html: string, replyTo?: string) {
+type Attachment = { filename: string; content: Buffer; contentType?: string };
+
+async function send(to: string, subject: string, html: string, replyTo?: string, attachments?: Attachment[]) {
   if (!isPlainEmail(to)) {
     console.warn(`[email] refused unusual address for "${subject}"`);
     return false;
@@ -54,6 +57,7 @@ async function send(to: string, subject: string, html: string, replyTo?: string)
       subject,
       html,
       replyTo,
+      ...(attachments?.length ? { attachments } : {}),
     });
     return true;
   } catch (e) {
@@ -171,12 +175,15 @@ ${tot.taxLines.map(([l, v]) => line(esc(l), formatINR2(v))).join("")}
 ${line(order.payment_status === "paid" ? "Total (paid)" : order.payment_method === "cod" ? "Total – pay on delivery" : "Total", formatINR2(tot.total), true)}
 </table>
 <p style="margin:12px 0 0;font-weight:600">Delivering to</p>${address(order)}
-<p style="font-size:13px;color:#64748b">Prices in ₹. Open the link below to print or save the full GST tax invoice as PDF. Questions? Just reply to this email.</p>`;
+<p style="font-size:13px;color:#64748b">Prices in ₹. Your GST tax invoice is attached as a PDF – you can also open it any time from your account (button below). Questions? Just reply to this email.</p>`;
   return send(
     order.email,
     `Order ${order.order_number} confirmed – Invoice ${order.invoice_number ?? ""}`.trim(),
     layout(`Order confirmed, ${order.customer_name.split(" ")[0]}!`, body, { label: "View / download invoice", href: `${SITE}/account/orders/${order.id}/invoice` }),
     adminEmail() || undefined,
+    await invoicePdf(order)
+      .then((content) => [{ filename: invoiceFileName(order), content, contentType: "application/pdf" }])
+      .catch((e) => { console.error("[email] invoice PDF failed:", e instanceof Error ? e.message : e); return undefined; }),
   );
 }
 

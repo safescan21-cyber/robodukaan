@@ -19,6 +19,8 @@ const securityHeaders = [
 const OTHER = "hi|ur|fr|ko|ja|zh|en|api|_next|email-templates";
 
 const nextConfig: NextConfig = {
+  // PDF invoices: pdfkit reads its own data files at run time, so it is loaded from node_modules as is.
+  serverExternalPackages: ["pdfkit"],
   cacheComponents: true,
   partialPrefetching: true,
   poweredByHeader: false,

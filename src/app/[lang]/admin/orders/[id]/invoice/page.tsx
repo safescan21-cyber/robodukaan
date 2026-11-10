@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { getSupabase } from "@/lib/supabase-browser";
 import { SELLER } from "@/lib/constants";
 import { InvoiceView } from "@/components/admin/InvoiceView";
+import { downloadInvoicePdf } from "@/lib/invoice-download";
 import type { Order } from "@/lib/types";
 
 function Invoice() {
@@ -55,6 +56,8 @@ function Invoice() {
           {!order.invoice_number && order.status !== "cancelled" && (
             <button onClick={issue} disabled={issuing} className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60">{issuing ? "Issuing…" : "🧾 Issue invoice number"}</button>
           )}
+          <button onClick={async () => { try { await downloadInvoicePdf(order.id, `Invoice-${(order.invoice_number ?? order.order_number).replace(/[^A-Za-z0-9-]+/g, "-")}.pdf`); } catch (e) { setError(e instanceof Error ? e.message : "PDF failed"); } }}
+            className="rounded-md px-4 py-2 text-sm font-semibold ring-1 ring-slate-300 hover:bg-slate-50">⬇ PDF</button>
           <button onClick={() => window.print()} className={`rounded-md px-4 py-2 text-sm font-semibold ${order.invoice_number ? "bg-brand-600 text-white hover:bg-brand-700" : "ring-1 ring-slate-300 hover:bg-slate-50"}`}>🖨️ {order.invoice_number ? "Print / Save as PDF" : "Print draft"}</button>
         </div>
       </div>
