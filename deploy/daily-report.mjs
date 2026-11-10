@@ -20,6 +20,11 @@ const SITE = (args.site || process.env.REPORT_SITE || "https://pcbdukaan.com").r
 const PUBLIC_SITE = "https://pcbdukaan.com";
 const STATE_FILE = process.env.REPORT_STATE || "/var/lib/robodukaan/report-state.json";
 const OLLAMA = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
+// Admin → Daily report saves these (report code, who gets it, on/off); the WhatsApp connection comes from
+// Admin → WhatsApp. Both live in the server's private settings folder.
+const SETTINGS_DIR = process.env.SETTINGS_DIR || "/var/lib/robodukaan-settings";
+const readJson = (f) => { try { return JSON.parse(readFileSync(join(SETTINGS_DIR, f), "utf8")); } catch { return {}; } };
+const REPORT = readJson("report.json");
 const MODEL = process.env.CHAT_MODEL || "qwen2.5:1.5b";
 
 // Settings from the app's .env.local (Supabase address and public key).
@@ -45,9 +50,9 @@ async function getSales() {
   if (args.fixture) return JSON.parse(readFileSync(args.fixture, "utf8"));
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const token = process.env.REPORT_TOKEN;
+  const token = process.env.REPORT_TOKEN || REPORT.token;
   if (!url || !key) throw new Error("Supabase address/key not found in .env.local");
-  if (!token) throw new Error("REPORT_TOKEN is not set – run: sudo bash deploy/set-report.sh");
+  if (!token) throw new Error("The report is not switched on yet – open Admin → Daily report and press Save");
   const res = await fetchWithTimeout(`${url}/rest/v1/rpc/daily_report`, {
     method: "POST",
     headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
@@ -228,6 +233,126 @@ function factsForAi(sales, seo) {
   return f.join("\n");
 }
 
+// ── PDF (attached to the email, sent on WhatsApp) ──────────────────────────────────────
+async function buildPdf({ sales, seo, ai, errors, dayText }) {
+  const require = createRequire(join(APP_DIR, "package.json"));
+  const PDFDocument = require("pdfkit");
+  const doc = new PDFDocument({ size: "A4", margin: 40, info: { Title: `PCBDukaan daily report ${dayText}` } });
+  const fontR = join(APP_DIR, "assets/fonts/DejaVuSans.ttf"), fontB = join(APP_DIR, "assets/fonts/DejaVuSans-Bold.ttf");
+  const fonts = existsSync(fontR) && existsSync(fontB);
+  if (fonts) { doc.registerFont("R", fontR); doc.registerFont("B", fontB); }
+  const R = fonts ? "R" : "Helvetica", B = fonts ? "B" : "Helvetica-Bold";
+  const money = (n) => (fonts ? inr(n) : inr(n).replace("₹", "Rs. "));
+  const chunks = []; doc.on("data", (c) => chunks.push(c));
+  const done = new Promise((r) => doc.on("end", () => r(Buffer.concat(chunks))));
+  const L = 40, W = 515;
+  const ensure = (h) => { if (doc.y + h > 790) doc.addPage(); };
+  const h2 = (t) => { ensure(40); doc.moveDown(0.8).font(B).fontSize(12.5).fillColor("#14306f").text(t, L, doc.y, { width: W }); doc.moveDown(0.3); };
+  const bullet = (t) => { ensure(18); doc.font(R).fontSize(9.5).fillColor("#0f172a").text(`•  ${t}`, L + 6, doc.y, { width: W - 6 }); doc.moveDown(0.15); };
+  const table = (head, rows, widths) => {
+    if (!rows.length) { doc.font(R).fontSize(9).fillColor("#64748b").text("None.", L, doc.y); return; }
+    const line = (cells, bold, fill) => {
+      doc.font(bold ? B : R).fontSize(8.5);
+      const h = Math.max(...cells.map((c, i) => doc.heightOfString(String(c), { width: widths[i] - 8 }))) + 8;
+      ensure(h); const y = doc.y; let x = L;
+      if (fill) doc.rect(L, y, W, h).fill(fill);
+      cells.forEach((c, i) => { doc.fillColor("#0f172a").font(bold ? B : R).fontSize(8.5).text(String(c), x + 4, y + 4, { width: widths[i] - 8 }); x += widths[i]; });
+      doc.rect(L, y, W, h).lineWidth(0.5).strokeColor("#cbd5e1").stroke();
+      doc.y = y + h; doc.x = L;
+    };
+    if (head) line(head, true, "#f1f5f9");
+    rows.forEach((r) => line(r, false));
+  };
+
+  doc.rect(0, 0, 595.28, 70).fill("#14306f");
+  doc.font(B).fontSize(20).fillColor("#ffffff").text("PCB", L, 22, { continued: true }).fillColor("#f97316").text("Dukaan", { continued: true }).fillColor("#ffffff").text("  daily report");
+  doc.font(R).fontSize(10).fillColor("#c7d6fb").text(dayText, L, 48);
+  doc.y = 85; doc.x = L;
+  if (errors.length) { doc.font(R).fontSize(9).fillColor("#991b1b").text(errors.join("\n"), L, doc.y, { width: W }); doc.moveDown(0.5); }
+  if (ai?.length) { h2("Summary (written by the AI – check the numbers below)"); ai.forEach(bullet); }
+
+  const S = sales?.sales;
+  if (S) {
+    const y = S.yesterday, w = S.last7, pw = S.prev7, m = S.month;
+    h2("Sales");
+    const boxes = [["Yesterday", money(y.revenue), `${y.orders} order${y.orders === 1 ? "" : "s"}${y.cancelled ? ` · ${y.cancelled} cancelled` : ""}`], ["Last 7 days", money(w.revenue), `${w.orders} orders · ${pct(Number(w.revenue), Number(pw.revenue))} vs week before`], ["This month", money(m.revenue), `${m.orders} orders · GST ${money(m.gst)}`]];
+    ensure(62); const by = doc.y;
+    boxes.forEach(([label, value, sub], i) => {
+      const x = L + i * 175;
+      doc.roundedRect(x, by, 165, 56, 6).fillAndStroke("#f8fafc", "#e2e8f0");
+      doc.font(R).fontSize(8.5).fillColor("#64748b").text(label, x + 8, by + 6, { width: 150 });
+      doc.font(B).fontSize(15).fillColor("#0f172a").text(value, x + 8, by + 18, { width: 150 });
+      doc.font(R).fontSize(7.5).fillColor("#64748b").text(sub, x + 8, by + 38, { width: 150 });
+    });
+    doc.y = by + 62; doc.x = L;
+    doc.font(R).fontSize(8).fillColor("#64748b").text(`Totals include ${18}% GST and exclude cancelled orders. Average order (7 days): ${w.orders ? money(w.revenue / w.orders) : "–"}. Discounts given (7 days): ${money(w.discounts)}.`, L, doc.y, { width: W });
+    const open = sales.open_orders || {};
+    h2("Orders to handle");
+    bullet(`Open orders: ${open.pending || 0} new · ${open.confirmed || 0} confirmed · ${open.packed || 0} packed`);
+    bullet(`Delivered but payment not marked as received: ${sales.unpaid_delivered}`);
+    if (sales.waiting_over_24h?.length) { doc.moveDown(0.3); table(["Waiting > 24 h", "Customer", "City", "Total", "Hours"], sales.waiting_over_24h.map((o) => [o.order, o.customer, o.city, money(o.total), o.hours]), [110, 150, 110, 85, 60]); }
+    h2("Best sellers (last 7 days)");
+    table(["Product", "SKU", "Qty", "Sales"], (sales.top_products || []).map((p) => [p.name, p.sku, p.qty, money(p.revenue)]), [260, 120, 50, 85]);
+    h2("Stock");
+    bullet(`${sales.catalog.active} products live · ${sales.catalog.out_of_stock} out of stock · ${sales.catalog.hidden} hidden · ${sales.catalog.no_photo} without a photo`);
+    if (sales.low_stock?.length) { doc.moveDown(0.3); table(["Low stock (3 or fewer)", "SKU", "Left"], sales.low_stock.map((p) => [p.name, p.sku, p.stock]), [300, 140, 75]); }
+    const rep = sales.repairs?.open || {};
+    h2("Customers, repairs, jobs");
+    bullet(`New customers: ${sales.customers.new_yesterday} yesterday · ${sales.customers.new_last7} in 7 days · ${sales.customers.total} total`);
+    bullet(`PCB repair requests: ${sales.repairs.new_yesterday} new yesterday · open: ${Object.entries(rep).map(([k, v]) => `${v} ${k.replace("_", " ")}`).join(", ") || "none"}`);
+    bullet(`Job applications: ${sales.jobs.applications_yesterday} yesterday · ${sales.jobs.unreviewed} not reviewed yet`);
+    bullet(`New product reviews yesterday: ${sales.reviews_yesterday}`);
+  }
+  if (seo) {
+    h2("Website health & SEO");
+    bullet(`Pages checked: ${seo.pages} · without problems: ${seo.ok}`);
+    bullet(`Sitemap: ${seo.sitemap ? "OK" : "not working"} · robots.txt: ${seo.robots ? "OK" : "check it"} · HTTPS certificate: ${seo.ssl == null ? "–" : `${seo.ssl} days left`}`);
+    bullet(`Languages: ${seo.languages.map((l) => `${l.lang} ${l.ok ? "OK" : "problem"}`).join(" · ")}`);
+    bullet(`Speed: typical page ${seo.medianMs != null ? `${(seo.medianMs / 1000).toFixed(2)} s` : "–"}`);
+    if (seo.problems.length) { doc.moveDown(0.3); table(["Page", "Problem"], seo.problems.slice(0, 20).map((r) => [r.url.replace(PUBLIC_SITE, "") || "/", r.problems.join(", ")]), [200, 315]); }
+  }
+  ensure(30); doc.moveDown(1).font(R).fontSize(7.5).fillColor("#94a3b8").text("Sent automatically every morning by your server · Admin → Daily report", L, doc.y, { width: W });
+  doc.end();
+  return done;
+}
+
+// ── WhatsApp (the PDF as a document) – uses the connection from Admin → WhatsApp ───────────
+async function sendWhatsApp(numbers, pdf, fileName, dayText, headline) {
+  const wa = readJson("whatsapp.json");
+  const token = process.env.WHATSAPP_TOKEN || wa.token, phoneId = process.env.WHATSAPP_PHONE_ID || wa.phoneId;
+  if (!numbers.length) return [];
+  if (!token || !phoneId) return numbers.map((to) => ({ to, ok: false, error: "WhatsApp is not connected (Admin → WhatsApp)" }));
+  const base = `${process.env.WHATSAPP_API_BASE || "https://graph.facebook.com"}/${process.env.WHATSAPP_API_VERSION || "v24.0"}/${phoneId}`;
+  const auth = { Authorization: `Bearer ${token}` };
+  const form = new FormData();
+  form.append("messaging_product", "whatsapp");
+  form.append("type", "application/pdf");
+  form.append("file", new Blob([pdf], { type: "application/pdf" }), fileName);
+  const up = await fetchWithTimeout(`${base}/media`, { method: "POST", headers: auth, body: form }, 60000).catch((e) => ({ ok: false, json: async () => ({ error: { message: e.message } }) }));
+  const media = await up.json().catch(() => ({}));
+  if (!up.ok || !media.id) return numbers.map((to) => ({ to, ok: false, error: `PDF upload failed: ${media.error?.message || "unknown"}` }));
+  const send = async (body) => {
+    const r = await fetchWithTimeout(`${base}/messages`, { method: "POST", headers: { ...auth, "Content-Type": "application/json" }, body: JSON.stringify(body) }, 30000);
+    const j = await r.json().catch(() => ({}));
+    return r.ok && j.messages?.[0]?.id ? null : (j.error?.error_user_msg || j.error?.message || `HTTP ${r.status}`);
+  };
+  const out = [];
+  for (const to of numbers) {
+    const viaTemplate = await send({
+      messaging_product: "whatsapp", to, type: "template",
+      template: { name: REPORT.waTemplate || "daily_report", language: { code: wa.lang || "en" }, components: [
+        { type: "header", parameters: [{ type: "document", document: { id: media.id, filename: fileName } }] },
+        { type: "body", parameters: [{ type: "text", text: dayText }, { type: "text", text: headline.replace(/[\n\t]+/g, " ").slice(0, 200) || "-" }] },
+      ] },
+    }).catch((e) => e.message);
+    if (!viaTemplate) { out.push({ to, ok: true }); continue; }
+    // Without the approved template, a plain document only arrives if you messaged the business number in the last 24 h.
+    const plain = await send({ messaging_product: "whatsapp", to, type: "document", document: { id: media.id, filename: fileName, caption: `PCBDukaan daily report – ${dayText}: ${headline}` } }).catch((e) => e.message);
+    out.push(plain ? { to, ok: false, error: `template: ${viaTemplate} · plain: ${plain}` } : { to, ok: true, note: "sent as a plain document (template not used)" });
+  }
+  return out;
+}
+
 async function main() {
   const errors = [];
   const [sales, seo] = await Promise.all([
@@ -242,17 +367,36 @@ async function main() {
   const y = sales?.sales?.yesterday;
   const subject = `PCBDukaan daily report – ${sales?.day ?? new Date().toISOString().slice(0, 10)}: ${y ? `${y.orders} order${y.orders === 1 ? "" : "s"}, ${inr(y.revenue)}` : "sales data unavailable"}${seo?.problems.length ? ` · ${seo.problems.length} SEO issue${seo.problems.length === 1 ? "" : "s"}` : ""}`;
 
+  const dayText = sales?.day ? new Date(`${sales.day}T12:00:00`).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" }) : new Date().toLocaleDateString("en-IN");
+  const headline = y ? `${y.orders} order${y.orders === 1 ? "" : "s"}, ${inr(y.revenue)} yesterday; ${sales.open_orders?.pending || 0} new orders to confirm` : "sales data unavailable";
+  const pdf = await buildPdf({ sales, seo, ai, errors, dayText }).catch((e) => { console.error("PDF failed:", e.message); return null; });
+  const fileName = `PCBDukaan-report-${sales?.day ?? new Date().toISOString().slice(0, 10)}.pdf`;
   if (args.out) writeFileSync(args.out, `<!doctype html><meta charset="utf-8"><title>${esc(subject)}</title>${html}`);
+  if (args.pdf && pdf) writeFileSync(args.pdf, pdf);
   console.log(subject);
   if (args["dry-run"]) return;
+  if (REPORT.enabled === false && !args.now) { console.log("Report is switched off in Admin → Daily report."); return; }
 
-  const to = process.env.REPORT_TO || process.env.ADMIN_EMAIL || process.env.SMTP_USER;
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS || !to) throw new Error("Email is not set up (run deploy/set-email.sh)");
-  const nodemailer = createRequire(join(APP_DIR, "package.json"))("nodemailer");
-  const port = Number(process.env.SMTP_PORT || 465);
-  await nodemailer.createTransport({ host: process.env.SMTP_HOST, port, secure: port === 465, auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } })
-    .sendMail({ from: process.env.MAIL_FROM || `PCBDukaan reports <${process.env.SMTP_USER}>`, to, subject, html });
-  console.log(`Sent to ${to}`);
+  const result = { at: new Date().toISOString(), subject, email: null, whatsapp: [] };
+  const toList = (REPORT.emails?.length ? REPORT.emails : [process.env.REPORT_TO || process.env.ADMIN_EMAIL || process.env.SMTP_USER]).filter(Boolean);
+  try {
+    if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS || !toList.length) throw new Error("Email is not set up on the server");
+    const nodemailer = createRequire(join(APP_DIR, "package.json"))("nodemailer");
+    const port = Number(process.env.SMTP_PORT || 465);
+    await nodemailer.createTransport({ host: process.env.SMTP_HOST, port, secure: port === 465, auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } })
+      .sendMail({ from: process.env.MAIL_FROM || `PCBDukaan reports <${process.env.SMTP_USER}>`, to: toList.join(", "), subject, html,
+        attachments: pdf ? [{ filename: fileName, content: pdf, contentType: "application/pdf" }] : [] });
+    result.email = { ok: true, to: toList };
+    console.log(`Emailed to ${toList.join(", ")}`);
+  } catch (e) {
+    result.email = { ok: false, error: e.message };
+    console.error(`Email failed: ${e.message}`);
+  }
+  if (pdf && REPORT.whatsapp?.length) {
+    result.whatsapp = await sendWhatsApp(REPORT.whatsapp, pdf, fileName, dayText, headline).catch((e) => [{ ok: false, error: e.message }]);
+    for (const w of result.whatsapp) console.log(`WhatsApp ${w.to}: ${w.ok ? "sent" : w.error}`);
+  }
+  try { writeFileSync(join(SETTINGS_DIR, "report-last.json"), JSON.stringify(result)); } catch { /* settings folder not writable here */ }
 
   try { mkdirSync(dirname(STATE_FILE), { recursive: true }); writeFileSync(STATE_FILE, JSON.stringify({ day: sales?.day, seoPages: seo?.pages })); } catch { /* not important */ }
 }

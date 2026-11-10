@@ -129,6 +129,15 @@ export default function WhatsAppSettingsPage() {
               <CopyBox label="Sample values {{1}} … {{4}}" text={UPDATE_SAMPLES.join("   ")} />
             </div>
           </li>
+          <li>
+            Optional – for the <b>daily business report PDF</b> on your own WhatsApp (Admin → Daily report): a template (category <b>Utility</b>) with header type <b>Document</b>:
+            <div className="mt-2 space-y-2">
+              <CopyBox label="Template name" text="daily_report" />
+              <CopyBox label="Header" text="Document (upload any small PDF as the sample)" />
+              <CopyBox label="Body" text="PCBDukaan daily report for {{1}}: {{2}}. The full report is attached as a PDF." />
+              <CopyBox label="Sample values {{1}} {{2}}" text="Mon, 10 Nov 2026   3 orders, ₹12,400 yesterday; 1 new order to confirm" />
+            </div>
+          </li>
           <li>Permanent token: <b>business.facebook.com → Settings → Users → System users</b> → Add (Admin) → <b>Assign assets</b> → your WhatsApp app (full control) → <b>Generate token</b>, expiry <b>Never</b>, tick <b>whatsapp_business_messaging</b> and <b>whatsapp_business_management</b>. Copy the token.</li>
           <li>Copy the <b>Phone number ID</b> from <b>WhatsApp → API Setup</b> (a long number, not your mobile number). Paste both below and press Save.</li>
         </ol>

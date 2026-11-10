@@ -46,6 +46,9 @@ install -d -m 700 -o "$APP_USER" -g "$APP_USER" /var/lib/robodukaan-settings
 # Self-hosted login service: keep sending PCBDukaan code emails (repairs its settings if they're missing).
 [ -f "$APP_DIR/deploy/vps-db/ensure-auth-email.sh" ] && bash "$APP_DIR/deploy/vps-db/ensure-auth-email.sh" || true
 
+# New database updates for the database on this server (after the move from Supabase cloud).
+[ -f "$APP_DIR/deploy/ensure-db-migrations.sh" ] && APP_DIR="$APP_DIR" bash "$APP_DIR/deploy/ensure-db-migrations.sh" || true
+
 # Speed settings in nginx for thousands of visitors (cache for pages, images and build files); tested and
 # undone automatically if anything fails; does nothing once applied.
 [ -f "$APP_DIR/deploy/ensure-performance.sh" ] && bash "$APP_DIR/deploy/ensure-performance.sh" || true
@@ -62,6 +65,8 @@ log "Updating ${current:0:7} -> ${latest:0:7}"
 build() { as_app "git reset -q --hard $1 && npm ci --no-audit --no-fund >/dev/null 2>&1 && NEXT_TELEMETRY_DISABLED=1 npm run build >/dev/null 2>&1"; }
 
 if build "$latest"; then
+  # Database updates that come with this version, before the new website starts.
+  [ -f "$APP_DIR/deploy/ensure-db-migrations.sh" ] && APP_DIR="$APP_DIR" bash "$APP_DIR/deploy/ensure-db-migrations.sh" || true
   systemctl restart robodukaan
   log "Updated to ${latest:0:7} and restarted"
 else
