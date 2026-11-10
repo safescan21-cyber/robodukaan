@@ -15,7 +15,8 @@ const securityHeaders = [
 // Pages live under app/[lang], so plain addresses are rewritten to /en internally.
 // (Done here, not in proxy.ts: a proxy rewrite behind nginx's X-Forwarded-Proto
 // made Next fetch itself over https on the plain-http port.)
-const OTHER = "hi|ur|fr|ko|ja|zh|en|api|_next";
+// Not rewritten to /en/…: other languages, API routes, Next.js files and folders in public/ (login email layouts).
+const OTHER = "hi|ur|fr|ko|ja|zh|en|api|_next|email-templates";
 
 const nextConfig: NextConfig = {
   cacheComponents: true,

@@ -126,6 +126,7 @@ CHECKS = [
     ("PCB repair page", check_page("/pcb-repair")),
     ("Repair guides", check_page("/repair-guides")),
     ("Sitemap", check_page("/sitemap.xml")),
+    ("Login email layout (code)", check_page("/email-templates/magic-link.html")),
     ("API: product search", check_api("GET", "/api/search?q=smps", None, 200, '"products"')),
     ("API: bulk quote", check_api("POST", "/api/quote", {"name": "Monitor", "phone": "1", "quantity": 1, "product_name": "x"}, 400, "mobile")),
     ("API: technician partner", check_api("POST", "/api/partner", {"name": "Monitor", "phone": "1", "city": "x"}, 400, "mobile")),
