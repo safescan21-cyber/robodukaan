@@ -176,12 +176,18 @@ NGINX
     die "nginx config test failed – removed the new site again so your websites keep working."
   fi
   systemctl reload nginx
-  if [ ! -d "/etc/letsencrypt/live/$API_HOST" ]; then
-    certbot --nginx -d "$API_HOST" --non-interactive --agree-tos --redirect --register-unsafely-without-email \
-      || die "SSL certificate failed. Check the DNS record for $API_HOST, then run this script again."
-  fi
-  code=$(curl -s -o /dev/null -w '%{http_code}' "https://$API_HOST/auth/v1/health" -H "apikey: $(getenv ANON_KEY)" || true)
-  [ "$code" = 200 ] || die "https://$API_HOST is not answering yet (code $code). Send me this message."
+  # The site file above is plain http, so always (re)attach the certificate: a new one on the first run,
+  # the existing one on later runs (--reinstall) – otherwise https would fall back to another site's certificate.
+  certbot --nginx -d "$API_HOST" --non-interactive --agree-tos --redirect --reinstall --register-unsafely-without-email \
+    || die "SSL certificate failed. Check the DNS record for $API_HOST, then run this script again."
+  code=000
+  for i in 1 2 3 4 5 6; do
+    code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "https://$API_HOST/auth/v1/health" -H "apikey: $(getenv ANON_KEY)" || true)
+    [ "$code" = 200 ] && break
+    sleep 10
+  done
+  [ "$code" = 200 ] || { curl -sv -o /dev/null --max-time 15 "https://$API_HOST/auth/v1/health" 2>&1 | grep -iE "subject:|SSL|error" | head -5 || true
+    die "https://$API_HOST is not answering yet (code $code). Send me this message."; }
   echo "https://$API_HOST works."
 fi
 
