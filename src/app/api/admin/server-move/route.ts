@@ -57,6 +57,17 @@ function encodePassword(url: string) {
   return `${m[1]}${m[2]}:${encodeURIComponent(pass)}@${m[4]}`;
 }
 
+// Supabase pooler logins need the user "postgres.<project-ref>" and, for this copy, session mode (port 5432).
+// Fix the two most common mistakes automatically: plain "postgres" as user, and the transaction port 6543.
+const PROJECT_REF = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").match(/\/\/([a-z0-9]{20})\.supabase\.co/)?.[1] ?? "cjslvfsrfjslpnyjrvhr";
+function fixPooler(url: string) {
+  const m = url.match(/^(postgres(?:ql)?:\/\/)([^:@/]+)(:[^@]*)?@([^@:/]+\.pooler\.supabase\.com):(\d+)(\/.*)$/);
+  if (!m) return url;
+  const user = m[2] === "postgres" ? `postgres.${PROJECT_REF}` : m[2];
+  const port = m[5] === "6543" ? "5432" : m[5];
+  return `${m[1]}${user}${m[3] ?? ""}@${m[4]}:${port}${m[6]}`;
+}
+
 const clean = (v: unknown, max: number) => (typeof v === "string" ? v.replace(/\s/g, "").slice(0, max) : "");
 
 export async function POST(request: Request) {
@@ -76,7 +87,7 @@ export async function POST(request: Request) {
     await fs.writeFile(`${DIR}/request.json`, JSON.stringify({ action: "cancel" }), { mode: 0o600 });
     return Response.json({ ok: true });
   }
-  const cloudUrl = encodePassword(clean(body.cloud_url, 500));
+  const cloudUrl = fixPooler(encodePassword(clean(body.cloud_url, 500)));
   const s3Key = clean(body.s3_key, 200);
   const s3Secret = clean(body.s3_secret, 300);
   if (!/^postgres(ql)?:\/\/[^@\s]+@[^\s:]+:\d+\/\S+$/.test(cloudUrl) || cloudUrl.includes("[YOUR-PASSWORD]")) {
