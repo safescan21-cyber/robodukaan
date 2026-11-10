@@ -685,6 +685,9 @@ const dict: Record<string, string> = {
   "pay.payNow": "지금 결제",
   "pay.opening": "여는 중…",
   "invoice.downloadPdf": "PDF 다운로드",
+  "chat.q5": "배송은 며칠 걸리나요?",
+  "chat.q6": "GST 인보이스를 발급하나요?",
+  "chat.q7": "반품 정책은 어떻게 되나요?",
 };
 
 export default dict;

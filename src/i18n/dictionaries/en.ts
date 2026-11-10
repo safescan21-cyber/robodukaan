@@ -686,6 +686,9 @@ const dict: Record<string, string> = {
   "pay.payNow": "Pay now",
   "pay.opening": "Opening…",
   "invoice.downloadPdf": "Download PDF",
+  "chat.q5": "How many days for delivery?",
+  "chat.q6": "Do you give a GST invoice?",
+  "chat.q7": "What is your return policy?",
 };
 
 export default dict;

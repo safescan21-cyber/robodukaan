@@ -13,21 +13,21 @@ export function builtInFacts(opts: { onlinePayment: boolean }): Fact[] {
     .map((s) => `${s.name}: ${s.prices!.map((p) => `${p.item} ${inr(p.from)}${p.to ? `–${inr(p.to)}` : "+"}`).join("; ")}`)
     .join(". ");
   return [
-    { topic: "Shipping & delivery", keywords: ["ship", "shipping", "delivery", "deliver", "courier", "dispatch", "days", "when", "arrive", "pin", "pincode", "free", "charge", "kab", "milega", "bhejo"],
+    { topic: "Shipping & delivery", keywords: ["ship", "shipping", "delivery", "deliver", "courier", "dispatch", "days", "when", "arrive", "pin", "pincode", "free", "charge", "kab", "milega", "bhejo", "डिलीवरी", "कितने दिन", "शिपिंग", "ڈیلیوری", "livraison", "expédition", "배송", "配送", "发货", "送料"],
       text: `Free shipping on orders of ${inr(FREE_SHIPPING_FROM)} or more; ${inr(SHIPPING_FEE)} below that. In-stock items marked "Ready to dispatch" ship within 24 hours on working days. Delivery usually takes 2–7 working days depending on the PIN code (check it on the product page). A courier tracking link is sent once the order ships; track it on /track.` },
-    { topic: "Order status & tracking", keywords: ["track", "tracking", "status", "where", "order", "awb", "shipped", "update", "kaha"],
+    { topic: "Order status & tracking", keywords: ["track", "tracking", "status", "where", "order", "awb", "shipped", "update", "kaha", "ऑर्डर", "ट्रैक", "آرڈر", "commande", "주문", "注文", "订单"],
       text: `Customers get email and WhatsApp updates when the order is confirmed (with the GST invoice PDF), packed, dispatched (courier and tracking number) and delivered. They can also check any order on /track with the order number and mobile number, or in My account → My orders.` },
-    { topic: "Payment", keywords: ["pay", "payment", "cod", "cash", "upi", "card", "online", "netbanking", "gpay", "phonepe", "paytm", "emi"],
+    { topic: "Payment", keywords: ["pay", "payment", "cod", "cash", "upi", "card", "online", "netbanking", "gpay", "phonepe", "paytm", "emi", "भुगतान", "कैश", "ادائیگی", "paiement", "결제", "支払", "付款"],
       text: `Cash on delivery is available across India.${opts.onlinePayment ? " Online payment (UPI, cards, net banking, wallets) is offered at checkout through Razorpay." : " Online payment is not available yet."} Prices on the site exclude GST; ${GST_RATE}% GST is added at checkout.` },
-    { topic: "GST invoice", keywords: ["gst", "gstin", "invoice", "bill", "tax", "input", "credit", "company", "business", "itc"],
+    { topic: "GST invoice", keywords: ["gst", "gstin", "invoice", "bill", "tax", "input", "credit", "company", "business", "itc", "जीएसटी", "बिल", "इनवॉइस", "انوائس", "facture", "인보이스", "請求書", "发票"],
       text: `Every order gets a GST tax invoice. Business buyers enter their company name and GSTIN at checkout to claim input tax credit. The invoice PDF is emailed when the order is confirmed and can be downloaded any time from My account → My orders → Invoice.` },
-    { topic: "Returns & replacement", keywords: ["return", "refund", "replace", "replacement", "damaged", "defective", "broken", "wrong", "faulty", "exchange", "warranty claim"],
+    { topic: "Returns & replacement", keywords: ["return", "refund", "replace", "replacement", "damaged", "defective", "broken", "wrong", "faulty", "exchange", "warranty claim", "वापसी", "रिटर्न", "बदल", "واپسی", "retour", "remboursement", "반품", "返品", "退货"],
       text: `If a product arrives damaged or defective, contact us within 7 days of delivery for a replacement. Keep the original packaging and share photos or a short video of the issue. Parts damaged by wrong wiring, soldering or over-voltage can't be replaced. Details: /shipping-returns.` },
     { topic: "Cancellation", keywords: ["cancel", "cancellation", "change order", "modify"],
       text: `An order can be cancelled from My account → My orders until it is packed. After that, contact us at ${STORE.email}.` },
-    { topic: "Warranty", keywords: ["warranty", "guarantee", "garanti", "months"],
+    { topic: "Warranty", keywords: ["warranty", "guarantee", "garanti", "months", "वारंटी", "گارنٹی", "garantie", "보증", "保証", "保修"],
       text: `Product warranty is shown on each product page (in months). Parts are tested before dispatch. PCB repairs come with a ${REPAIR_TERMS.warrantyMonths}-month repair warranty.` },
-    { topic: "PCB repair service", keywords: ["repair", "repairing", "fix", "faulty", "burnt", "dead", "not working", "kharab", "theek", "mrammat"],
+    { topic: "PCB repair service", keywords: ["repair", "repairing", "fix", "faulty", "burnt", "dead", "not working", "kharab", "theek", "mrammat", "मरम्मत", "रिपेयर", "خراب", "réparation", "수리", "修理", "维修"],
       text: `We repair industrial PCBs at component level: VFD/AC drives, SMPS, PLC, HMI, servo drives, inverter/UPS cards, machine control boards and weighing indicators. How it works: upload photos on /pcb-repair → free quote in 1–2 working days → no work without your approval → load-tested${REPAIR_TERMS.testVideo ? " with a test video before we ship it back" : ""} → ${REPAIR_TERMS.warrantyMonths}-month warranty. Track a repair on /track (Repair tab).` },
     { topic: "Repair prices", keywords: ["repair price", "repair cost", "repair charges", "repairing cost", "repair rate", "repair kitna", "repair charge"],
       text: `Typical repair prices (+ GST; the exact price comes in the free quote after the photo check): ${repairPrices}.` },
@@ -44,7 +44,9 @@ export function builtInFacts(opts: { onlinePayment: boolean }): Fact[] {
   ];
 }
 
-const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9ऀ-ॿ\s+-]/g, " ");
+// Letters of every language are kept (Hindi, Urdu, Chinese, Japanese, Korean …), punctuation removed.
+const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}\s+-]/gu, " ");
+const nonLatin = (s: string) => /[^\x00-\x7f]/.test(s);
 
 // The facts that match the customer's message best (custom answers first when they match equally).
 export function pickFacts(message: string, facts: Fact[], max = 3): Fact[] {
@@ -56,7 +58,11 @@ export function pickFacts(message: string, facts: Fact[], max = 3): Fact[] {
       for (const k of f.keywords) {
         const kw = norm(k).trim();
         if (!kw) continue;
-        if (kw.includes(" ") ? text.includes(` ${kw} `) || text.includes(kw) : words.has(kw) || (kw.length >= 4 && [...words].some((w) => w.startsWith(kw)))) score += kw.includes(" ") ? 3 : 2;
+        // Phrases and non-Latin words (Chinese/Japanese have no spaces) match anywhere in the message.
+        const hit = kw.includes(" ") || nonLatin(kw)
+          ? text.includes(kw)
+          : words.has(kw) || (kw.length >= 4 && [...words].some((w) => w.startsWith(kw)));
+        if (hit) score += kw.includes(" ") ? 3 : 2;
       }
       return { f, score: score + (f.custom && score > 0 ? 1 : 0) };
     })
@@ -68,7 +74,7 @@ export function pickFacts(message: string, facts: Fact[], max = 3): Fact[] {
 
 // Admin answers → facts (keywords: the admin's own, plus the important words of the question).
 export function customFacts(rows: { question: string; answer: string; keywords: string | null }[]): Fact[] {
-  const STOP = new Set("the and for you your are can how what when where which with does have this that from about kya hai ka ki ke".split(" "));
+  const STOP = new Set("the and for you your are can how what when where which with does have this that from about kya hai ka ki ke product products need get want please there any our will just one".split(" "));
   return rows.map((r) => ({
     topic: r.question,
     text: r.answer,

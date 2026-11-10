@@ -10,7 +10,7 @@ import { useI18n } from "@/i18n/client";
 type Msg = { role: "user" | "assistant"; content: string; products?: ChatProduct[] };
 type ChatProduct = { name: string; slug: string; price: number; image: string | null; stock: number };
 
-const QUICK = ["chat.q1", "chat.q2", "chat.q3", "chat.q4"];
+const QUICK = ["chat.q1", "chat.q2", "chat.q3", "chat.q4", "chat.q5", "chat.q6", "chat.q7"];
 const SEEN_KEY = "pcbdukaan-chat-greeted";
 
 // Turns links like /products/x and [text](/products/x) into clickable links.
