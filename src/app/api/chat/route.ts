@@ -20,8 +20,9 @@ type FoundProduct = { name: string; slug: string; price: number; mrp: number | n
 // anyone above that gets the instant product-search answer, so a burst of chats never slows the shop.
 const CHAT_MAX_AI = Math.max(1, Number(process.env.CHAT_MAX_AI) || 2);
 let aiActive = 0;
-// Leave one processor core free for the website while the AI writes.
-const AI_THREADS = Math.max(1, cpus().length - 1);
+// Small servers (1–2 cores) give the AI every core – nginx serves most pages from its cache, so the website
+// needs little processor time; bigger servers keep one core free for the website.
+const AI_THREADS = cpus().length <= 2 ? cpus().length : cpus().length - 1;
 
 // Simple per-visitor limit so the chat can't be abused.
 const hits = new Map<string, number[]>();
@@ -86,7 +87,7 @@ Rules:
 - When you mention a product, copy its price EXACTLY as written in the list (one price, never a range or estimate) and its link exactly as written (for example /products/smps-24v-5a-din).
 - If nothing in the list fits, say so honestly and suggest a category page from CATEGORIES or emailing ${STORE.email}.
 - For a faulty, burnt or damaged board, offer the PCB repair service and always include the link /pcb-repair (upload photos, free quote within 1–2 working days).
-- Prices in the list EXCLUDE GST; 18% GST is added at checkout. Customers must log in to buy. Payment is cash on delivery. Shipping is free above ₹499.
+- Prices in the list EXCLUDE GST; 18% GST is added at checkout. Customers must log in to buy. Payment: cash on delivery, or online (UPI, cards, net banking) at checkout when offered. Shipping is free above ₹499.
 - Reply in the customer's language (English, Hindi or Hinglish). Politely decline unrelated topics.
 
 CATEGORIES:
@@ -147,7 +148,7 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         model: MODEL,
         stream: true,
-        keep_alive: "30m",
+        keep_alive: -1, // stay loaded: reloading the model takes about a minute and loses its prompt cache
         options: { temperature: 0.1, num_predict: 320, num_ctx: 3072, num_thread: AI_THREADS },
         messages: [{ role: "system", content: systemPrompt(products, categories) + (replyLanguage ? `\n\nThe customer is browsing the site in ${replyLanguage}: reply in ${replyLanguage} unless they write in another language. Keep product names, prices and links exactly as written.` : "") }, ...messages],
       }),
