@@ -140,43 +140,54 @@ export async function POST(request: Request) {
   let released = false;
   const release = () => { if (!released) { released = true; aiActive--; } };
 
-  let upstream: Response;
-  try {
-    upstream = await fetch(`${OLLAMA_URL}/api/chat`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: MODEL,
-        stream: true,
-        keep_alive: -1, // stay loaded: reloading the model takes about a minute and loses its prompt cache
-        options: { temperature: 0.1, num_predict: 320, num_ctx: 3072, num_thread: AI_THREADS },
-        messages: [{ role: "system", content: systemPrompt(products, categories) + (replyLanguage ? `\n\nThe customer is browsing the site in ${replyLanguage}: reply in ${replyLanguage} unless they write in another language. Keep product names, prices and links exactly as written.` : "") }, ...messages],
-      }),
-      signal: AbortSignal.timeout(90_000),
-    });
-    if (!upstream.ok || !upstream.body) throw new Error(`ollama ${upstream.status}`);
-  } catch {
-    release();
-    return new Response(fallbackReply(products, categories), { headers: { ...headers, "X-Chat-Mode": "search" } });
-  }
-
-  // Convert Ollama's line-by-line JSON into plain streamed text.
-  const reader = upstream.body.getReader();
+  // Answer at once: the response (with the matching products in its header) starts immediately, and the
+  // AI's text follows as it is written. If the AI is unavailable, the product-search answer is sent instead.
   const decoder = new TextDecoder();
   const encoder = new TextEncoder();
+  const abort = new AbortController();
+  const timer = setTimeout(() => abort.abort(), 90_000);
+  let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
   let buffer = "";
+  const finish = () => { clearTimeout(timer); release(); };
   const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      // An invisible character makes the server send the response (and the product list) right away,
+      // instead of waiting for the AI's first word. The chat window removes it.
+      controller.enqueue(encoder.encode("\u200B"));
+      try {
+        const upstream = await fetch(`${OLLAMA_URL}/api/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: MODEL,
+            stream: true,
+            keep_alive: -1, // stay loaded: reloading the model takes about a minute and loses its prompt cache
+            options: { temperature: 0.1, num_predict: 320, num_ctx: 3072, num_thread: AI_THREADS },
+            messages: [{ role: "system", content: systemPrompt(products, categories) + (replyLanguage ? `\n\nThe customer is browsing the site in ${replyLanguage}: reply in ${replyLanguage} unless they write in another language. Keep product names, prices and links exactly as written.` : "") }, ...messages],
+          }),
+          signal: abort.signal,
+        });
+        if (!upstream.ok || !upstream.body) throw new Error(`ollama ${upstream.status}`);
+        reader = upstream.body.getReader();
+      } catch {
+        finish();
+        controller.enqueue(encoder.encode(fallbackReply(products, categories)));
+        controller.close();
+      }
+    },
+    // Convert Ollama's line-by-line JSON into plain streamed text.
     async pull(controller) {
+      if (!reader) return;
       let value: Uint8Array | undefined, done = false;
       try {
         ({ value, done } = await reader.read());
       } catch {
-        release();
+        finish();
         controller.close();
         return;
       }
       if (done) {
-        release();
+        finish();
         controller.close();
         return;
       }
@@ -194,8 +205,9 @@ export async function POST(request: Request) {
       }
     },
     cancel() {
-      release();
-      reader.cancel();
+      finish();
+      abort.abort();
+      reader?.cancel().catch(() => {});
     },
   });
   return new Response(stream, { headers: { ...headers, "X-Chat-Mode": "ai" } });

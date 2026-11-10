@@ -112,6 +112,8 @@ export function ChatWidget() {
       } catch {
         products = [];
       }
+      // Show the matching products straight away, while the answer is still being written.
+      if (res.ok && products.length) setMessages((cur) => [...cur.slice(0, -1), { ...cur[cur.length - 1], products }]);
       if (!res.body) throw new Error("no body");
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
@@ -119,9 +121,9 @@ export function ChatWidget() {
       for (;;) {
         const { value, done } = await reader.read();
         if (done) break;
-        text += decoder.decode(value, { stream: true });
+        text = (text + decoder.decode(value, { stream: true })).replace(/^\u200B/, "");
         const snapshot = text;
-        setMessages((cur) => [...cur.slice(0, -1), { role: "assistant", content: snapshot }]);
+        setMessages((cur) => [...cur.slice(0, -1), { role: "assistant", content: snapshot, products: res.ok ? products : [] }]);
       }
       setMessages((cur) => [...cur.slice(0, -1), { role: "assistant", content: text || t("chat.noAnswer"), products: res.ok ? products : [] }]);
       if (text) playChatSound("reply");
