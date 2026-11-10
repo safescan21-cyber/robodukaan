@@ -69,7 +69,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "The server isn't ready for this yet – wait 5–10 minutes (it updates itself) and try again." }, { status: 503 });
   }
   if (body.action === "retry") {
-    await fs.writeFile(`${DIR}/request.json`, JSON.stringify({ action: "retry" }), { mode: 0o600 });
+    await fs.writeFile(`${DIR}/request.json`, JSON.stringify({ action: "retry", now: body.now === true }), { mode: 0o600 });
     return Response.json({ ok: true });
   }
   if (body.action === "cancel") {

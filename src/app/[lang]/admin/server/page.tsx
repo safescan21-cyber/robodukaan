@@ -67,9 +67,15 @@ export default function ServerMovePage() {
   const stopped = /STOPPED/.test(milestone);
   const running = !!milestone && !stopped && !/ALL DONE|Cancelled/.test(milestone);
 
-  async function retry() {
+  const waitingForNight = running && /Waiting for the night/.test(info?.status.trim().split("\n").pop() ?? "");
+  async function retry(now = false) {
+    if (now && !confirm("Run the move now instead of at night?\n\nThe website keeps working while data is copied. The switch takes about a minute; an order placed in that minute may need to be re-entered. Best when few customers are online.")) return;
     setBusy(true); setError(null);
-    try { await call("POST", { action: "retry" }); setMsg("Sent – the server tries again within 5 minutes, using your saved details."); load(); } catch (err) { setError(err instanceof Error ? err.message : String(err)); }
+    try {
+      await call("POST", { action: "retry", now });
+      setMsg(now ? "Sent – the server starts within 5 minutes. Keep this page open to watch the progress." : "Sent – the server tries again within 5 minutes, using your saved details.");
+      load();
+    } catch (err) { setError(err instanceof Error ? err.message : String(err)); }
     setBusy(false);
   }
   return (
@@ -123,11 +129,17 @@ export default function ServerMovePage() {
           {running && <button type="button" onClick={cancel} className="text-sm font-semibold text-red-600 hover:underline">Cancel</button>}
         </div>
         {info?.pending && <p className="mt-2 text-sm text-amber-700">Waiting for the server to pick up the details (within 5 minutes)…</p>}
+        {waitingForNight && !info?.pending && (
+          <button type="button" onClick={() => retry(true)} disabled={busy} className="mt-2 rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60">▶ Don’t wait – run now</button>
+        )}
         {stopped && !info?.pending && (
           <div className="mt-3 rounded-md bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">
             <p>The move stopped and <b>your website was not changed</b> – it keeps working on Supabase cloud. The lines starting with “reason:” say why. The same details were also emailed to you.</p>
             <p className="mt-1">If it was the connection string: fill in the form above again with the <b>Session pooler</b> string. Otherwise:</p>
-            <button type="button" onClick={retry} disabled={busy} className="mt-2 rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-60">↻ Try again (saved details)</button>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <button type="button" onClick={() => retry(true)} disabled={busy} className="rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60">▶ Run now</button>
+              <button type="button" onClick={() => retry(false)} disabled={busy} className="rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-60">↻ Try again tonight</button>
+            </div>
           </div>
         )}
         <pre className="mt-2 max-h-96 overflow-auto whitespace-pre-wrap rounded bg-slate-900 p-3 text-xs text-slate-100">{info?.status.trim() || "Not started yet."}</pre>

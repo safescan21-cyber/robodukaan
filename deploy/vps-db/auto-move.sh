@@ -56,9 +56,15 @@ if [ "${1:-}" = "--pickup" ]; then
   [ -f "$REQ" ] || exit 0
   action=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("action",""))' "$REQ" 2>/dev/null || true)
   if [ "$action" = retry ]; then
+    now=$(python3 -c 'import json,sys; print("1" if json.load(open(sys.argv[1])).get("now") else "0")' "$REQ" 2>/dev/null || echo 0)
     rm -f "$REQ"
     if [ -f "$SECRETS" ]; then
-      log "Trying again with the saved details."
+      if [ "$now" = 1 ]; then
+        sed -i 's/^NIGHT=.*/NIGHT=0/' "$SECRETS"
+        log "Running now (not waiting for the night), with the saved details."
+      else
+        log "Trying again with the saved details."
+      fi
       start_background
     else
       log "The saved details are gone – please fill in the form again."
