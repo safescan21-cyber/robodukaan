@@ -170,6 +170,18 @@ export async function getRelatedProducts(product: Product, limit = 5): Promise<P
   return normalize(data);
 }
 
+// "Customers also bought": products most often ordered together with this one (update 027).
+export async function getAlsoBought(productId: string, limit = 6): Promise<Product[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("catalog");
+  const { data: ids, error } = await supabase.rpc("also_bought", { p_product_id: productId, p_limit: limit });
+  if (error || !ids?.length) return [];
+  const order = (ids as { product_id: string }[]).map((r) => r.product_id);
+  const { data } = await supabase.from("products").select(CARD_FIELDS).in("id", order).eq("is_active", true);
+  return normalize(data).sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+}
+
 export async function getOpenJobs(): Promise<import("./types").Job[]> {
   "use cache";
   cacheLife("minutes");

@@ -28,6 +28,7 @@ const ITEMS = [
   { href: "/admin/customers", label: "Customers", icon: "👥" },
   { href: "/admin/coupons", label: "Coupons", icon: "🏷️" },
   { href: "/admin/reviews", label: "Reviews", icon: "⭐" },
+  { href: "/admin/questions", label: "Questions", icon: "❓" },
   { href: "/admin/banners", label: "Home banners", icon: "🖼️" },
   { href: "/admin/jobs", label: "Jobs", icon: "💼" },
 ];

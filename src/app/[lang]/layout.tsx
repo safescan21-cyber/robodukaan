@@ -6,6 +6,7 @@ import { AuthProvider } from "@/components/AuthProvider";
 import { VisitTracker } from "@/components/VisitTracker";
 import { CartProvider } from "@/components/CartProvider";
 import { WishlistProvider } from "@/components/WishlistProvider";
+import { CompareProvider } from "@/components/CompareProvider";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ChatLoader } from "@/components/ChatLoader";
@@ -89,10 +90,12 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
           <AuthProvider>
             <CartProvider>
               <WishlistProvider>
+               <CompareProvider>
                 <div className="print:hidden"><Header /></div>
                 <main className="flex-1">{children}</main>
                 <div className="print:hidden"><Footer /><ChatLoader /></div>
                 <Suspense fallback={null}><VisitTracker /></Suspense>
+               </CompareProvider>
               </WishlistProvider>
             </CartProvider>
           </AuthProvider>

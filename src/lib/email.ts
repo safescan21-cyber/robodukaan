@@ -214,6 +214,15 @@ export async function sendOrderUpdateEmail(
   );
 }
 
+// A customer asked a question on a product page (answer it in Admin → Questions).
+export async function sendNewQuestionEmail(q: { product: string; slug: string; name: string; question: string }) {
+  const to = adminEmail();
+  if (!to) return false;
+  return send(to, `❓ Question about ${q.product}`.slice(0, 150),
+    layout("New product question", `<p><b>${esc(q.name)}</b> asked about <b>${esc(q.product)}</b>:</p><p style="padding:12px;background:#f8fafc;border-radius:6px">${esc(q.question)}</p><p style="font-size:13px;color:#64748b">Your answer is shown on the product page for everyone, and the assistant chat uses it too.</p>`,
+      { label: "Answer in admin", href: `${SITE}/admin/questions` }));
+}
+
 export async function sendWelcomeEmail(to: string, name: string | null) {
   return send(
     to,

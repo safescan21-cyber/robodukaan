@@ -1,7 +1,9 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Link from "@/i18n/client";
-import { getProduct, getRelatedProducts } from "@/lib/data";
+import { getAlsoBought, getProduct, getRelatedProducts } from "@/lib/data";
+import { ProductQuestions } from "@/components/ProductQuestions";
+import { CompareButton } from "@/components/CompareProvider";
 import { validTiers } from "@/lib/pricing";
 import { discountPercent, formatINR, FREE_SHIPPING_FROM, GST_RATE, gstFor, productImage, shippingFor } from "@/lib/format";
 import { JsonLd } from "@/components/JsonLd";
@@ -56,7 +58,8 @@ async function ProductDetail({ params }: Pick<PageProps<"/[lang]/products/[slug]
   const { slug } = await params;
   const product = await getProduct(slug);
   if (!product) notFound();
-  const related = await getRelatedProducts(product, 10);
+  const [relatedAll, alsoBought] = await Promise.all([getRelatedProducts(product, 10), getAlsoBought(product.id, 6)]);
+  const related = relatedAll.filter((r) => !alsoBought.some((a) => a.id === r.id));
   const off = discountPercent(product.price, product.mrp);
   const tiers = validTiers(product.price_tiers, product.price);
   const { t } = await getT();
@@ -129,6 +132,11 @@ async function ProductDetail({ params }: Pick<PageProps<"/[lang]/products/[slug]
       id: "reviews",
       label: t("product.reviewsTab", { count: product.rating_count }),
       content: <ProductReviews productId={product.id} slug={product.slug} />,
+    },
+    {
+      id: "questions",
+      label: t("qa.tab"),
+      content: <ProductQuestions productId={product.id} slug={product.slug} />,
     },
   ];
 
@@ -287,7 +295,7 @@ async function ProductDetail({ params }: Pick<PageProps<"/[lang]/products/[slug]
           </div>
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-            <WishlistButton productId={product.id} variant="full" />
+            <span className="flex flex-wrap items-center gap-3"><WishlistButton productId={product.id} variant="full" /><CompareButton productId={product.id} /></span>
             <ShareButtons name={product.name} path={`/products/${product.slug}`} />
           </div>
 
@@ -308,6 +316,13 @@ async function ProductDetail({ params }: Pick<PageProps<"/[lang]/products/[slug]
       <div className="mt-8">
         <Tabs tabs={tabs} />
       </div>
+
+      {alsoBought.length > 0 && (
+        <section className="mt-10">
+          <SectionHeading title={t("also.title")} />
+          <ProductRow products={alsoBought} />
+        </section>
+      )}
 
       {related.length > 0 && (
         <section className="mt-10">

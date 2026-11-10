@@ -4,6 +4,7 @@ import type { Product } from "@/lib/types";
 import { discountPercent, formatINR, productImage } from "@/lib/format";
 import { ProductImage } from "./ProductImage";
 import { AddToCartButton } from "./AddToCartButton";
+import { CompareButton } from "./CompareProvider";
 import { WishlistButton } from "./WishlistButton";
 import { Stars } from "./Stars";
 import { getT } from "@/i18n/server";
@@ -45,8 +46,9 @@ export async function ProductCard({ product }: { product: Product }) {
         {(() => { const best = validTiers(product.price_tiers, product.price).at(-1); return best ? (
           <p className="text-[11px] font-semibold text-emerald-700">💰 {t("tiers.card", { qty: best.min_qty, price: formatINR(best.price) })}</p>
         ) : null; })()}
-        <div className="mt-auto pt-1">
+        <div className="mt-auto flex flex-col gap-1 pt-1">
           <AddToCartButton product={product} compact />
+          <CompareButton productId={product.id} compact />
         </div>
       </div>
     </article>
