@@ -1,3 +1,4 @@
+import { cpus } from "node:os";
 import { createClient } from "@supabase/supabase-js";
 import { STORE } from "@/lib/constants";
 import { clientIp } from "@/lib/client-ip";
@@ -14,6 +15,13 @@ const MAX_CHARS = 600;
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 type FoundProduct = { name: string; slug: string; price: number; mrp: number | null; stock: number; image: string | null; category: string | null; short: string | null };
+
+// The AI model runs on the shop's own server. At most CHAT_MAX_AI answers are written at the same time;
+// anyone above that gets the instant product-search answer, so a burst of chats never slows the shop.
+const CHAT_MAX_AI = Math.max(1, Number(process.env.CHAT_MAX_AI) || 2);
+let aiActive = 0;
+// Leave one processor core free for the website while the AI writes.
+const AI_THREADS = Math.max(1, cpus().length - 1);
 
 // Simple per-visitor limit so the chat can't be abused.
 const hits = new Map<string, number[]>();
@@ -124,6 +132,13 @@ export async function POST(request: Request) {
     "X-Chat-Products": encodeURIComponent(JSON.stringify(products.slice(0, 4))),
   };
 
+  if (aiActive >= CHAT_MAX_AI) {
+    return new Response(fallbackReply(products, categories), { headers: { ...headers, "X-Chat-Mode": "busy" } });
+  }
+  aiActive++;
+  let released = false;
+  const release = () => { if (!released) { released = true; aiActive--; } };
+
   let upstream: Response;
   try {
     upstream = await fetch(`${OLLAMA_URL}/api/chat`, {
@@ -133,13 +148,14 @@ export async function POST(request: Request) {
         model: MODEL,
         stream: true,
         keep_alive: "30m",
-        options: { temperature: 0.1, num_predict: 320, num_ctx: 3072 },
+        options: { temperature: 0.1, num_predict: 320, num_ctx: 3072, num_thread: AI_THREADS },
         messages: [{ role: "system", content: systemPrompt(products, categories) + (replyLanguage ? `\n\nThe customer is browsing the site in ${replyLanguage}: reply in ${replyLanguage} unless they write in another language. Keep product names, prices and links exactly as written.` : "") }, ...messages],
       }),
       signal: AbortSignal.timeout(90_000),
     });
     if (!upstream.ok || !upstream.body) throw new Error(`ollama ${upstream.status}`);
   } catch {
+    release();
     return new Response(fallbackReply(products, categories), { headers: { ...headers, "X-Chat-Mode": "search" } });
   }
 
@@ -150,8 +166,16 @@ export async function POST(request: Request) {
   let buffer = "";
   const stream = new ReadableStream<Uint8Array>({
     async pull(controller) {
-      const { value, done } = await reader.read();
+      let value: Uint8Array | undefined, done = false;
+      try {
+        ({ value, done } = await reader.read());
+      } catch {
+        release();
+        controller.close();
+        return;
+      }
       if (done) {
+        release();
         controller.close();
         return;
       }
@@ -169,6 +193,7 @@ export async function POST(request: Request) {
       }
     },
     cancel() {
+      release();
       reader.cancel();
     },
   });

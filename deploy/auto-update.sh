@@ -46,6 +46,10 @@ install -d -m 700 -o "$APP_USER" -g "$APP_USER" /var/lib/robodukaan-settings
 # Self-hosted login service: keep sending PCBDukaan code emails (repairs its settings if they're missing).
 [ -f "$APP_DIR/deploy/vps-db/ensure-auth-email.sh" ] && bash "$APP_DIR/deploy/vps-db/ensure-auth-email.sh" || true
 
+# Speed settings in nginx for thousands of visitors (cache for pages, images and build files); tested and
+# undone automatically if anything fails; does nothing once applied.
+[ -f "$APP_DIR/deploy/ensure-performance.sh" ] && bash "$APP_DIR/deploy/ensure-performance.sh" || true
+
 # Extra domains (e.g. pcbdukaan.in) → 301 redirect to pcbdukaan.com once their DNS points here.
 [ -f "$APP_DIR/deploy/ensure-domain-redirects.sh" ] && bash "$APP_DIR/deploy/ensure-domain-redirects.sh" || true
 
