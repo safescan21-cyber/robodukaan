@@ -14,11 +14,12 @@ function allowed(ip: string) {
 }
 
 export async function POST(request: Request) {
-  if (!allowed(clientIp(request.headers))) return Response.json({ error: "Too many requests – please try again later." }, { status: 429 });
   const body = await request.json().catch(() => null);
   const productId = typeof body?.productId === "string" ? body.productId.slice(0, 40) : "";
   const email = typeof body?.email === "string" ? body.email.trim().slice(0, 200) : "";
-  if (!productId || !email) return Response.json({ error: "Please enter a valid email" }, { status: 400 });
+  if (!productId || !/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) return Response.json({ error: "Please enter a valid email" }, { status: 400 });
+  // Only well-formed requests count towards the limit.
+  if (!allowed(clientIp(request.headers))) return Response.json({ error: "Too many requests – please try again later." }, { status: 429 });
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!, { auth: { persistSession: false } });
   const { error } = await supabase.rpc("request_stock_alert", { p_product: productId, p_email: email });
   if (error) {
