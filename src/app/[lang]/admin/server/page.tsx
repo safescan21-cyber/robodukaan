@@ -62,7 +62,16 @@ export default function ServerMovePage() {
     try { await call("POST", { action: "cancel" }); setMsg("Cancel sent – the server stops within 5 minutes."); load(); } catch (err) { setError(err instanceof Error ? err.message : String(err)); }
   }
 
-  const running = !!info?.status.trim() && !/ALL DONE|STOPPED|Cancelled/.test(info.status.trim().split("\n").pop() ?? "");
+  // The latest milestone decides the state (reason lines can follow a STOPPED line).
+  const milestone = [...(info?.status.trim().split("\n") ?? [])].reverse().find((l) => /STOPPED|ALL DONE|Cancelled|move started|Trying again|Details received/.test(l)) ?? "";
+  const stopped = /STOPPED/.test(milestone);
+  const running = !!milestone && !stopped && !/ALL DONE|Cancelled/.test(milestone);
+
+  async function retry() {
+    setBusy(true); setError(null);
+    try { await call("POST", { action: "retry" }); setMsg("Sent – the server tries again within 5 minutes, using your saved details."); load(); } catch (err) { setError(err instanceof Error ? err.message : String(err)); }
+    setBusy(false);
+  }
   return (
     <div className="max-w-3xl space-y-5">
       <h1 className="text-2xl font-bold">Server move</h1>
@@ -114,6 +123,13 @@ export default function ServerMovePage() {
           {running && <button type="button" onClick={cancel} className="text-sm font-semibold text-red-600 hover:underline">Cancel</button>}
         </div>
         {info?.pending && <p className="mt-2 text-sm text-amber-700">Waiting for the server to pick up the details (within 5 minutes)…</p>}
+        {stopped && !info?.pending && (
+          <div className="mt-3 rounded-md bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">
+            <p>The move stopped and <b>your website was not changed</b> – it keeps working on Supabase cloud. The lines starting with “reason:” say why. The same details were also emailed to you.</p>
+            <p className="mt-1">If it was the connection string: fill in the form above again with the <b>Session pooler</b> string. Otherwise:</p>
+            <button type="button" onClick={retry} disabled={busy} className="mt-2 rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-60">↻ Try again (saved details)</button>
+          </div>
+        )}
         <pre className="mt-2 max-h-96 overflow-auto whitespace-pre-wrap rounded bg-slate-900 p-3 text-xs text-slate-100">{info?.status.trim() || "Not started yet."}</pre>
         <p className="mt-1 text-xs text-slate-500">Refreshes every 30 seconds.</p>
       </section>

@@ -68,6 +68,10 @@ export async function POST(request: Request) {
   } catch {
     return Response.json({ error: "The server isn't ready for this yet – wait 5–10 minutes (it updates itself) and try again." }, { status: 503 });
   }
+  if (body.action === "retry") {
+    await fs.writeFile(`${DIR}/request.json`, JSON.stringify({ action: "retry" }), { mode: 0o600 });
+    return Response.json({ ok: true });
+  }
   if (body.action === "cancel") {
     await fs.writeFile(`${DIR}/request.json`, JSON.stringify({ action: "cancel" }), { mode: 0o600 });
     return Response.json({ ok: true });
@@ -77,6 +81,9 @@ export async function POST(request: Request) {
   const s3Secret = clean(body.s3_secret, 300);
   if (!/^postgres(ql)?:\/\/[^@\s]+@[^\s:]+:\d+\/\S+$/.test(cloudUrl) || cloudUrl.includes("[YOUR-PASSWORD]")) {
     return Response.json({ error: "The connection string doesn't look right. Copy it from Supabase → Connect → Session pooler and put your database password in place of [YOUR-PASSWORD]." }, { status: 400 });
+  }
+  if (/@db\.[a-z0-9]+\.supabase\.co[:/]/.test(cloudUrl)) {
+    return Response.json({ error: "This is the “Direct connection” string – most servers can't reach it. In Supabase → Connect choose “Session pooler” and copy that one (it contains pooler.supabase.com)." }, { status: 400 });
   }
   if (!/^[A-Za-z0-9]{8,}$/.test(s3Key) || !/^[A-Za-z0-9+/=_-]{16,}$/.test(s3Secret)) {
     return Response.json({ error: "Please paste the Storage S3 Access key ID and Secret access key." }, { status: 400 });

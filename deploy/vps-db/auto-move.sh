@@ -55,6 +55,16 @@ if [ "${1:-}" = "--pickup" ]; then
   REQ="$MOVE_DIR/request.json"
   [ -f "$REQ" ] || exit 0
   action=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("action",""))' "$REQ" 2>/dev/null || true)
+  if [ "$action" = retry ]; then
+    rm -f "$REQ"
+    if [ -f "$SECRETS" ]; then
+      log "Trying again with the saved details."
+      start_background
+    else
+      log "The saved details are gone – please fill in the form again."
+    fi
+    exit 0
+  fi
   if [ "$action" = cancel ]; then
     rm -f "$REQ" "$SECRETS"; systemctl stop pcbdukaan-move 2>/dev/null || true
     log "Cancelled from the admin panel."
@@ -116,8 +126,19 @@ fi
 # shellcheck disable=SC1090
 . "$SECRETS"
 export CLOUD_URL S3_KEY S3_SECRET S3_REGION APP_DIR
+# The most useful error lines since a step started (passwords/keys hidden), for the admin page.
+reason_lines() {
+  tail -n +"$(( ${1:-0} + 1 ))" "$LOG" 2>/dev/null \
+    | grep -E '^(!!|psql:|ERROR|FATAL|error|Error|rclone|curl:)|failed|denied|refused|timeout|timed out|could not|Could not|No such' \
+    | grep -v '^[0-9][0-9] [A-Z][a-z][a-z] ' \
+    | sed -E 's#(postgres(ql)?://)[^ ]*@#\1***@#g; s#(S3_SECRET|SECRET|PASS(WORD)?)=[^ ]*#\1=***#gI' \
+    | tail -4 | cut -c1-220
+}
+STEP_START=0
 fail() {
   log "STOPPED: $*"
+  while IFS= read -r l; do [ -n "$l" ] && log "  reason: $l"; done < <(reason_lines "$STEP_START")
+  log "  Fix the cause, then press \"Try again\" in Admin → Server move (your details are kept)."
   mail_admin "PCBDukaan database move stopped" "The automatic database move stopped:
 
 $*
@@ -140,15 +161,23 @@ done
 log "DNS is ready ($API_HOST → $dns_ip)."
 
 log "Step 1: installing Supabase on the VPS …"
-bash "$D/1-install.sh" >> "$LOG" 2>&1 || fail "Installing Supabase failed (see log)."
+STEP_START=$(wc -l < "$LOG")
+bash "$D/1-install.sh" >> "$LOG" 2>&1 || fail "Installing Supabase failed."
 log "Step 1 done."
+
+# Check the Supabase cloud connection now, not at 1 AM, so a wrong connection string shows up at once.
+SB_DIR=$(grep '^SB_DIR=' /etc/robodukaan/selfhost.env | cut -d= -f2-)
+log "Checking the connection to Supabase cloud …"
+STEP_START=$(wc -l < "$LOG")
+n=$(cd "$SB_DIR" && docker compose exec -T -e CLOUD_URL db sh -c 'psql "$CLOUD_URL" -XAtc "select count(*) from public.products"' 2>>"$LOG") \
+  || fail "Could not connect to your Supabase cloud database. Use the Session pooler connection string (Supabase → Connect → Session pooler) with your database password."
+log "Connected to Supabase cloud ($n products)."
 
 if [ "${NIGHT:-1}" = 1 ]; then
   log "Waiting for the night (1–5 AM India time) to copy and switch …"
   until h=$(TZ=Asia/Kolkata date +%-H); [ "$h" -ge 1 ] && [ "$h" -lt 5 ]; do sleep 300; done
 fi
 
-SB_DIR=$(grep '^SB_DIR=' /etc/robodukaan/selfhost.env | cut -d= -f2-)
 counts_match() {
   local t c v
   for t in public.products public.orders public.order_items auth.users public.profiles public.reviews; do
@@ -159,7 +188,8 @@ counts_match() {
 }
 for attempt in 1 2 3; do
   log "Step 2: copying data and files (attempt $attempt) …"
-  bash "$D/2-copy-data.sh" >> "$LOG" 2>&1 || fail "Copying the data failed (see log). The website was NOT switched."
+  STEP_START=$(wc -l < "$LOG")
+  bash "$D/2-copy-data.sh" >> "$LOG" 2>&1 || fail "Copying the data failed. The website was NOT switched."
   counts_match && break
   [ "$attempt" = 3 ] && fail "Cloud and VPS counts kept differing (new orders arriving?). The website was NOT switched."
   log "  counts differ (maybe a new order just came in) – copying again in 2 minutes"
@@ -168,7 +198,8 @@ done
 log "Step 2 done – counts match."
 
 log "Step 3: switching the website …"
-bash "$D/3-switch.sh" >> "$LOG" 2>&1 || fail "Switching failed (see log). The website still uses Supabase cloud."
+STEP_START=$(wc -l < "$LOG")
+bash "$D/3-switch.sh" >> "$LOG" 2>&1 || fail "Switching failed. The website still uses Supabase cloud."
 sleep 20
 . /etc/robodukaan/selfhost.env
 ok=1
