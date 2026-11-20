@@ -201,6 +201,15 @@ export async function getRepairExtras(): Promise<import("./repair-extras").Repai
   return mergeExtras((data?.value as Partial<import("./repair-extras").RepairExtras>) ?? null);
 }
 
+export async function getBusinessLinks(): Promise<import("./business-links").BusinessLinks> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("catalog");
+  const { cleanBusinessLinks } = await import("./business-links");
+  const { data } = await supabase.from("site_content").select("value").eq("key", "business_links").maybeSingle();
+  return cleanBusinessLinks(data?.value ?? null);
+}
+
 export async function getOpenJobs(): Promise<import("./types").Job[]> {
   "use cache";
   cacheLife("minutes");

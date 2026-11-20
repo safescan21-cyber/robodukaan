@@ -59,6 +59,8 @@ install -d -m 700 -o "$APP_USER" -g "$APP_USER" /var/lib/robodukaan-settings
 as_app "git fetch -q origin main" || { log "git fetch failed"; exit 1; }
 current=$(as_app "git rev-parse HEAD")
 latest=$(as_app "git rev-parse origin/main")
+# First time only: send every page to IndexNow once (later updates send just the new pages).
+[ -f /var/lib/robodukaan-settings/indexnow-sent.txt ] || { [ -f "$APP_DIR/deploy/indexnow-new-pages.mjs" ] && (as_app "node deploy/indexnow-new-pages.mjs" >> "$LOG" 2>&1 &); }
 [ "$current" = "$latest" ] && { start_chat_setup; ensure_report; exit 0; }
 
 log "Updating ${current:0:7} -> ${latest:0:7}"
@@ -69,6 +71,8 @@ if build "$latest"; then
   [ -f "$APP_DIR/deploy/ensure-db-migrations.sh" ] && APP_DIR="$APP_DIR" bash "$APP_DIR/deploy/ensure-db-migrations.sh" || true
   systemctl restart robodukaan
   log "Updated to ${latest:0:7} and restarted"
+  # Tell Bing & other IndexNow search engines about the new pages (in the background, never blocks).
+  [ -f "$APP_DIR/deploy/indexnow-new-pages.mjs" ] && (as_app "node deploy/indexnow-new-pages.mjs" >> "$LOG" 2>&1 &) || true
 else
   log "Build of ${latest:0:7} FAILED - rolling back to ${current:0:7}"
   build "$current" && systemctl restart robodukaan && log "Rolled back to ${current:0:7}"

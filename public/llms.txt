@@ -25,8 +25,13 @@
 - [Servo drive repair](https://pcbdukaan.com/pcb-repair/servo-drive-repair)
 - [HMI repair](https://pcbdukaan.com/pcb-repair/hmi-repair)
 
-## Guides
-- [VFD fault codes](https://pcbdukaan.com/fault-codes): meanings, causes and checks for Delta, Yaskawa, Mitsubishi, Siemens, ABB, Schneider and Danfoss drives
+- Brand repair pages, e.g. [Yaskawa VFD repair](https://pcbdukaan.com/pcb-repair/vfd-drive-repair/yaskawa), [Delta servo drive repair](https://pcbdukaan.com/pcb-repair/servo-drive-repair/delta), [Siemens PLC repair](https://pcbdukaan.com/pcb-repair/plc-repair/siemens), [Weintek HMI repair](https://pcbdukaan.com/pcb-repair/hmi-repair/weintek), [Mean Well SMPS repair](https://pcbdukaan.com/pcb-repair/smps-repair/mean-well)
+- [PCB repair course](https://pcbdukaan.com/pcb-repair-course): hands-on training in component-level industrial PCB repair
+
+## Guides & learning
+- [Inverter, VFD & servo error codes](https://pcbdukaan.com/fault-codes): 251 codes, each on its own page (meaning, causes, checks) for Delta, Yaskawa, Mitsubishi, Siemens, ABB, Schneider, Danfoss, INVT, Fuji, Hitachi, Allen-Bradley PowerFlex, Vacon, Toshiba, LS, Lenze drives and Delta ASDA, Yaskawa Sigma, Mitsubishi MELSERVO, Panasonic MINAS servos – e.g. [Danfoss Alarm 14 earth fault](https://pcbdukaan.com/fault-codes/danfoss/alarm-14)
+- [Repair guides](https://pcbdukaan.com/repair-guides): step-by-step checks such as testing IGBT modules and VFD capacitors
+- [Learn PCB design](https://pcbdukaan.com/pcb-design): 12 free lessons – PCB basics, schematic and footprints, placement, trace width for current, creepage for 230 V mains, grounding/EMI, SMPS layout, thermal design, Gerber files, KiCad/EasyEDA/Altium, common mistakes
 - [Areas served](https://pcbdukaan.com/locations): every Indian state and major industrial area
 
 ## Company

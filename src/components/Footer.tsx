@@ -1,14 +1,19 @@
 import Link from "@/i18n/client";
-import { getCategories } from "@/lib/data";
+import { getBusinessLinks, getCategories } from "@/lib/data";
+import { BUSINESS_SITES } from "@/lib/business-links";
+import { JsonLd } from "./JsonLd";
 import { STORE } from "@/lib/constants";
 import { Logo } from "./Logo";
 import { getT } from "@/i18n/server";
 
 export async function Footer() {
-  const categories = await getCategories();
+  const [categories, links] = await Promise.all([getCategories(), getBusinessLinks()]);
   const { t } = await getT();
+  const profiles = BUSINESS_SITES.filter((x) => links[x.key]).map((x) => ({ label: x.label, href: links[x.key]! }));
+  const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://pcbdukaan.com";
   return (
     <footer className="mt-16 bg-slate-900 text-slate-400">
+      {profiles.length > 0 && <JsonLd data={{ "@context": "https://schema.org", "@type": "Organization", "@id": `${SITE}/#organization`, url: SITE, sameAs: profiles.map((p) => p.href) }} />}
       <div className="border-b border-white/10">
         <div className="mx-auto grid max-w-7xl gap-4 px-4 py-6 text-sm sm:grid-cols-2 lg:grid-cols-4">
           {[
@@ -77,6 +82,12 @@ export async function Footer() {
           </ul>
         </div>
       </div>
+      {profiles.length > 0 && (
+        <div className="mx-auto max-w-7xl px-4 pb-6 text-sm">
+          <span className="me-2 font-semibold text-white">Find us on:</span>
+          {profiles.map((p, i) => <span key={p.href}>{i ? " · " : ""}<a href={p.href} target="_blank" rel="noopener me" className="hover:text-white">{p.label}</a></span>)}
+        </div>
+      )}
       <div className="border-t border-white/10 py-4">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 text-xs">
           <p className="flex flex-wrap items-center gap-3">
