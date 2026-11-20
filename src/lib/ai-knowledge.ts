@@ -39,6 +39,8 @@ export function builtInFacts(opts: { onlinePayment: boolean }): Fact[] {
       text: `Log in on /login with a 6-digit code sent to your email, or with a password. Forgot your password? Use /forgot-password. Customers must log in to place an order.` },
     { topic: "Contact", keywords: ["contact", "call", "phone", "email", "whatsapp", "talk", "human", "person", "support", "address"],
       text: `Email ${STORE.email}${STORE.whatsapp ? ` or WhatsApp +${STORE.whatsapp}` : ""}${STORE.phone ? ` · Phone ${STORE.phone}` : ""}. Contact page: /contact.` },
+    { topic: "PCB repair course", keywords: ["course", "training", "learn", "learning", "sikhna", "sikhana", "sikhni", "institute", "class", "classes", "teach", "batch", "admission", "coaching", "कोर्स", "सीखना", "ट्रेनिंग"],
+      text: `We offer a PCB repair course: component testing, soldering and SMD rework, fault finding, SMPS, VFD/inverter, PLC and HMI board repair with practice on real boards. Fee, dates and details: /pcb-repair-course (send the enquiry form and we call you back).` },
     { topic: "Technician partners & jobs", keywords: ["partner", "technician", "franchise", "job", "career", "vacancy", "work with"],
       text: `Repair technicians can join as partners on /repair-partners. Open jobs are on /careers.` },
   ];

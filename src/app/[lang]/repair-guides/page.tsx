@@ -27,6 +27,7 @@ export default async function RepairGuidesPage() {
         Practical checks for the most common faults in factories – what usually fails, what you can check safely yourself,
         and when it is time to send the board for repair.
       </p>
+      <p className="mt-3 rounded-md bg-sky-50 px-4 py-2 text-sm text-sky-900 ring-1 ring-sky-100">🎓 Want to learn board repair properly? See our <Link href="/pcb-repair-course" className="font-semibold underline">PCB repair course</Link>.</p>
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         {REPAIR_GUIDES.map((g) => (
           <Link key={g.slug} href={`/repair-guides/${g.slug}`} className="rounded-md bg-white p-5 ring-1 ring-slate-200 hover:ring-brand-600">

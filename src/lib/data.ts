@@ -182,6 +182,16 @@ export async function getAlsoBought(productId: string, limit = 6): Promise<Produ
   return normalize(data).sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
 }
 
+// The PCB repair course page details (Admin → Repair course), merged over the defaults.
+export async function getCourse(): Promise<import("./course").CourseInfo> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("catalog");
+  const { mergeCourse } = await import("./course");
+  const { data } = await supabase.from("site_content").select("value").eq("key", "course").maybeSingle();
+  return mergeCourse((data?.value as Partial<import("./course").CourseInfo>) ?? null);
+}
+
 export async function getOpenJobs(): Promise<import("./types").Job[]> {
   "use cache";
   cacheLife("minutes");

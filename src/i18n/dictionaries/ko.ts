@@ -718,6 +718,7 @@ const dict: Record<string, string> = {
   "compare.warrantyMonths": "{n}개월",
   "compare.rating": "평점",
   "compare.bulk": "대량 가격",
+  "nav.repairCourse": "PCB 수리 교육",
 };
 
 export default dict;

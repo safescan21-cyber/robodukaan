@@ -223,6 +223,17 @@ export async function sendNewQuestionEmail(q: { product: string; slug: string; n
       { label: "Answer in admin", href: `${SITE}/admin/questions` }));
 }
 
+// Someone asked about the PCB repair course (Admin → Repair course).
+export async function sendCourseEnquiryEmail(e: { name: string; phone: string; email?: string; city?: string; level?: string; message?: string }) {
+  const to = adminEmail();
+  if (!to) return false;
+  const rows = [["Name", e.name], ["Mobile", e.phone], ["Email", e.email], ["City", e.city], ["Experience", e.level], ["Message", e.message]].filter(([, v]) => v);
+  return send(to, `🎓 Course enquiry: ${e.name}${e.city ? `, ${e.city}` : ""}`.slice(0, 150),
+    layout("New PCB repair course enquiry", `<table style="font-size:14px">${rows.map(([k, v]) => `<tr><td style="padding:3px 12px 3px 0;color:#64748b">${k}</td><td><b>${esc(v)}</b></td></tr>`).join("")}</table><p style="font-size:13px">Call: <a href="tel:+91${esc(e.phone)}">+91 ${esc(e.phone)}</a> · WhatsApp: <a href="https://wa.me/91${esc(e.phone)}">open chat</a></p>`,
+      { label: "Open in admin", href: `${SITE}/admin/course` }),
+    isPlainEmail(e.email) ? e.email : undefined);
+}
+
 export async function sendWelcomeEmail(to: string, name: string | null) {
   return send(
     to,

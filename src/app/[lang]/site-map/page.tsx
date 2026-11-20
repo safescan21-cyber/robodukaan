@@ -20,6 +20,7 @@ const MAIN = [
   ["/products?sort=newest", "nav.newArrivals"],
   ["/products?sort=best-selling", "nav.bestSellers"],
   ["/pcb-repair", "nav.pcbRepairService"],
+  ["/pcb-repair-course", "nav.repairCourse"],
   ["/careers", "nav.careers"],
   ["/locations", "nav.areas"],
   ["/quick-order", "nav.quickOrder"],
