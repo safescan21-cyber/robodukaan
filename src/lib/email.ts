@@ -209,7 +209,7 @@ export async function sendOrderUpdateEmail(
     to,
     `${ev.title.replace(/[^\p{L}\p{N}\s–-]/gu, "").trim()} – order ${o.order_number}`,
     layout(ev.title, `<p>Hi ${esc(o.customer_name.split(" ")[0])}, here is an update on your order <b>${esc(o.order_number)}</b>:</p>
-<p style="font-size:16px;font-weight:600">${esc(ev.text)}.</p>${steps}${ship}${list}`, { label: ev.linkLabel, href: ev.link }),
+<p style="font-size:16px;font-weight:600">${esc(ev.text)}.</p>${steps}${ship}${list}${ev.kind === "delivered" ? await reviewAsk("order") : ""}`, { label: ev.linkLabel, href: ev.link }),
     adminEmail() || undefined,
   );
 }
@@ -298,6 +298,18 @@ export async function sendRepairReceivedEmails(r: RepairRequest) {
   return results.some(Boolean);
 }
 
+// "Please review us on Google" – only when a review link is set in Admin → Repair promises.
+async function reviewAsk(what: "repair" | "order") {
+  try {
+    const { getRepairExtras } = await import("./data");
+    const x = await getRepairExtras();
+    if (!x.googleReviewUrl) return "";
+    return `<p style="padding:12px;background:#f0fdf4;border-radius:6px">⭐ Happy with your ${what}? A short Google review helps other factories find us: <a href="${esc(x.googleReviewUrl)}">write a review</a>. Thank you!</p>`;
+  } catch {
+    return "";
+  }
+}
+
 export async function sendRepairUpdateEmail(r: RepairRequest) {
   if (!r.email) return false;
   return send(
@@ -305,7 +317,7 @@ export async function sendRepairUpdateEmail(r: RepairRequest) {
     `Update on your PCB repair ${r.request_number}: ${REPAIR_STATUS_LABEL[r.status]}`,
     layout(
       `Your repair request is now: ${REPAIR_STATUS_LABEL[r.status]}`,
-      `<p>Hi ${esc(r.name.split(" ")[0])}, here’s the latest on your PCB repair.</p>${repairSummary(r)}${r.admin_notes ? `<p style="padding:12px;background:#fff7ed;border-radius:6px"><b>Message from our technician:</b><br>${esc(r.admin_notes).replace(/\n/g, "<br>")}</p>` : ""}`,
+      `<p>Hi ${esc(r.name.split(" ")[0])}, here’s the latest on your PCB repair.</p>${repairSummary(r)}${r.status === "returned" ? await reviewAsk("repair") : ""}${r.admin_notes ? `<p style="padding:12px;background:#fff7ed;border-radius:6px"><b>Message from our technician:</b><br>${esc(r.admin_notes).replace(/\n/g, "<br>")}</p>` : ""}`,
       { label: "View your request", href: `${SITE}/account/repairs` },
     ),
     adminEmail() || undefined,

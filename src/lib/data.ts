@@ -192,6 +192,15 @@ export async function getCourse(): Promise<import("./course").CourseInfo> {
   return mergeCourse((data?.value as Partial<import("./course").CourseInfo>) ?? null);
 }
 
+export async function getRepairExtras(): Promise<import("./repair-extras").RepairExtras> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("catalog");
+  const { mergeExtras } = await import("./repair-extras");
+  const { data } = await supabase.from("site_content").select("value").eq("key", "repair_terms").maybeSingle();
+  return mergeExtras((data?.value as Partial<import("./repair-extras").RepairExtras>) ?? null);
+}
+
 export async function getOpenJobs(): Promise<import("./types").Job[]> {
   "use cache";
   cacheLife("minutes");

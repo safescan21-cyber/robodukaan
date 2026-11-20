@@ -8,7 +8,16 @@ export type Fact = { topic: string; keywords: string[]; text: string; custom?: b
 
 const inr = (n: number) => "₹" + n.toLocaleString("en-IN");
 
-export function builtInFacts(opts: { onlinePayment: boolean }): Fact[] {
+export function builtInFacts(opts: { onlinePayment: boolean; repair?: import("./repair-extras").RepairExtras }): Fact[] {
+  const r = opts.repair;
+  const repairExtra = r ? [
+    r.turnaround && `Usual repair time: ${r.turnaround}.`,
+    r.urgent,
+    r.evaluation === "free" && "Evaluation of the board is free.",
+    r.evaluation === "charged" && r.evaluationCharge && `Evaluation charge: ${r.evaluationCharge}.`,
+    r.noFixNoFee && "No fix, no repair charge.",
+    r.pickup,
+  ].filter(Boolean).join(" ") : "";
   const repairPrices = REPAIR_SERVICES.filter((s) => s.prices?.length)
     .map((s) => `${s.name}: ${s.prices!.map((p) => `${p.item} ${inr(p.from)}${p.to ? `–${inr(p.to)}` : "+"}`).join("; ")}`)
     .join(". ");
@@ -28,7 +37,7 @@ export function builtInFacts(opts: { onlinePayment: boolean }): Fact[] {
     { topic: "Warranty", keywords: ["warranty", "guarantee", "garanti", "months", "वारंटी", "گارنٹی", "garantie", "보증", "保証", "保修"],
       text: `Product warranty is shown on each product page (in months). Parts are tested before dispatch. PCB repairs come with a ${REPAIR_TERMS.warrantyMonths}-month repair warranty.` },
     { topic: "PCB repair service", keywords: ["repair", "repairing", "fix", "faulty", "burnt", "dead", "not working", "kharab", "theek", "mrammat", "मरम्मत", "रिपेयर", "خراب", "réparation", "수리", "修理", "维修"],
-      text: `We repair industrial PCBs at component level: VFD/AC drives, SMPS, PLC, HMI, servo drives, inverter/UPS cards, machine control boards and weighing indicators. How it works: upload photos on /pcb-repair → free quote in 1–2 working days → no work without your approval → load-tested${REPAIR_TERMS.testVideo ? " with a test video before we ship it back" : ""} → ${REPAIR_TERMS.warrantyMonths}-month warranty. Track a repair on /track (Repair tab).` },
+      text: `We repair industrial PCBs at component level: VFD/AC drives, SMPS, PLC, HMI, servo drives, inverter/UPS cards, machine control boards and weighing indicators. How it works: upload photos on /pcb-repair → free quote in 1–2 working days → no work without your approval → load-tested${REPAIR_TERMS.testVideo ? " with a test video before we ship it back" : ""} → ${REPAIR_TERMS.warrantyMonths}-month warranty.${repairExtra ? " " + repairExtra : ""} Brand pages like /pcb-repair/vfd-drive-repair/yaskawa. Track a repair on /track (Repair tab).` },
     { topic: "Repair prices", keywords: ["repair price", "repair cost", "repair charges", "repairing cost", "repair rate", "repair kitna", "repair charge"],
       text: `Typical repair prices (+ GST; the exact price comes in the free quote after the photo check): ${repairPrices}.` },
     { topic: "Bulk orders", keywords: ["bulk", "quantity", "wholesale", "dealer", "reseller", "moq", "discount", "quote", "rfq", "bom", "pieces", "pcs"],

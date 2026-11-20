@@ -9,6 +9,7 @@ import { RepairCta } from "@/components/LocationBlocks";
 import { getT } from "@/i18n/server";
 import { getRepairGuide } from "@/lib/repair-guides";
 import { DRIVE_BRANDS, codeSlug, getDriveBrand, kindLabel } from "@/lib/fault-codes";
+import { repairBrandForFaultBrand } from "@/lib/repair-brands";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://pcbdukaan.com";
 
@@ -108,6 +109,7 @@ async function BrandFaults({ params }: Pick<PageProps<"/[lang]/fault-codes/[bran
           <span key={x.slug}>{i ? " · " : ""}<Link href={`/fault-codes/${x.slug}`} className="text-brand-700 hover:underline">{x.brand}</Link></span>
         ))}
       </p>
+      {(() => { const rb = repairBrandForFaultBrand(b.slug); return rb ? <p className="mt-4 text-sm">🔧 <Link href={`/pcb-repair/${rb.service}/${rb.slug}`} className="font-semibold text-brand-700 hover:underline">{rb.brand} {rb.noun} repair service →</Link></p> : null; })()}
       <div className="mt-8"><RepairCta place={`${b.brand} drive`} /></div>
     </>
   );

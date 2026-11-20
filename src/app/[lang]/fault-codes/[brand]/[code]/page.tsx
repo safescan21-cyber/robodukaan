@@ -8,6 +8,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { RepairCta } from "@/components/LocationBlocks";
 import { getT } from "@/i18n/server";
 import { DRIVE_BRANDS, codeSlug, getFaultCode, kindLabel } from "@/lib/fault-codes";
+import { repairBrandForFaultBrand } from "@/lib/repair-brands";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://pcbdukaan.com";
 
@@ -126,6 +127,7 @@ async function FaultCode({ params }: Pick<PageProps<"/[lang]/fault-codes/[brand]
         <p className="mt-4 rounded bg-brand-50 px-4 py-3 text-brand-900">
           🔧 If {c.code} comes back after these checks, the fault is usually on the drive&apos;s power or control board. {t("fault.repairCta")}{" "}
           <Link href="/pcb-repair" className="font-semibold underline">{t("loc.getQuote")}</Link>
+          {(() => { const rb = repairBrandForFaultBrand(b.slug); return rb ? <> · <Link href={`/pcb-repair/${rb.service}/${rb.slug}`} className="underline">{rb.brand} {rb.noun} repair</Link></> : null; })()}
         </p>
       ) : null}
       <p className="mt-4 rounded bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">⚠️ {t("fault.note")}</p>

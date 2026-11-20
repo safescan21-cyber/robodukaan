@@ -3,12 +3,19 @@ import { getT } from "@/i18n/server";
 import { REPAIR_TERMS } from "@/lib/constants";
 import { formatINR } from "@/lib/format";
 import { REPAIR_SERVICES, type RepairService } from "@/lib/seo-content";
+import { getRepairExtras } from "@/lib/data";
 
 // The repair promise (free check, approval, test video, warranty) – set in REPAIR_TERMS.
 export async function RepairPromise({ className = "" }: { className?: string }) {
-  const { t } = await getT();
+  const [{ t }, x] = await Promise.all([getT(), getRepairExtras()]);
   const items = [
     ["🔍", t("repairTerms.freeCheck")],
+    ...(x.evaluation === "free" ? [["🆓", "Free evaluation of the board at our workshop"]] : []),
+    ...(x.evaluation === "charged" && x.evaluationCharge ? [["🧾", `Evaluation charge: ${x.evaluationCharge}`]] : []),
+    ...(x.noFixNoFee ? [["✅", "No fix, no repair charge"]] : []),
+    ...(x.turnaround ? [["⏱️", `Repair time: ${x.turnaround}`]] : []),
+    ...(x.urgent ? [["🚨", x.urgent]] : []),
+    ...(x.pickup ? [["🚚", x.pickup]] : []),
     ["✋", t("repairTerms.approval")],
     ["⚡", t("repairTerms.tested")],
     ...(REPAIR_TERMS.testVideo ? [["🎥", t("repairTerms.video")]] : []),
@@ -20,7 +27,20 @@ export async function RepairPromise({ className = "" }: { className?: string }) 
       <ul className="mt-3 grid gap-2 text-sm text-emerald-900">
         {items.map(([icon, text]) => <li key={text} className="flex gap-2"><span aria-hidden="true">{icon}</span>{text}</li>)}
       </ul>
+      <GoogleReviews x={x} className="mt-4" />
     </section>
+  );
+}
+
+// Your real Google rating (entered in Admin → Repair promises) with a link to read and write reviews.
+export function GoogleReviews({ x, className = "" }: { x: import("@/lib/repair-extras").RepairExtras; className?: string }) {
+  if (!x.googleReviewUrl) return null;
+  return (
+    <a href={x.googleReviewUrl} target="_blank" rel="noopener" className={`flex flex-wrap items-center gap-2 rounded-md bg-white px-3 py-2 text-sm ring-1 ring-emerald-200 hover:ring-emerald-500 ${className}`}>
+      {x.googleRating ? <><span className="text-amber-500" aria-hidden="true">★★★★★</span><b>{x.googleRating}/5</b></> : <span aria-hidden="true">⭐</span>}
+      <span>{x.googleReviewCount ? `${x.googleReviewCount} Google reviews` : "Google reviews"}</span>
+      <span className="font-semibold text-brand-700">Read or write a review →</span>
+    </a>
   );
 }
 

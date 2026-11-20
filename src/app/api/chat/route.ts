@@ -1,3 +1,4 @@
+import { mergeExtras } from "@/lib/repair-extras";
 import { cpus } from "node:os";
 import { createClient } from "@supabase/supabase-js";
 import { STORE } from "@/lib/constants";
@@ -23,11 +24,12 @@ const db = () => createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env
 let factsCache: { at: number; facts: Fact[] } | null = null;
 async function allFacts(): Promise<Fact[]> {
   if (factsCache && Date.now() - factsCache.at < 60_000) return factsCache.facts;
-  const [{ data }, online] = await Promise.all([
+  const [{ data }, online, terms] = await Promise.all([
     db().from("ai_knowledge").select("question, answer, keywords").eq("is_active", true).limit(300).then((r) => r, () => ({ data: null })),
     rzpEnabled().then((x) => !!x, () => false),
+    db().from("site_content").select("value").eq("key", "repair_terms").maybeSingle().then((r) => mergeExtras(r.data?.value ?? null), () => mergeExtras(null)),
   ]);
-  const facts = [...customFacts((data as { question: string; answer: string; keywords: string | null }[] | null) ?? []), ...builtInFacts({ onlinePayment: online })];
+  const facts = [...customFacts((data as { question: string; answer: string; keywords: string | null }[] | null) ?? []), ...builtInFacts({ onlinePayment: online, repair: terms })];
   factsCache = { at: Date.now(), facts };
   return facts;
 }

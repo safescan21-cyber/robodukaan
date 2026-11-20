@@ -8,6 +8,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { getT } from "@/i18n/server";
 import { REPAIR_SERVICES, getRepairService } from "@/lib/seo-content";
 import { DRIVE_BRANDS } from "@/lib/fault-codes";
+import { brandsForService } from "@/lib/repair-brands";
 import { guidesForService } from "@/lib/repair-guides";
 import { STATES } from "@/lib/locations";
 import { RepairPrices, RepairPromise } from "@/components/RepairPromise";
@@ -82,6 +83,11 @@ async function Service({ params }: Pick<PageProps<"/[lang]/pcb-repair/[service]"
         <section className="rounded-md bg-white p-5 ring-1 ring-slate-200">
           <h2 className="text-lg font-bold">Brands we see most</h2>
           <p className="mt-2 text-sm text-slate-700">{s.brands.join(" · ")}</p>
+          {brandsForService(s.slug).length > 0 && (
+            <p className="mt-2 flex flex-wrap gap-2 text-sm">{brandsForService(s.slug).map((b) => (
+              <Link key={b.slug} href={`/pcb-repair/${s.slug}/${b.slug}`} className="rounded-full bg-slate-50 px-3 py-1 ring-1 ring-slate-300 hover:ring-brand-600">{b.brand} {b.noun} repair</Link>
+            ))}</p>
+          )}
           <h2 className="mt-4 text-lg font-bold">How it works</h2>
           <ol className="mt-2 list-decimal space-y-1 ps-5 text-sm text-slate-700">
             <li>{t("repairPage.s1t")}</li>
