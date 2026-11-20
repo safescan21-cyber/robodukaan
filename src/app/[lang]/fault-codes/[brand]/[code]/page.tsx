@@ -130,6 +130,7 @@ async function FaultCode({ params }: Pick<PageProps<"/[lang]/fault-codes/[brand]
           {(() => { const rb = repairBrandForFaultBrand(b.slug); return rb ? <> · <Link href={`/pcb-repair/${rb.service}/${rb.slug}`} className="underline">{rb.brand} {rb.noun} repair</Link></> : null; })()}
         </p>
       ) : null}
+      {c.board ? <p className="mt-3 text-sm">🧩 Repairing it yourself? <Link href="/category/semiconductors" className="font-semibold text-brand-700 hover:underline">IGBTs, MOSFETs, diodes &amp; driver ICs</Link></p> : null}
       <p className="mt-4 rounded bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">⚠️ {t("fault.note")}</p>
 
       {sameOther.length ? (

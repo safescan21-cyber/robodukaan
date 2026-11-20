@@ -8,13 +8,19 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { getT, alternatesFor } from "@/i18n/server";
 import Link from "@/i18n/client";
 import { CATEGORY_GUIDES, REPAIR_SERVICES } from "@/lib/seo-content";
+import { JsonLd } from "@/components/JsonLd";
 
 export async function generateMetadata(props: PageProps<"/[lang]/category/[slug]">) {
   const { slug } = await props.params;
   const category = await getCategory(slug);
   const { t } = await getT();
+  const g = category ? CATEGORY_GUIDES[category.slug] : undefined;
   return category
-    ? { title: t("meta.categoryTitle", { name: category.name }), description: [category.description, t("meta.categoryTail")].filter(Boolean).join(" "), alternates: await alternatesFor(`/category/${category.slug}`) }
+    ? {
+        title: g?.title ?? t("meta.categoryTitle", { name: category.name }),
+        description: g?.description ?? [category.description, t("meta.categoryTail")].filter(Boolean).join(" "),
+        alternates: await alternatesFor(`/category/${category.slug}`),
+      }
     : { title: t("category.notFound") };
 }
 
@@ -59,7 +65,21 @@ async function CategoryGuide({ slug, name }: { slug: string; name: string }) {
   const { t } = await getT();
   const repair = REPAIR_SERVICES.find((r) => r.category === slug);
   return (
-    <section className="mt-10 grid gap-6 rounded-md bg-white p-6 ring-1 ring-slate-200 lg:grid-cols-2">
+    <>
+    <JsonLd data={{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: guide.faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }} />
+    {guide.types?.length ? (
+      <section className="mt-10 rounded-md bg-white p-6 ring-1 ring-slate-200">
+        <h2 className="text-xl font-bold">Types of {name.toLowerCase()} and where they&apos;re used</h2>
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full min-w-[420px] text-sm">
+            <tbody className="divide-y divide-slate-100">
+              {guide.types.map((x) => <tr key={x.name}><td className="py-2 pe-4 font-semibold">{x.name}</td><td className="py-2 text-slate-700">{x.use}</td></tr>)}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    ) : null}
+    <section className="mt-6 grid gap-6 rounded-md bg-white p-6 ring-1 ring-slate-200 lg:grid-cols-2">
       <div>
         <h2 className="text-xl font-bold">{name}: how to choose</h2>
         <p className="mt-2 text-slate-700">{guide.intro}</p>
@@ -82,5 +102,6 @@ async function CategoryGuide({ slug, name }: { slug: string; name: string }) {
         </dl>
       </div>
     </section>
+    </>
   );
 }

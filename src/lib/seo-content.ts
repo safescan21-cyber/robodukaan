@@ -3,7 +3,72 @@
 
 export type Faq = { q: string; a: string };
 
-export const CATEGORY_GUIDES: Record<string, { intro: string; tips: string[]; faqs: Faq[] }> = {
+export type CategoryGuide = {
+  title?: string;        // Google title (≤ 48 characters + " | PCBDukaan"); default "<name> – buy online in India"
+  description?: string;  // meta description (≤ 158 characters)
+  intro: string;
+  tips: string[];
+  types?: { name: string; use: string }[]; // "Types and where they're used" table
+  faqs: Faq[];
+};
+
+export const CATEGORY_GUIDES: Record<string, CategoryGuide> = {
+  "iot-sensors": {
+    title: "IoT sensors & modules – industrial IoT, India",
+    description: "Buy IoT sensors and modules in India: wireless temperature, humidity, vibration and energy sensors, ESP32, LoRa, GSM/4G and Modbus IoT gateways. GST invoice.",
+    intro: "IoT (Internet of Things) sensors measure temperature, humidity, vibration, current, level or pressure and send the data over Wi-Fi, LoRa, GSM/4G or Ethernet to a dashboard or the cloud. In factories they are used for machine monitoring, energy metering, cold-chain logging and predictive maintenance – often added to existing machines without changing the PLC.",
+    tips: [
+      "Pick the connection first: Wi-Fi for indoor areas with a router, LoRa / LoRaWAN for long range and battery life, GSM/4G where there is no network, RS485 Modbus or Ethernet for wired panels.",
+      "Check the protection rating – IP65/IP67 for dusty or wet areas – and the working temperature range.",
+      "For battery sensors, check the battery life at the reporting interval you need (e.g. every 5 or 15 minutes).",
+      "To connect existing 4–20 mA or Modbus instruments, use an IoT gateway or data logger instead of new sensors.",
+      "Make sure the data format (MQTT, HTTP, Modbus TCP) works with your dashboard or cloud platform.",
+    ],
+    types: [
+      { name: "Temperature & humidity sensors", use: "Cold storage, pharma and food plants, server rooms, panels" },
+      { name: "Vibration sensors", use: "Motors, pumps, fans and gearboxes – early warning before bearing failure" },
+      { name: "Current / energy sensors (CT, energy meters)", use: "Machine run-time, energy monitoring, overload alerts" },
+      { name: "Level & pressure sensors", use: "Tanks, compressors, hydraulic and water systems" },
+      { name: "ESP32 / ESP8266 Wi-Fi modules", use: "Custom IoT devices and retrofits" },
+      { name: "LoRa / GSM / 4G modules", use: "Long-range or remote sites without Wi-Fi" },
+      { name: "IoT gateways & data loggers", use: "Send Modbus / 4–20 mA data from existing machines to the cloud" },
+    ],
+    faqs: [
+      { q: "What is an industrial IoT sensor?", a: "A sensor that measures a value such as temperature, vibration or current and sends it automatically over a network (Wi-Fi, LoRa, GSM or Ethernet) to a dashboard, so machines can be monitored without someone reading them on site." },
+      { q: "Wi-Fi, LoRa or GSM – which IoT connection should I choose?", a: "Wi-Fi is simplest inside a plant with good router coverage. LoRa works over long distances with very low power, so battery sensors last for years. GSM/4G works anywhere with mobile network, with a SIM and data plan." },
+      { q: "Can I connect my existing machines to IoT?", a: "Yes. An IoT gateway or data logger reads existing Modbus RS485 or 4–20 mA signals from PLCs, meters and transmitters and sends them to the cloud – no change to the machine's control program is needed." },
+      { q: "Do IoT sensors need internet all the time?", a: "Most store readings for a while when the connection drops and send them later; check the buffer size. Wired Modbus or local dashboards can work without internet." },
+    ],
+  },
+  "semiconductors": {
+    title: "Semiconductors – IGBT, MOSFET, ICs online India",
+    description: "Buy power semiconductors and ICs in India: IGBT modules, MOSFETs, diodes, bridge rectifiers, thyristors, gate driver ICs, optocouplers and regulators. GST invoice.",
+    intro: "Semiconductors are the parts that switch and control power and signals: IGBT modules and MOSFETs in VFDs, SMPS and inverters, diodes and bridge rectifiers, thyristors (SCRs) in soft starters and heaters, and ICs such as gate drivers, PWM controllers, optocouplers and voltage regulators. They are the parts that most often fail – and most often get replaced – in industrial board repair.",
+    tips: [
+      "Always replace with the same part number or a part with equal or higher voltage, current and switching ratings – and the same package and pin order.",
+      "For IGBT modules, match the configuration (single, half-bridge, six-pack/PIM), voltage (1200 V for 415 V drives) and current rating.",
+      "MOSFETs: compare drain-source voltage, current, on-resistance (RDS(on)) and gate threshold – a logic-level MOSFET is needed for 3.3/5 V drive.",
+      "When an IGBT or MOSFET fails, check the gate driver, gate resistors and snubber before fitting the new part, or it may fail again.",
+      "Buy from traceable sources – fake and remarked power semiconductors are common and fail under load.",
+    ],
+    types: [
+      { name: "IGBT modules & discrete IGBTs", use: "VFD / AC drive power stages, servo drives, welding machines, UPS" },
+      { name: "MOSFETs", use: "SMPS, DC-DC converters, inverter and UPS cards, motor drivers" },
+      { name: "Diodes, fast-recovery & Schottky diodes", use: "Rectification, freewheeling, SMPS outputs" },
+      { name: "Bridge rectifiers", use: "AC-to-DC input stage of drives and power supplies" },
+      { name: "Thyristors (SCR) & TRIACs", use: "Soft starters, heater controllers, SSRs, AC power control" },
+      { name: "Gate driver ICs & optocouplers", use: "Driving IGBTs/MOSFETs with isolation from the control side" },
+      { name: "PWM controller ICs", use: "SMPS and power supply control" },
+      { name: "Voltage regulators & references", use: "5 V / 3.3 V supplies for control boards" },
+    ],
+    faqs: [
+      { q: "How do I test an IGBT module?", a: "With the power off and capacitors discharged, use a multimeter's diode test across the collector-emitter diodes, check for shorts between all terminals, and test switching with a gate signal if possible. Our repair guide 'How to test an IGBT module' explains each step." },
+      { q: "Can I replace a MOSFET with a different part number?", a: "Yes, if the replacement has equal or higher voltage and current ratings, similar or lower on-resistance and gate charge, the same package and pin order, and a suitable gate threshold for the driver. When unsure, ask us with the old part number." },
+      { q: "Why did the new IGBT fail again right after replacement?", a: "Usually the original cause was not fixed – a faulty gate driver, an open gate resistor, a shorted motor or cable, or a failed snubber or DC bus capacitor. Check those before powering the drive again." },
+      { q: "Do you supply semiconductors in bulk for repair shops and OEMs?", a: "Yes – send your part list on the quick order or bulk quote page for quantity prices with GST invoice." },
+    ],
+  },
+
   "industrial-control-boards": {
     intro: "Industrial control boards run the logic of machines and panels: PID temperature controllers, timer and relay boards, interface cards and inverter/UPS control cards. They are the first thing to check – and often the cheapest part to replace – when a machine stops responding.",
     tips: [

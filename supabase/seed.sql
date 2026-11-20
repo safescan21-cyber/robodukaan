@@ -17,7 +17,9 @@ insert into public.categories (slug, name, description, icon, sort_order) values
   ('relays-power-components',   'Relays & Power Components', 'SSRs, IGBT modules, MOSFETs and high-voltage capacitors.',             'component', 7),
   ('displays-hmi',              'Displays & HMI',            'HMI touch panels, panel meters and LCD modules.',                      'display', 8),
   ('communication-modules',     'Communication Modules',     'RS485, Modbus, Ethernet and wireless modules for industrial links.',   'wifi', 9),
-  ('test-repair-tools',         'Test & Repair Tools',       'Multimeters, rework stations, soldering and component testers.',       'wrench', 10)
+  ('test-repair-tools',         'Test & Repair Tools',       'Multimeters, rework stations, soldering and component testers.',       'wrench', 10),
+  ('iot-sensors',               'IoT Sensors & Modules',     'Wireless and smart sensors, ESP32 / LoRa / GSM modules, gateways and data loggers for Industry 4.0.', 'iot', 11),
+  ('semiconductors',            'Semiconductors & ICs',      'IGBTs, MOSFETs, diodes, thyristors, gate driver and power ICs, optocouplers and regulators.',       'chip', 12)
 on conflict (slug) do update set
   name = excluded.name, description = excluded.description,
   icon = excluded.icon, sort_order = excluded.sort_order;

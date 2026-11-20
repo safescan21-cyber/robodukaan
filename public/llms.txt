@@ -11,6 +11,8 @@
 - [Load cells & weighing](https://pcbdukaan.com/category/load-cells-weighing)
 - [Industrial sensors](https://pcbdukaan.com/category/industrial-sensors)
 - [Relays & power components](https://pcbdukaan.com/category/relays-power-components)
+- [IoT sensors & modules](https://pcbdukaan.com/category/iot-sensors): wireless and smart sensors, ESP32 / LoRa / GSM modules, IoT gateways and data loggers
+- [Semiconductors & ICs](https://pcbdukaan.com/category/semiconductors): IGBT modules, MOSFETs, diodes, thyristors, gate driver ICs, optocouplers, regulators
 - [Bulk quotes for factories and OEMs](https://pcbdukaan.com/bulk-quote)
 - [Replacement part finder](https://pcbdukaan.com/replacement-finder): search by other brands' part numbers (Omron, Siemens, Mean Well …)
 
