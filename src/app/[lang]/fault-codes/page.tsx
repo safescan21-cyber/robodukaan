@@ -7,7 +7,7 @@ import { DRIVE_BRANDS, codeSlug } from "@/lib/fault-codes";
 
 export const metadata: Metadata = {
   title: "Inverter, VFD & servo error codes – meaning & fix",
-  description: "What inverter/VFD and servo error codes like oc, ov, Lv, GF, AL-014, E.OC1, F0001 mean, causes and fixes – Delta, Yaskawa, Mitsubishi, Siemens, ABB, Danfoss, INVT and more.",
+  description: "What inverter/VFD and servo error codes like oc, ov, Lv, GF, AL-014, E.OC1, F0001 mean, causes and fixes – Delta, Yaskawa, Mitsubishi, Siemens, ABB, Danfoss, LS, INVT, Vacon and more.",
   alternates: { canonical: "/fault-codes" },
 };
 
