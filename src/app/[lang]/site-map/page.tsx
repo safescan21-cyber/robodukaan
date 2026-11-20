@@ -21,6 +21,7 @@ const MAIN = [
   ["/products?sort=best-selling", "nav.bestSellers"],
   ["/pcb-repair", "nav.pcbRepairService"],
   ["/pcb-repair-course", "nav.repairCourse"],
+  ["/pcb-design", "nav.pcbDesign"],
   ["/careers", "nav.careers"],
   ["/locations", "nav.areas"],
   ["/quick-order", "nav.quickOrder"],

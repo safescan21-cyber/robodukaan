@@ -2,7 +2,8 @@ import type { MetadataRoute } from "next";
 import { getAllProductLinks, getCategories, getOpenJobs, getCaseStudies } from "@/lib/data";
 import { AREAS, STATES, isFeaturedArea } from "@/lib/locations";
 import { REPAIR_GUIDES } from "@/lib/repair-guides";
-import { DRIVE_BRANDS } from "@/lib/fault-codes";
+import { DRIVE_BRANDS, codeSlug } from "@/lib/fault-codes";
+import { PCB_LESSONS } from "@/lib/pcb-design";
 import { REPAIR_SERVICES } from "@/lib/seo-content";
 import { languageAlternates } from "@/i18n/config";
 
@@ -32,6 +33,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...REPAIR_GUIDES.map((g) => ({ url: `${SITE}/repair-guides/${g.slug}`, changeFrequency: "monthly" as const, priority: 0.7 })),
     ...cases.map((c) => ({ url: `${SITE}/repair-case-studies/${c.slug}`, lastModified: c.updated_at, changeFrequency: "monthly" as const, priority: 0.6 })),
     ...DRIVE_BRANDS.map((b) => ({ url: `${SITE}/fault-codes/${b.slug}`, changeFrequency: "monthly" as const, priority: 0.6 })),
+    ...DRIVE_BRANDS.flatMap((b) => b.codes.map((c) => ({ url: `${SITE}/fault-codes/${b.slug}/${codeSlug(c)}`, changeFrequency: "monthly" as const, priority: 0.5 }))),
+    { url: `${SITE}/pcb-design`, changeFrequency: "monthly" as const, priority: 0.7 },
+    ...PCB_LESSONS.map((l) => ({ url: `${SITE}/pcb-design/${l.slug}`, changeFrequency: "monthly" as const, priority: 0.6 })),
     ...AREAS.filter((x) => isFeaturedArea(x.state, x.slug)).map((x) => ({ url: `${SITE}/locations/${x.state}/${x.slug}`, changeFrequency: "monthly" as const, priority: 0.5 })),
     ...jobs.map((j) => ({ url: `${SITE}/careers/${j.slug}`, lastModified: j.created_at, changeFrequency: "weekly" as const, priority: 0.5, alternates: langs(`/careers/${j.slug}`) })),
   ];

@@ -8,7 +8,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { RepairCta } from "@/components/LocationBlocks";
 import { getT } from "@/i18n/server";
 import { getRepairGuide } from "@/lib/repair-guides";
-import { DRIVE_BRANDS, getDriveBrand } from "@/lib/fault-codes";
+import { DRIVE_BRANDS, codeSlug, getDriveBrand, kindLabel } from "@/lib/fault-codes";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://pcbdukaan.com";
 
@@ -25,10 +25,13 @@ export async function generateMetadata(props: PageProps<"/[lang]/fault-codes/[br
   const codes = b.codes.slice(0, 4).map((c) => c.code).join(", ");
   const short = b.codes.slice(0, 2).map((c) => c.code).join(", ");
   // Keep titles under ~60 characters (with " | PCBDukaan") so Google shows them in full.
-  const main = `${b.brand} VFD fault codes – meaning & fix`;
+  const opts = b.kind === "servo"
+    ? [`${b.brand} alarm codes – meaning & fix`, `${b.brand} alarm codes`]
+    : [`${b.brand} inverter & VFD error codes – meaning & fix`, `${b.brand} inverter & VFD error codes`, `${b.brand} VFD error codes – fix`, `${b.brand} VFD error codes`];
+  const main = opts.find((o) => o.length <= 48) ?? opts[opts.length - 1];
   return {
-    title: `${main} (${short}…)`.length <= 52 ? `${main} (${short}…)` : main,
-    description: `${b.brand} drive error codes ${codes} and more explained: meaning, common causes and what to check. ${b.series}.`.slice(0, 158),
+    title: `${main} (${short}…)`.length <= 48 ? `${main} (${short}…)` : main,
+    description: `${b.brand} ${kindLabel(b)} error codes ${codes} and more explained: meaning, common causes and what to check. ${b.series}.`.slice(0, 158),
     alternates: { canonical: `/fault-codes/${b.slug}` },
   };
 }
@@ -59,20 +62,21 @@ async function BrandFaults({ params }: Pick<PageProps<"/[lang]/fault-codes/[bran
         ],
       }} />
       <Breadcrumbs schema={false} items={[{ label: t("nav.faultCodes"), href: "/fault-codes" }, { label: b.brand }]} />
-      <h1 className="text-3xl font-extrabold">{b.brand} VFD fault codes</h1>
+      <h1 className="text-3xl font-extrabold">{b.brand} {b.kind === "servo" ? "servo drive alarm codes" : "inverter & VFD error codes"}</h1>
       <p className="mt-1 text-sm text-slate-500">{b.series}</p>
       <p className="mt-3 max-w-3xl text-slate-700">{b.intro}</p>
 
       <nav aria-label={`${b.brand} fault codes`} className="mt-4 flex flex-wrap gap-2">
         {b.codes.map((c) => (
-          <a key={c.code} href={`#${c.code.split(" ")[0].replace(/[^A-Za-z0-9]/g, "")}`} className="rounded-full bg-white px-3 py-1 font-mono text-xs ring-1 ring-slate-300 hover:ring-brand-600">{c.code.split(" ")[0]}</a>
+          <a key={c.code} href={`#${codeSlug(c)}`} className="rounded-full bg-white px-3 py-1 font-mono text-xs ring-1 ring-slate-300 hover:ring-brand-600">{c.code.split(" / ")[0]}</a>
         ))}
       </nav>
 
       <div className="mt-6 space-y-4">
         {b.codes.map((c) => (
-          <section key={c.code} id={c.code.split(" ")[0].replace(/[^A-Za-z0-9]/g, "")} className="scroll-mt-24 rounded-md bg-white p-5 ring-1 ring-slate-200">
-            <h2 className="text-lg font-bold"><span className="me-2 rounded bg-slate-900 px-2 py-0.5 font-mono text-sm text-white">{c.code}</span>{c.name}</h2>
+          <section key={c.code} id={codeSlug(c)} className="scroll-mt-24 rounded-md bg-white p-5 ring-1 ring-slate-200">
+            <h2 className="text-lg font-bold"><Link href={`/fault-codes/${b.slug}/${codeSlug(c)}`} className="hover:text-brand-700"><span className="me-2 rounded bg-slate-900 px-2 py-0.5 font-mono text-sm text-white">{c.code}</span>{c.name}</Link></h2>
+            {c.aliases?.length ? <p className="mt-1 text-xs text-slate-500">Also shown as {c.aliases.join(", ")}</p> : null}
             <div className="mt-3 grid gap-4 text-sm sm:grid-cols-2">
               <div>
                 <p className="font-semibold text-slate-900">{t("fault.causes")}</p>

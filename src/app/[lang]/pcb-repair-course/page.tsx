@@ -66,7 +66,7 @@ async function Course() {
 
       <section className="mt-8 rounded-md bg-sky-50 p-5 ring-1 ring-sky-100">
         <h2 className="font-bold">Learn from a working repair bench</h2>
-        <p className="mt-1 text-sm text-slate-700">PCBDukaan repairs industrial boards from factories every day – see our <Link href="/repair-case-studies" className="font-semibold text-brand-700 underline">repair case studies</Link>, free <Link href="/repair-guides" className="font-semibold text-brand-700 underline">repair guides</Link> and <Link href="/fault-codes" className="font-semibold text-brand-700 underline">VFD fault codes</Link>. Already a technician? Earn with us as a <Link href="/repair-partners" className="font-semibold text-brand-700 underline">repair partner</Link>.</p>
+        <p className="mt-1 text-sm text-slate-700">PCBDukaan repairs industrial boards from factories every day – see our <Link href="/repair-case-studies" className="font-semibold text-brand-700 underline">repair case studies</Link>, free <Link href="/repair-guides" className="font-semibold text-brand-700 underline">repair guides</Link>, <Link href="/fault-codes" className="font-semibold text-brand-700 underline">VFD &amp; servo error codes</Link> and free <Link href="/pcb-design" className="font-semibold text-brand-700 underline">PCB design study material</Link>. Already a technician? Earn with us as a <Link href="/repair-partners" className="font-semibold text-brand-700 underline">repair partner</Link>.</p>
       </section>
 
       <h2 className="mt-8 text-xl font-bold">Questions</h2>
