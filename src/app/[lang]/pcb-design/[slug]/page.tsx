@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { lang } from "next/root-params";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
+import { ExpertBox } from "@/components/ExpertBox";
 import { getT } from "@/i18n/server";
 import { PCB_LESSONS, getPcbLesson } from "@/lib/pcb-design";
 
@@ -73,6 +74,7 @@ async function Lesson({ params }: Pick<PageProps<"/[lang]/pcb-design/[slug]">, "
         </section>
       ))}
 
+      <ExpertBox path={`/pcb-design/${l.slug}`} className="mt-8" />
       <section className="mt-8">
         <h2 className="text-xl font-bold">Questions</h2>
         <dl className="mt-2 space-y-3">

@@ -210,6 +210,25 @@ export async function getBusinessLinks(): Promise<import("./business-links").Bus
   return cleanBusinessLinks(data?.value ?? null);
 }
 
+export async function getAuthor(): Promise<import("./expert").AuthorInfo | null> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("catalog");
+  const { cleanAuthor } = await import("./expert");
+  const { data } = await supabase.from("site_content").select("value").eq("key", "author").maybeSingle();
+  return cleanAuthor(data?.value ?? null);
+}
+
+export async function getWorkshopNote(path: string): Promise<import("./expert").WorkshopNote | null> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("catalog");
+  const { cleanNote, noteKey, notePathOk } = await import("./expert");
+  if (!notePathOk(path)) return null;
+  const { data } = await supabase.from("site_content").select("value").eq("key", noteKey(path)).maybeSingle();
+  return cleanNote(data?.value ?? null);
+}
+
 export async function getOpenJobs(): Promise<import("./types").Job[]> {
   "use cache";
   cacheLife("minutes");

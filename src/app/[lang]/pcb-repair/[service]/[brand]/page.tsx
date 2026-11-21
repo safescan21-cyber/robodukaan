@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { lang } from "next/root-params";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
+import { ExpertBox } from "@/components/ExpertBox";
 import { getT } from "@/i18n/server";
 import { getRepairService } from "@/lib/seo-content";
 import { DRIVE_BRANDS, codeSlug } from "@/lib/fault-codes";
@@ -123,6 +124,7 @@ async function BrandRepair({ params }: Pick<PageProps<"/[lang]/pcb-repair/[servi
         </section>
       </div>
 
+      <ExpertBox path={`/pcb-repair/${b.service}/${b.slug}`} className="mt-6" />
       <section className="mt-6 rounded-md bg-white p-5 ring-1 ring-slate-200">
         <h2 className="text-lg font-bold">{t("product.faqs")}</h2>
         <dl className="mt-2 space-y-3">

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { lang } from "next/root-params";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
+import { ExpertBox } from "@/components/ExpertBox";
 import { RepairCta } from "@/components/LocationBlocks";
 import { getT } from "@/i18n/server";
 import { getRepairGuide } from "@/lib/repair-guides";
@@ -97,6 +98,7 @@ async function BrandFaults({ params }: Pick<PageProps<"/[lang]/fault-codes/[bran
         ))}
       </div>
 
+      <ExpertBox path={`/fault-codes/${b.slug}`} className="mt-6" />
       <p className="mt-6 rounded bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">⚠️ {t("fault.note")}</p>
       <p className="mt-4 text-sm">📘 {t("nav.repairGuides")}:{" "}
         {["vfd-overcurrent-fault", "how-to-test-igbt-module", "vfd-capacitor-failure"].map((slug, i) => {

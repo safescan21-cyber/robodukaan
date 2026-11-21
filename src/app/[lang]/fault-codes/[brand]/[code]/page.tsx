@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { lang } from "next/root-params";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
+import { ExpertBox } from "@/components/ExpertBox";
 import { RepairCta } from "@/components/LocationBlocks";
 import { getT } from "@/i18n/server";
 import { DRIVE_BRANDS, codeSlug, getFaultCode, kindLabel } from "@/lib/fault-codes";
@@ -133,6 +134,7 @@ async function FaultCode({ params }: Pick<PageProps<"/[lang]/fault-codes/[brand]
       {c.board ? <p className="mt-3 text-sm">🧩 Repairing it yourself? <Link href="/category/semiconductors" className="font-semibold text-brand-700 hover:underline">IGBTs, MOSFETs, diodes &amp; driver ICs</Link></p> : null}
       <p className="mt-4 rounded bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">⚠️ {t("fault.note")}</p>
 
+      <ExpertBox path={`/fault-codes/${b.slug}/${codeSlug(c)}`} className="mt-6" />
       {sameOther.length ? (
         <section className="mt-6">
           <h2 className="text-lg font-bold">Same fault on other brands</h2>

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { lang } from "next/root-params";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
+import { ExpertBox } from "@/components/ExpertBox";
 import { REPAIR_GUIDES, SAFETY_NOTE, getRepairGuide } from "@/lib/repair-guides";
 import { getRepairService } from "@/lib/seo-content";
 import { getT } from "@/i18n/server";
@@ -88,6 +89,7 @@ async function Guide({ params }: Pick<PageProps<"/[lang]/repair-guides/[slug]">,
         </div>
       </section>
 
+      <ExpertBox path={`/repair-guides/${g.slug}`} className="mt-6" />
       <section className="mt-6 rounded-md bg-white p-5 ring-1 ring-slate-200">
         <h2 className="text-lg font-bold">{t("product.faqs")}</h2>
         <dl className="mt-2 space-y-3">{g.faqs.map((f) => <div key={f.q}><dt className="font-semibold">{f.q}</dt><dd className="mt-0.5 text-sm text-slate-700">{f.a}</dd></div>)}</dl>

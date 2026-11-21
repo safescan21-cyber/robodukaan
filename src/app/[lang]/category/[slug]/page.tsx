@@ -9,6 +9,7 @@ import { getT, alternatesFor } from "@/i18n/server";
 import Link from "@/i18n/client";
 import { CATEGORY_GUIDES, REPAIR_SERVICES } from "@/lib/seo-content";
 import { JsonLd } from "@/components/JsonLd";
+import { ExpertBox } from "@/components/ExpertBox";
 
 export async function generateMetadata(props: PageProps<"/[lang]/category/[slug]">) {
   const { slug } = await props.params;
@@ -102,6 +103,7 @@ async function CategoryGuide({ slug, name }: { slug: string; name: string }) {
         </dl>
       </div>
     </section>
+    <ExpertBox path={`/category/${slug}`} className="mt-6" />
     </>
   );
 }

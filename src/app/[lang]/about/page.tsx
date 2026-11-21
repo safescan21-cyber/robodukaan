@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { InfoPage } from "@/components/InfoPage";
+import { AuthorCard } from "@/components/ExpertBox";
 import { getT, alternatesFor } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -20,6 +21,7 @@ export default async function AboutPage() {
         <li>{t("about.li4")}</li>
         <li>{t("about.li5")}</li>
       </ul>
+      <AuthorCard />
     </InfoPage>
   );
 }
