@@ -294,15 +294,31 @@ def warn_memory():
 
 
 def warn_cert():
-    bad = []
-    for host in ("pcbdukaan.com", "api.pcbdukaan.com"):
-        ok, detail = check_cert(host)()
-        if "SSL check failed" in detail:
+    """Every certificate on this server (all sites), plus the weekly test renewal (deploy/ensure-ssl-renew.sh)."""
+    bad, soonest = [], None
+    for pem in glob.glob("/etc/letsencrypt/live/*/cert.pem"):
+        ok, out = run(["openssl", "x509", "-enddate", "-noout", "-in", pem])
+        if not ok or "=" not in out:
             continue
-        days = int(detail.split()[1]) if detail.split()[1].isdigit() else 99
+        try:
+            exp = datetime.datetime.strptime(out.split("=", 1)[1].strip(), "%b %d %H:%M:%S %Y %Z")
+        except ValueError:
+            continue
+        days = (exp - datetime.datetime.utcnow()).days
+        name = pem.split("/")[-2]
+        soonest = min(soonest, (days, name)) if soonest else (days, name)
         if days < 21:
-            bad.append(f"{host} expires in {days} days")
-    return not bad, "; ".join(bad) or "more than 3 weeks left"
+            bad.append(f"{name} expires in {days} days")
+    try:
+        test = open(os.path.join(OUT_DIR, "ssl-renew.txt")).read().strip()
+    except OSError:
+        test = ""
+    if test.startswith("FAILED"):
+        bad.append(f"test renewal {test[:300]}")
+    if bad:
+        return False, "; ".join(bad)
+    left = f"soonest: {soonest[1]} in {soonest[0]} days" if soonest else "more than 3 weeks left"
+    return True, left + (" · weekly test renewal OK" if test.startswith("ok") else "")
 
 
 def warn_slow():

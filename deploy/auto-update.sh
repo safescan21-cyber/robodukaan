@@ -53,6 +53,9 @@ install -d -m 700 -o "$APP_USER" -g "$APP_USER" /var/lib/robodukaan-settings
 # undone automatically if anything fails; does nothing once applied.
 [ -f "$APP_DIR/deploy/ensure-performance.sh" ] && bash "$APP_DIR/deploy/ensure-performance.sh" || true
 
+# SSL certificates renew by themselves (timer + nginx reload + weekly test renewal), for every site here.
+[ -f "$APP_DIR/deploy/ensure-ssl-renew.sh" ] && bash "$APP_DIR/deploy/ensure-ssl-renew.sh" || true
+
 # Extra domains (e.g. pcbdukaan.in) → 301 redirect to pcbdukaan.com once their DNS points here.
 [ -f "$APP_DIR/deploy/ensure-domain-redirects.sh" ] && bash "$APP_DIR/deploy/ensure-domain-redirects.sh" || true
 
