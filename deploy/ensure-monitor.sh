@@ -13,7 +13,7 @@ After=network-online.target
 Type=oneshot
 Environment=APP_DIR=$APP_DIR
 ExecStart=/usr/bin/python3 $APP_DIR/deploy/monitor.py
-TimeoutStartSec=4min
+TimeoutStartSec=12min
 Nice=10
 "
 TIMER="[Unit]
