@@ -15,7 +15,8 @@ export type DriveBrand = {
   slug: string;
   brand: string;
   series: string;
-  kind?: "vfd" | "servo"; // default "vfd"
+  kind?: "vfd" | "servo" | "plc"; // default "vfd"
+  short?: string; // short name for page titles when the full name is too long (e.g. "Mitsubishi FX")
   intro: string;
   codes: FaultCode[];
 };
@@ -54,6 +55,21 @@ const positionErrorChecks = [
   "Check for mechanical jams, a stuck brake or a load that is too heavy",
   "Increase the position error limit or reduce speed/acceleration",
   "Check motor power wiring order (U, V, W) and the encoder cable",
+];
+const plcProgramChecks = [
+  "Connect the programming software and read the error / diagnostic information",
+  "Fix the reported program step or parameter, then download the program again",
+  "Keep a backup of the program before changing anything",
+];
+const plcPowerChecks = [
+  "Measure the PLC supply voltage at its terminals (24 V DC or 100–240 V AC as marked)",
+  "Disconnect the 24 V sensor supply and expansion modules – if the PLC starts, one of them is shorted",
+  "If the supply is correct and nothing is connected but the PLC stays dead, its internal power section needs repair",
+];
+const plcNoiseChecks = [
+  "Check earthing of the PLC and panel, and keep I/O cables away from motor and VFD cables",
+  "Add surge suppressors (RC / diode) across relay, contactor and solenoid coils",
+  "If the error returns with a clean supply and earthing, the CPU board needs repair",
 ];
 const groundFaultChecks = [
   "Megger the motor and cable to earth",
@@ -260,6 +276,7 @@ export const DRIVE_BRANDS: DriveBrand[] = [
   },
   {
     slug: "allen-bradley",
+    short: "PowerFlex",
     brand: "Allen-Bradley PowerFlex",
     series: "PowerFlex 4, 4M, 40, 525",
     intro: "PowerFlex drives show faults as F followed by a number (F4 / F004). These are the most common faults on PowerFlex 4, 40 and 525 drives.",
@@ -286,6 +303,7 @@ export const DRIVE_BRANDS: DriveBrand[] = [
   },
   {
     slug: "delta-servo",
+    short: "Delta ASDA",
     brand: "Delta ASDA servo",
     kind: "servo",
     series: "ASDA-A2, ASDA-B2, ASDA-B3",
@@ -312,6 +330,7 @@ export const DRIVE_BRANDS: DriveBrand[] = [
   },
   {
     slug: "yaskawa-servo",
+    short: "Yaskawa Sigma",
     brand: "Yaskawa Sigma servo",
     kind: "servo",
     series: "Sigma-5 (SGDV), Sigma-7 (SGD7S)",
@@ -333,6 +352,7 @@ export const DRIVE_BRANDS: DriveBrand[] = [
   },
   {
     slug: "mitsubishi-servo",
+    short: "MR-J4",
     brand: "Mitsubishi MELSERVO",
     kind: "servo",
     series: "MR-J4, MR-J5, MR-JE",
@@ -447,6 +467,7 @@ export const DRIVE_BRANDS: DriveBrand[] = [
   },
   {
     slug: "panasonic-servo",
+    short: "Panasonic MINAS",
     brand: "Panasonic MINAS servo",
     kind: "servo",
     series: "MINAS A5, A6, A6B, LIQI",
@@ -469,6 +490,105 @@ export const DRIVE_BRANDS: DriveBrand[] = [
       { code: "Err40.0", name: "Absolute system down", causes: ["Encoder battery voltage low or disconnected"], check: ["Replace the battery and clear the absolute encoder"], aliases: ["Err40", "Err 40"] },
     ],
   },
+  {
+    slug: "siemens-servo",
+    short: "SINAMICS V90",
+    brand: "Siemens SINAMICS V90 servo",
+    kind: "servo",
+    series: "SINAMICS V90 (PTI / PN), 1FL6 motors",
+    intro: "SINAMICS V90 servo drives show faults as F followed by a number (e.g. F30001) and alarms as A. These are the faults seen most often.",
+    codes: [
+      { code: "F30001", name: "Power unit: overcurrent", causes: ["Short circuit or earth fault in motor or cable", "Acceleration too fast or gains too high", "Damaged power stage"], check: overcurrentChecks, board: true, aliases: ["F 30001", "30001"] },
+      { code: "F30002", name: "DC link voltage, overvoltage", causes: ["Braking energy too high", "Braking resistor missing or faulty", "High supply voltage"], check: overvoltageChecks, aliases: ["F 30002", "30002"] },
+      { code: "F30003", name: "DC link voltage, undervoltage", causes: ["Low or missing supply", "Weak DC link capacitors or charging circuit"], check: undervoltageChecks, board: true, aliases: ["F 30003", "30003"] },
+      { code: "F30004", name: "Drive heat sink overtemperature", causes: ["Fan failure or blocked heat sink", "High panel temperature", "Continuous overload"], check: overheatChecks, aliases: ["F 30004", "30004"] },
+      { code: "F30005", name: "Power unit overload (I²t)", causes: ["Load too heavy for the drive", "Mechanical binding"], check: servoOverloadChecks, aliases: ["F 30005", "30005"] },
+      { code: "F30011", name: "Line phase failure in main circuit", causes: ["Missing input phase", "Loose input terminals or blown fuse"], check: undervoltageChecks, aliases: ["F 30011", "30011"] },
+      { code: "F7011", name: "Motor overtemperature", causes: ["Motor overloaded or poorly cooled", "Temperature sensor or encoder cable problem"], check: servoOverloadChecks, aliases: ["F07011", "F 7011"] },
+      { code: "F7452", name: "Following error too high", causes: ["Mechanical jam or heavy load", "Torque limit too low", "Wrong motor wiring or encoder problem"], check: positionErrorChecks, aliases: ["F07452", "F 7452"] },
+      { code: "F7900", name: "Motor blocked", causes: ["Axis mechanically blocked or brake not released", "Load too heavy for the torque limit"], check: servoOverloadChecks, aliases: ["F07900", "F 7900"] },
+      { code: "F7901", name: "Motor overspeed", causes: ["Speed command too high", "Gains too high / overshoot", "Load drives the motor"], check: ["Check the speed command and limits", "Re-tune the gains"], aliases: ["F07901", "F 7901"] },
+    ],
+  },
+  {
+    slug: "siemens-plc",
+    short: "Siemens PLC",
+    brand: "Siemens SIMATIC PLC",
+    kind: "plc",
+    series: "S7-1200, S7-300, S7-1500, S7-200",
+    intro: "Siemens PLCs show faults with status LEDs on the CPU (SF, BF, ERROR, MAINT) and details in the diagnostic buffer. This is what each red or yellow LED usually means.",
+    codes: [
+      { code: "SF LED", name: "System fault (S7-300 / S7-400 red SF LED)", causes: ["Program error – e.g. a missing organisation block (OB82, OB86, OB122) or a called block not downloaded", "Module or I/O fault", "Hardware configuration does not match the real modules"], check: ["Open TIA Portal / STEP 7 → Online → Diagnostics → Diagnostic buffer and read the latest entry", "Download the missing blocks or correct the hardware configuration", "If the buffer shows a hardware error on the CPU, the CPU needs repair"], aliases: ["SF", "SF red", "S7-300 SF"] },
+      { code: "BF LED", name: "Bus fault (PROFIBUS / PROFINET)", causes: ["Network cable or connector loose / damaged", "A slave device (drive, remote I/O, HMI) is off or faulty", "Wrong address, device name or terminating resistor setting"], check: ["Check the network cable, connectors and terminating resistors (ON only at both ends of PROFIBUS)", "Check that every device on the network has power", "Compare device names / addresses with the hardware configuration"], aliases: ["BF", "BF1", "BF2", "BUSF"] },
+      { code: "ERROR LED", name: "Error LED red (S7-1200 / S7-1500)", causes: ["Flashing red: an error such as a configuration mismatch, memory card problem or internal CPU error", "Solid red: defective hardware"], check: ["Read the diagnostic buffer in TIA Portal", "Remove and refit the memory card; check the configuration matches the modules", "Solid red after a power cycle usually means the CPU needs repair or replacement"], board: true, aliases: ["ERROR red", "S7-1200 red light"] },
+      { code: "MAINT LED", name: "Maintenance request (yellow MAINT LED)", causes: ["Forced I/O values are active", "Memory card inserted or removed", "A module requests maintenance"], check: ["Check for active forces in TIA Portal and remove them if not needed", "Read the diagnostic buffer for the maintenance message"], aliases: ["MAINT"] },
+      { code: "DC5V LED", name: "5 V DC supply missing (S7-300)", causes: ["24 V supply to the CPU missing or too low", "Short circuit on the backplane bus or a module", "Faulty power section in the CPU"], check: plcPowerChecks, board: true, aliases: ["DC5V off", "5V LED"] },
+      { code: "STOP LED", name: "CPU in STOP", causes: ["Mode switch in STOP", "A program error stopped the CPU", "Program not downloaded or memory card missing"], check: ["Check the mode switch and the diagnostic buffer for why the CPU stopped", "Download the program again"], aliases: ["CPU STOP", "STOP mode"] },
+    ],
+  },
+  {
+    slug: "mitsubishi-plc",
+    short: "Mitsubishi FX",
+    brand: "Mitsubishi MELSEC FX PLC",
+    kind: "plc",
+    series: "FX1S, FX1N, FX2N, FX3U, FX3G, FX5U",
+    intro: "Mitsubishi FX PLCs show faults with the ERROR and BAT LEDs; the error code is stored in special registers (e.g. D8004 / D8060–D8069) and shown in GX Works. These are the most common.",
+    codes: [
+      { code: "ERROR LED flashing", name: "Program or parameter error", causes: ["Program syntax / circuit error or parameter error", "Program not completely written"], check: plcProgramChecks, aliases: ["ERR flashing", "ERROR blinking"] },
+      { code: "ERROR LED lit", name: "CPU error or watchdog timer error", causes: ["Program scan time too long (watchdog)", "Electrical noise", "CPU hardware fault"], check: plcNoiseChecks, board: true, aliases: ["ERR on", "ERROR on"] },
+      { code: "BAT LED", name: "Battery voltage low", causes: ["Backup battery low – latched data and clock may be lost on the next power-off"], check: ["Replace the battery with power ON (or within the time stated in the manual) so the memory is kept", "Keep a program backup before changing the battery"], aliases: ["BAT", "BATT V", "M8006"] },
+      { code: "6101", name: "RAM error", causes: ["Memory error on the CPU board"], check: ["Power off and on and write the program again; if it repeats, the CPU needs repair"], board: true, aliases: ["Error 6101"] },
+      { code: "6102", name: "Operation circuit error", causes: ["CPU operation circuit fault", "Electrical noise"], check: plcNoiseChecks, board: true, aliases: ["Error 6102"] },
+      { code: "6103", name: "I/O bus error", causes: ["Expansion cable loose or damaged", "Faulty expansion module"], check: ["Reseat the expansion cables", "Remove expansion modules one by one to find the faulty one"], board: true, aliases: ["Error 6103"] },
+      { code: "6104", name: "Expansion unit 24 V failure", causes: ["24 V supply of an expansion unit missing or shorted"], check: plcPowerChecks, board: true, aliases: ["Error 6104"] },
+      { code: "6105", name: "Watchdog timer error", causes: ["Program scan time longer than the watchdog setting (D8000)", "Program loop", "Hardware fault"], check: ["Check scan time in GX Works; shorten the program or increase D8000 with the WDT instruction", "If it happens with a short program, the CPU needs repair"], board: true, aliases: ["Error 6105", "WDT error"] },
+      { code: "POWER LED off", name: "PLC has no power", causes: ["Supply missing", "24 V service supply shorted", "Internal power section failed"], check: plcPowerChecks, board: true, aliases: ["POWER off", "PLC dead"] },
+    ],
+  },
+  {
+    slug: "allen-bradley-plc",
+    short: "MicroLogix",
+    brand: "Allen-Bradley MicroLogix PLC",
+    kind: "plc",
+    series: "MicroLogix 1000, 1100, 1200, 1400",
+    intro: "MicroLogix controllers show a major fault with the red FAULT LED; the fault code is in status word S:6 and shown in RSLogix 500. These are common codes.",
+    codes: [
+      { code: "0001", name: "NVRAM error (user program memory)", causes: ["Program memory corrupted, e.g. by a power cut or noise"], check: ["Download the program again", "If it repeats, check earthing and supply; then the controller needs repair"], board: true, aliases: ["0x0001", "Fault 0001", "S:6 0001"] },
+      { code: "0016", name: "Startup protection fault", causes: ["Startup protection bit S:1/9 is set, so the controller faults on power-up"], check: ["Check why S:1/9 is set in the program", "Clear the fault and set the program to handle power-up correctly"], aliases: ["0x0016", "Fault 0016"] },
+      { code: "0020", name: "Minor error bit set at end of scan", causes: ["Math overflow or another minor error was not cleared before end of scan"], check: ["Check S:5 minor error bits and add logic to handle / clear them", "Check the math instructions for overflow"], aliases: ["0x0020", "Fault 0020"] },
+      { code: "0022", name: "Watchdog timer expired", causes: ["Program scan too long or stuck in a loop", "Hardware fault"], check: ["Check for jumps / loops in the program", "Increase the watchdog value only if the scan time really needs it"], aliases: ["0x0022", "Fault 0022"] },
+      { code: "0034", name: "Negative value in timer accumulator or preset", causes: ["A timer preset or accumulator got a negative value from the program"], check: ["Find where the timer values are written and limit them to positive values"], aliases: ["0x0034", "Fault 0034"] },
+      { code: "FAULT LED", name: "Red FAULT LED – major fault", causes: ["Flashing: a major fault in the program / application (code in S:6)", "Solid: hardware fault"], check: ["Go online with RSLogix 500 and read S:6 for the fault code", "Solid red after power cycling usually means the controller needs repair"], board: true, aliases: ["FAULT red", "FLT LED"] },
+    ],
+  },
+  {
+    slug: "omron-plc",
+    short: "Omron PLC",
+    brand: "Omron PLC",
+    kind: "plc",
+    series: "CP1E, CP1L, CP1H, CJ2M",
+    intro: "Omron CP1 and CJ PLCs show faults with the ERR/ALM LED; details are in the CX-Programmer error log. This is what the LEDs mean.",
+    codes: [
+      { code: "ERR/ALM lit", name: "Fatal error – CPU stopped", causes: ["Memory error, I/O bus error, too many I/O units or program error", "Hardware fault"], check: ["Read the error log in CX-Programmer (PLC → Error)", "Check the expansion units and cables", "If the error repeats after a power cycle with nothing connected, the CPU needs repair"], board: true, aliases: ["ERR lit", "ERR/ALM red", "ALM on"] },
+      { code: "ERR/ALM flashing", name: "Non-fatal error – CPU keeps running", causes: ["Battery error, I/O verification error, cycle time too long or a FAL instruction in the program"], check: ["Read the error log in CX-Programmer and fix the reported item", "Clear the error after fixing it"], aliases: ["ERR flashing", "ALM flashing"] },
+      { code: "INH", name: "Output OFF – all outputs disabled", causes: ["The Output OFF bit is ON, so every output stays off"], check: ["Turn the Output OFF bit off in CX-Programmer"], aliases: ["INH LED"] },
+      { code: "POWER LED off", name: "PLC has no power", causes: ["Supply missing", "Sensor supply shorted", "Internal power section failed"], check: plcPowerChecks, board: true, aliases: ["POWER off"] },
+    ],
+  },
+  {
+    slug: "delta-plc",
+    short: "Delta PLC",
+    brand: "Delta DVP PLC",
+    kind: "plc",
+    series: "DVP-ES2, DVP-SS2, DVP-SX2, DVP-EH3, AS series",
+    intro: "Delta DVP PLCs show faults with the ERROR, RUN and POWER LEDs; the error details are read with WPLSoft / ISPSoft. This is what to check.",
+    codes: [
+      { code: "ERROR LED", name: "Program, syntax or hardware error", causes: ["Program syntax or loop error, or a wrong instruction / device number", "Watchdog (scan time too long)", "Hardware fault"], check: ["Connect WPLSoft / ISPSoft and read the error (PLC error check / D-register error codes)", ...plcProgramChecks.slice(1)], aliases: ["ERROR flashing", "ERR LED"] },
+      { code: "RUN LED off", name: "PLC not in RUN", causes: ["RUN/STOP switch in STOP", "An error stopped the program"], check: ["Check the RUN/STOP switch and the ERROR LED", "Read the error in WPLSoft / ISPSoft"], aliases: ["RUN off"] },
+      { code: "POWER LED off", name: "PLC has no power", causes: ["Supply missing", "24 V sensor supply shorted", "Internal power section failed"], check: plcPowerChecks, board: true, aliases: ["POWER off"] },
+      { code: "Outputs not working", name: "Output LED on but output not switching", causes: ["Relay contact worn out or transistor output burnt (often from inductive loads without suppression)", "Output common (COM) not wired"], check: ["Measure the output with the LED on", "Check the COM terminal wiring", "A burnt relay or transistor can be replaced – send it for repair"], board: true, aliases: ["output not working"] },
+    ],
+  },
 ];
 
 export function getDriveBrand(slug: string) {
@@ -486,4 +606,4 @@ export function getFaultCode(brandSlug: string, slug: string) {
   return brand && code ? { brand, code } : null;
 }
 
-export const kindLabel = (b: Pick<DriveBrand, "kind">) => (b.kind === "servo" ? "servo drive" : "VFD / inverter");
+export const kindLabel = (b: Pick<DriveBrand, "kind">) => (b.kind === "servo" ? "servo drive" : b.kind === "plc" ? "PLC" : "VFD / inverter");

@@ -9,6 +9,7 @@ import { PCB_LESSONS } from "@/lib/pcb-design";
 import { REPAIR_GUIDES } from "@/lib/repair-guides";
 import { REPAIR_BRANDS } from "@/lib/repair-brands";
 import { REPAIR_SERVICES } from "@/lib/seo-content";
+import { ELECTRICAL_FAULTS } from "@/lib/electrical-faults";
 
 // Admin → Workshop notes: who writes/checks the guides, and your own experience on each page.
 export default function WorkshopNotesAdmin() {
@@ -26,6 +27,7 @@ export default function WorkshopNotesAdmin() {
     ...REPAIR_BRANDS.map((b) => ({ p: `/pcb-repair/${b.service}/${b.slug}`, l: `${b.brand} ${b.noun} repair` })),
     ...REPAIR_GUIDES.map((g) => ({ p: `/repair-guides/${g.slug}`, l: `Guide: ${g.title}` })),
     ...PCB_LESSONS.map((x) => ({ p: `/pcb-design/${x.slug}`, l: `PCB design: ${x.h1}` })),
+    ...ELECTRICAL_FAULTS.map((x) => ({ p: `/electrical-faults/${x.slug}`, l: `Electrical: ${x.h1}` })),
   ], []);
 
   const load = useCallback(async () => {

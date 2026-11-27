@@ -34,6 +34,7 @@ export async function generateMetadata(props: PageProps<"/[lang]/fault-codes/[br
     `${b.brand} ${first} ${word}: ${c.name} – fix`,
     `${b.brand} ${first}: ${c.name}`,
     `${b.brand} ${first} ${word} – meaning & fix`,
+    ...(b.short ? [`${b.short} ${first} ${word}: ${c.name} – fix`, `${b.short} ${first}: ${c.name}`, `${b.short} ${first} ${word} – meaning & fix`, `${b.short} ${first} ${word}`] : []),
     `${first}: ${c.name}`,
     `${b.brand} ${first} ${word}`,
   ], 48);
@@ -66,7 +67,7 @@ async function FaultCode({ params }: Pick<PageProps<"/[lang]/fault-codes/[brand]
   const idx = b.codes.indexOf(c);
   const related = [...b.codes.slice(idx + 1), ...b.codes.slice(0, idx)].slice(0, 8);
   // Same problem on other brands (by the first important word of the name, e.g. "overcurrent", "earth").
-  const key = /earth|ground|overcurrent|overvoltage|undervoltage|overheat|overload|encoder|phase loss|eeprom|memory/i.exec(c.name)?.[0].toLowerCase();
+  const key = /earth|ground|overcurrent|overvoltage|undervoltage|overheat|overload|encoder|phase loss|eeprom|memory|watchdog|battery|no power/i.exec(c.name)?.[0].toLowerCase();
   const sameOther = key
     ? DRIVE_BRANDS.filter((x) => x.slug !== b.slug).flatMap((x) => x.codes.filter((y) => {
         const n = y.name.toLowerCase();
@@ -108,8 +109,13 @@ async function FaultCode({ params }: Pick<PageProps<"/[lang]/fault-codes/[brand]
       <section className="mt-6 rounded-md bg-white p-5 ring-1 ring-slate-200">
         <h2 className="text-lg font-bold">What {c.code} means</h2>
         <p className="mt-2 text-slate-700">
-          When a {b.brand} {kindLabel(b)} shows <strong className="font-mono">{c.code}</strong>, it has stopped to protect itself: <strong>{c.name.toLowerCase()}</strong>.
-          {" "}Write down when it appears (at start, while accelerating, while stopping, or at random) – that tells you most about the cause.
+          {b.kind === "plc" ? (
+            <><strong className="font-mono">{c.code}</strong> on a {b.brand} means: <strong>{c.name.toLowerCase()}</strong>.
+            {" "}Note what the machine was doing and whether it happens after a power cut, a program change or at random – that points to the cause.</>
+          ) : (
+            <>When a {b.brand} {kindLabel(b)} shows <strong className="font-mono">{c.code}</strong>, it has stopped to protect itself: <strong>{c.name.toLowerCase()}</strong>.
+            {" "}Write down when it appears (at start, while accelerating, while stopping, or at random) – that tells you most about the cause.</>
+          )}
         </p>
       </section>
 

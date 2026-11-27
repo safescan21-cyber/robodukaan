@@ -13,7 +13,11 @@ export type RepairBrand = {
 
 const vfdName: Record<string, string> = { "allen-bradley": "Allen-Bradley PowerFlex", ls: "LS (LSIS)" };
 const servoName: Record<string, string> = {
-  "delta-servo": "Delta", "yaskawa-servo": "Yaskawa", "mitsubishi-servo": "Mitsubishi", "panasonic-servo": "Panasonic",
+  "delta-servo": "Delta", "yaskawa-servo": "Yaskawa", "mitsubishi-servo": "Mitsubishi", "panasonic-servo": "Panasonic", "siemens-servo": "Siemens",
+};
+// PLC error-code pages → the PLC repair page of the same brand (below).
+const plcFaults: Record<string, string> = {
+  siemens: "siemens-plc", mitsubishi: "mitsubishi-plc", "allen-bradley": "allen-bradley-plc", omron: "omron-plc", delta: "delta-plc",
 };
 
 const fromDrive = (b: DriveBrand): RepairBrand =>
@@ -22,7 +26,7 @@ const fromDrive = (b: DriveBrand): RepairBrand =>
     : { service: "vfd-drive-repair", slug: b.slug, brand: vfdName[b.slug] ?? b.brand, noun: "VFD", series: b.series, faultBrand: b.slug };
 
 export const REPAIR_BRANDS: RepairBrand[] = [
-  ...DRIVE_BRANDS.map(fromDrive),
+  ...DRIVE_BRANDS.filter((b) => b.kind !== "plc").map(fromDrive),
   { service: "plc-repair", slug: "siemens", brand: "Siemens", noun: "PLC", series: "S7-200, S7-200 SMART, S7-1200, S7-300, LOGO!" },
   { service: "plc-repair", slug: "allen-bradley", brand: "Allen-Bradley", noun: "PLC", series: "MicroLogix, CompactLogix, SLC 500" },
   { service: "plc-repair", slug: "mitsubishi", brand: "Mitsubishi", noun: "PLC", series: "FX3U, FX3G, FX5U, Q series" },
@@ -40,6 +44,8 @@ export const REPAIR_BRANDS: RepairBrand[] = [
   { service: "smps-repair", slug: "siemens", brand: "Siemens SITOP", noun: "SMPS", series: "SITOP PSU, SITOP smart" },
   { service: "smps-repair", slug: "phoenix-contact", brand: "Phoenix Contact", noun: "SMPS", series: "QUINT, TRIO, STEP" },
 ];
+
+for (const b of REPAIR_BRANDS) if (b.service === "plc-repair" && plcFaults[b.slug]) b.faultBrand = plcFaults[b.slug];
 
 export const brandsForService = (service: string) => REPAIR_BRANDS.filter((b) => b.service === service);
 export const getRepairBrand = (service: string, slug: string) => REPAIR_BRANDS.find((b) => b.service === service && b.slug === slug);

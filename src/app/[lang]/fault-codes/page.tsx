@@ -6,8 +6,8 @@ import { getT } from "@/i18n/server";
 import { DRIVE_BRANDS, codeSlug } from "@/lib/fault-codes";
 
 export const metadata: Metadata = {
-  title: "Inverter, VFD & servo error codes – meaning & fix",
-  description: "What inverter/VFD and servo error codes like oc, ov, Lv, GF, AL-014, E.OC1, F0001 mean, causes and fixes – Delta, Yaskawa, Mitsubishi, Siemens, ABB, Danfoss, LS, INVT, Vacon and more.",
+  title: "VFD, servo & PLC error codes – meaning & fix",
+  description: "What VFD, servo and PLC error codes mean – oc, ov, Lv, GF, AL-014, F30001, SF/BF LED, 6105 – with causes and fixes for Delta, Siemens, Mitsubishi, Yaskawa, ABB and more.",
   alternates: { canonical: "/fault-codes" },
 };
 
@@ -18,9 +18,9 @@ export default async function FaultCodesPage() {
       <Breadcrumbs items={[{ label: t("nav.faultCodes") }]} />
       <h1 className="text-3xl font-extrabold">{t("fault.title")}</h1>
       <p className="mt-2 max-w-3xl text-slate-700">{t("fault.intro")}</p>
-      {(["vfd", "servo"] as const).map((kind) => (
+      {(["vfd", "servo", "plc"] as const).map((kind) => (
       <section key={kind} className="mt-6">
-      <h2 className="text-xl font-bold">{kind === "vfd" ? "VFD / inverter (AC drive) error codes" : "Servo drive alarm codes"}</h2>
+      <h2 className="text-xl font-bold">{kind === "vfd" ? "VFD / inverter (AC drive) error codes" : kind === "servo" ? "Servo drive alarm codes" : "PLC error codes & status LED faults"}</h2>
       <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {DRIVE_BRANDS.filter((b) => (b.kind ?? "vfd") === kind).map((b) => (
           <Link key={b.slug} href={`/fault-codes/${b.slug}`} className="group rounded-md bg-white p-5 ring-1 ring-slate-200 hover:ring-brand-600">

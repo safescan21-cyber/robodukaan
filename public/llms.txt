@@ -32,6 +32,8 @@
 
 ## Guides & learning
 - [Inverter, VFD & servo error codes](https://pcbdukaan.com/fault-codes): 251 codes, each on its own page (meaning, causes, checks) for Delta, Yaskawa, Mitsubishi, Siemens, ABB, Schneider, Danfoss, INVT, Fuji, Hitachi, Allen-Bradley PowerFlex, Vacon, Toshiba, LS, Lenze drives and Delta ASDA, Yaskawa Sigma, Mitsubishi MELSERVO, Panasonic MINAS servos – e.g. [Danfoss Alarm 14 earth fault](https://pcbdukaan.com/fault-codes/danfoss/alarm-14)
+- [Electrical & wiring faults](https://pcbdukaan.com/electrical-faults): MCB/RCCB tripping, loose connections, earthing, neutral failure, single phasing, motor overheating, megger test, servo vibration, 24 V panel drops, contactor chattering
+- PLC error codes and LED faults (Siemens SF/BF/ERROR, Mitsubishi FX 6101–6105, Allen-Bradley MicroLogix, Omron ERR/ALM, Delta DVP) and Siemens SINAMICS V90 servo faults are part of the error-code pages
 - [Repair guides](https://pcbdukaan.com/repair-guides): step-by-step checks such as testing IGBT modules and VFD capacitors
 - [Learn PCB design](https://pcbdukaan.com/pcb-design): 12 free lessons – PCB basics, schematic and footprints, placement, trace width for current, creepage for 230 V mains, grounding/EMI, SMPS layout, thermal design, Gerber files, KiCad/EasyEDA/Altium, common mistakes
 - [Areas served](https://pcbdukaan.com/locations): every Indian state and major industrial area

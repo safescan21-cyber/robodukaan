@@ -1,0 +1,308 @@
+// Electrical & wiring faults in factories and control panels (English): what you see, why it happens and
+// what to check. Practical guidance for maintenance staff – not a replacement for a licensed electrician.
+
+export type ElectricalFault = {
+  slug: string;
+  title: string;        // Google title (≤ 48 characters)
+  h1: string;
+  description: string;  // ≤ 158 characters
+  group: "Supply & protection" | "Motors" | "Control panels";
+  symptoms: string[];
+  causes: string[];
+  checks: string[];
+  prevent: string[];
+  faqs: { q: string; a: string }[];
+  related?: { href: string; label: string }[];
+};
+
+export const ELECTRICAL_SAFETY = "Electrical work can kill. Switch off and lock out the supply, prove it dead with a tested voltage tester, and discharge capacitors before touching anything. Work on mains and panels should be done by a qualified electrician.";
+
+export const ELECTRICAL_FAULTS: ElectricalFault[] = [
+  {
+    slug: "mcb-keeps-tripping",
+    title: "MCB keeps tripping – causes & how to find",
+    h1: "MCB keeps tripping: causes and how to find the fault",
+    description: "Why an MCB trips again and again – overload, short circuit, earth fault or a weak MCB – and a step-by-step way to find the faulty circuit or machine.",
+    group: "Supply & protection",
+    symptoms: ["MCB trips as soon as it is switched on", "MCB trips after some minutes or hours", "MCB trips when one machine starts"],
+    causes: [
+      "Short circuit – trips instantly when switched on",
+      "Overload – too many loads on the circuit; trips after some time and the MCB feels warm",
+      "Motor inrush current – a B-curve MCB is used where a C or D curve is needed for motors and transformers",
+      "Damaged cable insulation, water in a junction box, or a loose connection heating the terminal",
+      "An old or weak MCB that trips below its rating",
+    ],
+    checks: [
+      "Note when it trips: instantly (short circuit), after time (overload), or at motor start (inrush / wrong curve)",
+      "Switch off all loads, switch the MCB on, then switch loads on one by one to find the one that trips it",
+      "With the supply isolated, check the faulty circuit with an insulation tester (megger) between phase, neutral and earth",
+      "Measure the running current with a clamp meter and compare with the MCB rating",
+      "Check terminals for heat marks; tighten to the correct torque",
+      "Check the MCB curve (B / C / D) suits the load",
+    ],
+    prevent: ["Size cables and MCBs for the real load with spare margin", "Use C or D curve MCBs for motors, transformers and SMPS with high inrush", "Re-tighten panel terminals during yearly maintenance"],
+    faqs: [
+      { q: "Can I replace a tripping MCB with a higher rating?", a: "No – the MCB protects the cable. A higher rating can let the cable overheat and cause a fire. Find the fault or upgrade both cable and MCB." },
+      { q: "What is the difference between B, C and D curve MCBs?", a: "They trip instantly at different multiples of rated current: B at 3–5×, C at 5–10×, D at 10–20×. Motors and transformers usually need C or D." },
+    ],
+    related: [{ href: "/electrical-faults/rccb-elcb-tripping", label: "RCCB / ELCB tripping" }],
+  },
+  {
+    slug: "rccb-elcb-tripping",
+    title: "RCCB / ELCB tripping – earth leakage fault",
+    h1: "RCCB or ELCB keeps tripping (earth leakage)",
+    description: "Why an RCCB, ELCB or RCD trips – earth leakage from damp wiring, heaters, VFD filters or neutral-earth mix-ups – and how to find the leaking circuit safely.",
+    group: "Supply & protection",
+    symptoms: ["RCCB trips when it rains or in the morning (damp)", "Trips when one machine or heater is switched on", "Trips randomly with VFDs or many SMPS on the circuit"],
+    causes: [
+      "Current leaking to earth through damp or damaged insulation (cables, heaters, motors, sockets)",
+      "Neutral and earth connected together after the RCCB, or neutrals of two circuits mixed",
+      "VFD and SMPS EMC filters leaking current to earth – many on one RCCB add up",
+      "Moisture in outdoor junction boxes and pump cables",
+    ],
+    checks: [
+      "Switch off all MCBs after the RCCB, reset it, then switch MCBs on one by one to find the circuit",
+      "On that circuit, unplug or disconnect loads one by one",
+      "Megger the circuit (supply isolated) between phase/neutral and earth – low readings show the leak",
+      "Check that each circuit's neutral goes back through the same RCCB as its phase",
+      "For VFDs, use an RCCB type meant for drives (Type B or as the VFD manual says) and the right sensitivity",
+    ],
+    prevent: ["Use waterproof (IP65+) junction boxes outdoors", "Don't put many VFDs and SMPS on one 30 mA RCCB", "Keep neutral and earth separate after the main earthing point"],
+    faqs: [
+      { q: "Should I bypass an RCCB that keeps tripping?", a: "Never. It is protecting people from electric shock. Find the leaking circuit instead." },
+      { q: "Why does the RCCB trip only when it rains?", a: "Water gets into an outdoor cable, junction box, light or pump and leaks current to earth. Check outdoor circuits first." },
+    ],
+    related: [{ href: "/electrical-faults/motor-insulation-test-megger", label: "How to megger a motor" }, { href: "/electrical-faults/poor-earthing", label: "Poor earthing" }],
+  },
+  {
+    slug: "loose-connection-burnt-terminal",
+    title: "Loose connection & burnt terminals – fix",
+    h1: "Loose connections and burnt terminals",
+    description: "How loose connections cause burnt terminals, melted lugs, voltage drop and fires in panels – how to find hot spots and tighten connections correctly.",
+    group: "Supply & protection",
+    symptoms: ["Burnt or blackened terminal, melted lug or cable insulation", "Smell of burning plastic in the panel", "Machine works on and off, flickering lights, contactor buzzing", "One phase reads low voltage under load"],
+    causes: [
+      "Terminal screws not tightened to the correct torque, or loosened by vibration and heat cycles",
+      "Wrong lug size or a lug not crimped with the right tool",
+      "Aluminium cable on copper terminals without a bimetallic lug",
+      "Fine-strand cable without a ferrule – strands break and the contact gets loose",
+    ],
+    checks: [
+      "Isolate the supply, then check and tighten all power terminals",
+      "Replace any burnt terminal, lug and the damaged length of cable – cleaning is not enough",
+      "With the panel running (by a qualified person), use a thermal camera or IR thermometer to find hot terminals",
+      "Measure voltage on each phase at the machine under load – a big drop on one phase points to a bad joint",
+    ],
+    prevent: ["Use correctly sized lugs crimped with the proper tool, and ferrules on fine-strand wire", "Re-torque power terminals once a year", "Use bimetallic lugs for aluminium cables"],
+    faqs: [
+      { q: "Why do terminals burn even when the current is within rating?", a: "A loose joint has high resistance, so it heats up at normal current. The heat oxidises the contact, which makes it worse until it burns." },
+    ],
+  },
+  {
+    slug: "poor-earthing",
+    title: "Poor earthing in factories – signs & fixes",
+    h1: "Poor earthing: signs, dangers and how to check",
+    description: "Signs of poor earthing – shocks from machine bodies, PLC and VFD faults, noise on sensors – and how to check earth resistance and earth continuity.",
+    group: "Supply & protection",
+    symptoms: ["Mild shocks or tingling from machine bodies", "Voltage between neutral and earth higher than a few volts", "Random PLC, HMI or VFD errors and communication faults", "Sensor readings jumping"],
+    causes: [
+      "Dry or corroded earth pit, broken or loose earth wire",
+      "Earth missing on a machine or panel door",
+      "Neutral used as earth, or earth and neutral swapped",
+    ],
+    checks: [
+      "Measure voltage between neutral and earth at the machine – it should be only a few volts",
+      "Check continuity of the earth conductor from the machine body back to the main earth bar",
+      "Test earth pit resistance with an earth tester – it should be as low as possible and within your site's requirement",
+      "Check earth straps on panel doors, VFD and motor bodies",
+    ],
+    prevent: ["Test earth pits every year, especially before summer", "Use a separate clean earth for electronics as the equipment manual recommends", "Never use neutral as earth"],
+    faqs: [
+      { q: "Can bad earthing damage PLCs and VFDs?", a: "Yes. Without a good earth, surges and noise have no safe path, which causes random errors and damages input circuits and power supplies." },
+    ],
+    related: [{ href: "/electrical-faults/neutral-failure-high-voltage", label: "Neutral failure" }],
+  },
+  {
+    slug: "neutral-failure-high-voltage",
+    title: "Neutral failure – high voltage, burnt devices",
+    h1: "Neutral failure: why devices burn and voltage goes high",
+    description: "How a loose or broken neutral makes single-phase voltage rise to 300–400 V, burning SMPS, PLCs and appliances – and how to detect and prevent it.",
+    group: "Supply & protection",
+    symptoms: ["Lights very bright on some circuits and dim on others", "Many SMPS, adapters, PLCs or appliances fail at the same time", "Single-phase voltage much higher than 230 V on one phase"],
+    causes: [
+      "Loose, burnt or broken neutral in the main panel, meter, or service cable",
+      "Undersized neutral carrying high current from unbalanced or non-linear loads (SMPS, LED drivers, VFDs)",
+    ],
+    checks: [
+      "Measure phase-to-neutral voltage on all three phases – a big difference between phases points to a neutral fault",
+      "Check and tighten the neutral link and all neutral connections from the incomer down",
+      "Measure neutral current with a clamp meter and compare with the cable size",
+    ],
+    prevent: ["Install a voltage monitoring relay or over/under-voltage protection for sensitive equipment", "Size the neutral for non-linear loads", "Balance single-phase loads across the three phases"],
+    faqs: [
+      { q: "Why did many SMPS and PLC power supplies fail together?", a: "A broken neutral in a 3-phase system lets single-phase voltage rise towards 415 V on lightly loaded phases, which destroys connected electronics." },
+    ],
+  },
+  {
+    slug: "single-phasing-motor",
+    title: "Single phasing – motor hums, won't start",
+    h1: "Single phasing: 3-phase motor humming and not starting",
+    description: "Why a 3-phase motor hums, runs hot or won't start – single phasing from a blown fuse, loose contact or broken cable – and how to find the missing phase.",
+    group: "Motors",
+    symptoms: ["Motor hums but does not start", "Motor runs slower, noisier and very hot", "Overload relay trips", "One phase current zero or very low"],
+    causes: [
+      "Blown fuse, tripped single pole or a failed contactor contact",
+      "Loose or burnt terminal on one phase",
+      "Broken cable core or a winding open inside the motor",
+      "Supply phase missing from the utility",
+    ],
+    checks: [
+      "Measure voltage between all three phases at the incomer, after the contactor and at the motor terminals",
+      "Measure current on all three phases with a clamp meter while it runs",
+      "With supply isolated, measure winding resistance – all three should be nearly equal",
+      "Check fuses, contactor contacts and overload relay terminals",
+    ],
+    prevent: ["Use a phase failure relay or motor protection relay", "Set the overload relay to the motor's nameplate current", "Inspect contactor contacts during maintenance"],
+    faqs: [
+      { q: "Can a motor run on two phases?", a: "A running motor may keep turning on two phases, but it draws much higher current and burns quickly. It will not start on two phases." },
+    ],
+    related: [{ href: "/electrical-faults/motor-overheating", label: "Motor overheating" }, { href: "/electrical-faults/phase-reversal", label: "Motor running in reverse" }],
+  },
+  {
+    slug: "phase-reversal",
+    title: "Motor running in reverse – phase sequence",
+    h1: "Motor running in reverse: phase sequence (phase reversal)",
+    description: "Why a 3-phase motor suddenly runs backwards after supply or cable work, how to check phase sequence, and how to correct it safely.",
+    group: "Motors",
+    symptoms: ["Motor, pump or fan runs in the wrong direction after electrical work", "Compressor or pump makes noise and gives no output"],
+    causes: ["Two supply phases swapped during cable, transformer or meter work", "Motor terminal connections changed"],
+    checks: [
+      "Check phase sequence with a phase sequence meter at the incomer",
+      "If the sequence is reversed, swap any two phases – at the incomer for the whole plant, or at the motor for one machine",
+      "For VFD-driven motors, direction can also be changed by parameter or by swapping two output phases (never input) – follow the VFD manual",
+    ],
+    prevent: ["Install a phase sequence relay for pumps, compressors and machines that must not run backwards", "Mark cables R/Y/B (L1/L2/L3) at both ends"],
+    faqs: [{ q: "Does swapping input phases on a VFD change motor direction?", a: "No. A VFD makes its own output phases, so swapping its input does not change direction. Use the direction parameter or swap two output phases." }],
+  },
+  {
+    slug: "motor-overheating",
+    title: "Electric motor overheating – causes & checks",
+    h1: "Electric motor overheating: causes and checks",
+    description: "Why an electric motor overheats – overload, low or unbalanced voltage, single phasing, poor cooling, bearings or VFD low speed – and what to check first.",
+    group: "Motors",
+    symptoms: ["Motor body too hot to touch", "Overload relay or VFD motor overload trips", "Burnt smell, discoloured paint, insulation failure"],
+    causes: [
+      "Mechanical overload or a jammed / worn machine",
+      "Low or unbalanced supply voltage, or single phasing",
+      "Blocked cooling fins, broken fan or fan cover",
+      "Worn bearings",
+      "Running a self-cooled motor at low speed on a VFD for long periods",
+      "Too many starts per hour",
+    ],
+    checks: [
+      "Measure current on all three phases and compare with the nameplate current",
+      "Measure voltage on all three phases – unbalance should be small (around 1–2%)",
+      "Clean the cooling fins and check the fan",
+      "Turn the shaft by hand (isolated) and listen to the bearings",
+      "For VFD use at low speed, check if a separately cooled (forced-ventilated) motor is needed",
+    ],
+    prevent: ["Set overload protection to nameplate current", "Clean motors regularly in dusty plants", "Grease bearings as specified – not too much"],
+    faqs: [{ q: "How hot is too hot for a motor?", a: "It depends on the insulation class (B, F, H). As a quick guide, if you can't keep your hand on the body for a few seconds, measure the temperature and current and find the cause." }],
+    related: [{ href: "/electrical-faults/motor-insulation-test-megger", label: "Motor insulation test" }],
+  },
+  {
+    slug: "motor-insulation-test-megger",
+    title: "How to megger a motor – insulation test",
+    h1: "How to test motor insulation with a megger",
+    description: "Step-by-step motor insulation resistance test with a megger: test voltage, phase-to-earth and phase-to-phase readings, and what a low reading means.",
+    group: "Motors",
+    symptoms: ["Motor trips the RCCB, earth fault relay or VFD ground fault", "Motor was flooded, stood idle in damp, or overheated"],
+    causes: ["Moisture in the winding", "Insulation aged by heat", "Damage from voltage spikes (long VFD cables) or contamination with oil and dust"],
+    checks: [
+      "Isolate and lock off. Disconnect the motor from the VFD or starter – never megger with electronics connected",
+      "Use 500 V DC for low-voltage motors (or as the motor maker states)",
+      "Measure each phase to earth (frame) for 1 minute and note the reading",
+      "Measure phase to phase if the winding ends are accessible",
+      "As a common rule, readings below about 1 MΩ show a problem; compare with earlier readings – a falling trend is a warning",
+      "Discharge the winding to earth after each test",
+    ],
+    prevent: ["Record insulation readings every year to see the trend", "Use anti-condensation heaters on motors in damp places", "For long VFD cables, use output reactors or dV/dt filters as the VFD manual recommends"],
+    faqs: [
+      { q: "Can a damp motor be saved?", a: "Often yes – drying it with heaters or low-voltage heating (by a motor rewinder) can bring the insulation back. Megger again before running it." },
+      { q: "Why must the VFD be disconnected before a megger test?", a: "The test voltage can destroy the VFD's IGBTs and electronics. Always disconnect the motor cable at the drive." },
+    ],
+  },
+  {
+    slug: "servo-motor-vibration-noise",
+    title: "Servo motor vibration, noise & hunting – fix",
+    h1: "Servo motor vibration, noise and hunting",
+    description: "Why a servo motor vibrates, makes noise or hunts at standstill – gain tuning, loose coupling, encoder noise, resonance – and how to fix it step by step.",
+    group: "Motors",
+    symptoms: ["Motor buzzes or whines at standstill", "Axis oscillates (hunts) around the position", "Vibration at certain speeds"],
+    causes: [
+      "Servo gains too high, or auto-tuning not done for the real load",
+      "Loose coupling, belt or mounting – backlash",
+      "Mechanical resonance of the machine",
+      "Noise on the encoder cable or poor earthing / shield connection",
+      "Wrong load inertia ratio setting",
+    ],
+    checks: [
+      "Check couplings, belts and mounting bolts for looseness",
+      "Run the drive's auto-tuning with the real load connected",
+      "Reduce the gain or use the drive's notch filter for resonance",
+      "Check the encoder cable shield is earthed and the cable is away from power cables",
+    ],
+    prevent: ["Use the cables recommended by the servo maker", "Re-tune after changing the mechanics or load"],
+    faqs: [{ q: "Is servo hunting a drive fault?", a: "Usually not – it is mostly tuning or mechanics. If the drive also shows encoder or overcurrent alarms, check those codes." }],
+    related: [{ href: "/fault-codes", label: "Servo drive alarm codes" }],
+  },
+  {
+    slug: "control-panel-24v-drop",
+    title: "24V DC drop in control panel – PLC resets",
+    h1: "24 V DC dropping in a control panel: PLC and sensors resetting",
+    description: "Why 24 V DC in a control panel drops – overloaded SMPS, shorted sensor, failing capacitors – causing PLC resets and sensor faults, and how to find it.",
+    group: "Control panels",
+    symptoms: ["PLC or HMI resets when a valve or relay switches", "Sensors flicker or give false signals", "24 V reads low (e.g. 20 V) under load"],
+    causes: [
+      "SMPS too small for the total load, or solenoid inrush",
+      "A shorted sensor cable or valve coil pulling the 24 V down",
+      "Aged SMPS with dried output capacitors",
+      "Thin or long 0 V / 24 V wiring causing voltage drop",
+    ],
+    checks: [
+      "Measure 24 V at the SMPS and at the PLC while the machine runs",
+      "Add up the current of all 24 V loads and compare with the SMPS rating",
+      "Disconnect field circuits one by one to find a shorted sensor or coil",
+      "Use separate supplies or electronic circuit breakers for PLC and for valves/relays",
+    ],
+    prevent: ["Keep 20–30% spare SMPS capacity", "Use surge suppression on coils", "Replace SMPS that run hot or show ripple"],
+    faqs: [{ q: "Why does the PLC reset only when a solenoid switches?", a: "The coil's inrush current or switching spike pulls the shared 24 V down for a moment. Separate the supplies or add suppression." }],
+    related: [{ href: "/category/smps-power-supplies", label: "SMPS & power supplies" }, { href: "/pcb-repair/smps-repair", label: "SMPS repair" }],
+  },
+  {
+    slug: "contactor-chattering",
+    title: "Contactor chattering or humming – causes",
+    h1: "Contactor chattering, humming or not holding",
+    description: "Why a contactor chatters, hums loudly or drops out – low coil voltage, dirty pole faces, weak control supply or a loose holding contact – and what to check.",
+    group: "Control panels",
+    symptoms: ["Loud humming or buzzing contactor", "Contactor pulls in and drops out repeatedly (chattering)", "Burnt contactor coil"],
+    causes: [
+      "Coil voltage too low (control transformer overloaded, long control cable)",
+      "Dirt or rust on the magnet pole faces, broken shading ring (AC coils)",
+      "Loose holding (self-latching) contact or a bouncing push button / sensor",
+      "Wrong coil voltage fitted",
+    ],
+    checks: [
+      "Measure coil voltage while the contactor is energised",
+      "Check the coil rating matches the control voltage (e.g. 230 V AC, 24 V DC)",
+      "Clean the magnet faces; replace the contactor if the shading ring is broken",
+      "Check the latching contact and control wiring",
+    ],
+    prevent: ["Size the control transformer for all coils energised together", "Replace contactors with pitted contacts during maintenance"],
+    faqs: [{ q: "Can a chattering contactor damage the motor?", a: "Yes. Repeated on-off switching causes high inrush currents and can single-phase the motor through burnt contacts." }],
+  },
+];
+
+export function getElectricalFault(slug: string) {
+  return ELECTRICAL_FAULTS.find((f) => f.slug === slug);
+}

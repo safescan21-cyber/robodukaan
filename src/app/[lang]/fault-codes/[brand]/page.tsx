@@ -29,6 +29,8 @@ export async function generateMetadata(props: PageProps<"/[lang]/fault-codes/[br
   // Keep titles under ~60 characters (with " | PCBDukaan") so Google shows them in full.
   const opts = b.kind === "servo"
     ? [`${b.brand} alarm codes – meaning & fix`, `${b.brand} alarm codes`]
+    : b.kind === "plc"
+    ? [`${b.brand} error codes & LED faults – fix`, `${b.brand} error codes & LEDs`, `${b.brand} error codes`]
     : [`${b.brand} inverter & VFD error codes – meaning & fix`, `${b.brand} inverter & VFD error codes`, `${b.brand} VFD error codes – fix`, `${b.brand} VFD error codes`];
   const main = opts.find((o) => o.length <= 48) ?? opts[opts.length - 1];
   return {
@@ -64,7 +66,7 @@ async function BrandFaults({ params }: Pick<PageProps<"/[lang]/fault-codes/[bran
         ],
       }} />
       <Breadcrumbs schema={false} items={[{ label: t("nav.faultCodes"), href: "/fault-codes" }, { label: b.brand }]} />
-      <h1 className="text-3xl font-extrabold">{b.brand} {b.kind === "servo" ? "servo drive alarm codes" : "inverter & VFD error codes"}</h1>
+      <h1 className="text-3xl font-extrabold">{b.brand} {b.kind === "servo" ? "servo drive alarm codes" : b.kind === "plc" ? "error codes & LED faults" : "inverter & VFD error codes"}</h1>
       <p className="mt-1 text-sm text-slate-500">{b.series}</p>
       <p className="mt-3 max-w-3xl text-slate-700">{b.intro}</p>
 

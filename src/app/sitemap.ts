@@ -5,6 +5,7 @@ import { REPAIR_GUIDES } from "@/lib/repair-guides";
 import { DRIVE_BRANDS, codeSlug } from "@/lib/fault-codes";
 import { PCB_LESSONS } from "@/lib/pcb-design";
 import { REPAIR_BRANDS } from "@/lib/repair-brands";
+import { ELECTRICAL_FAULTS } from "@/lib/electrical-faults";
 import { REPAIR_SERVICES } from "@/lib/seo-content";
 import { languageAlternates } from "@/i18n/config";
 
@@ -36,6 +37,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...DRIVE_BRANDS.map((b) => ({ url: `${SITE}/fault-codes/${b.slug}`, changeFrequency: "monthly" as const, priority: 0.6 })),
     ...DRIVE_BRANDS.flatMap((b) => b.codes.map((c) => ({ url: `${SITE}/fault-codes/${b.slug}/${codeSlug(c)}`, changeFrequency: "monthly" as const, priority: 0.5 }))),
     ...REPAIR_BRANDS.map((b) => ({ url: `${SITE}/pcb-repair/${b.service}/${b.slug}`, changeFrequency: "monthly" as const, priority: 0.7 })),
+    { url: `${SITE}/electrical-faults`, changeFrequency: "monthly" as const, priority: 0.7 },
+    ...ELECTRICAL_FAULTS.map((f) => ({ url: `${SITE}/electrical-faults/${f.slug}`, changeFrequency: "monthly" as const, priority: 0.6 })),
     { url: `${SITE}/pcb-design`, changeFrequency: "monthly" as const, priority: 0.7 },
     ...PCB_LESSONS.map((l) => ({ url: `${SITE}/pcb-design/${l.slug}`, changeFrequency: "monthly" as const, priority: 0.6 })),
     ...AREAS.filter((x) => isFeaturedArea(x.state, x.slug)).map((x) => ({ url: `${SITE}/locations/${x.state}/${x.slug}`, changeFrequency: "monthly" as const, priority: 0.5 })),
