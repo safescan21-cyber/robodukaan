@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import Link from "@/i18n/client";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { MachineImage, PhotoCredit } from "@/components/MachineArt";
-import { getCncPhotos } from "@/lib/data";
+import { getCncPhotos, getCncSettings } from "@/lib/data";
+import { notFound } from "next/navigation";
 import { MACHINES, SPEC_ROWS, TYPE_SHORT, bestIndexes, fullName, getMachine, isTurning, type CncType } from "@/lib/cnc-machines";
 
 export const metadata: Metadata = {
@@ -23,8 +24,10 @@ export default function CncComparePage(props: PageProps<"/[lang]/cnc-machines/co
 
 async function Compare({ searchParams }: Pick<PageProps<"/[lang]/cnc-machines/compare">, "searchParams">) {
   const sp = await searchParams;
+  const cnc = await getCncSettings();
+  if (!cnc.enabled) notFound();
   const raw = typeof sp.m === "string" ? sp.m : "";
-  const list = [...new Set(raw.split(","))].map(getMachine).filter((m): m is NonNullable<typeof m> => !!m).slice(0, 4);
+  const list = [...new Set(raw.split(","))].map(getMachine).filter((m): m is NonNullable<typeof m> => !!m && !cnc.hidden.includes(m.slug)).slice(0, 4);
   if (list.length < 2) {
     return (
       <div className="rounded-xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
@@ -39,7 +42,7 @@ async function Compare({ searchParams }: Pick<PageProps<"/[lang]/cnc-machines/co
   const anyMilling = list.some((m) => !isTurning(m.type));
   const rows = SPEC_ROWS.filter((r) => (!r.turning || anyTurning) && (!r.milling || anyMilling) && list.some((m) => m.specs[r.key]));
   const share = `https://wa.me/?text=${encodeURIComponent(`CNC machine comparison: ${list.map(fullName).join(" vs ")} – https://pcbdukaan.com/cnc-machines/compare?m=${list.map((m) => m.slug).join(",")}`)}`;
-  const others = MACHINES.filter((x) => x.type === list[0].type && !list.includes(x)).slice(0, 8);
+  const others = MACHINES.filter((x) => x.type === list[0].type && !list.includes(x) && !cnc.hidden.includes(x.slug)).slice(0, 8);
   return (
     <>
       <div className="flex flex-wrap items-end justify-between gap-3">

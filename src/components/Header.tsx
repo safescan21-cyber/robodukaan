@@ -1,5 +1,5 @@
 import Link from "@/i18n/client";
-import { getCategories } from "@/lib/data";
+import { getCategories, getCncSettings } from "@/lib/data";
 import { FREE_SHIPPING_FROM, formatINR } from "@/lib/format";
 import { STORE } from "@/lib/constants";
 import { HeaderActions } from "./HeaderActions";
@@ -12,7 +12,7 @@ import { getT } from "@/i18n/server";
 import { localizePath } from "@/i18n/config";
 
 export async function Header() {
-  const categories = await getCategories();
+  const [categories, cnc] = await Promise.all([getCategories(), getCncSettings()]);
   const { t, locale } = await getT();
   return (
     <header className="relative z-40">
@@ -33,7 +33,7 @@ export async function Header() {
       {/* Main row */}
       <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-1.5 gap-y-3 px-3 py-3 sm:gap-x-4 sm:px-4 lg:flex-nowrap lg:gap-8">
-          <MobileMenu categories={categories} />
+          <MobileMenu categories={categories} showCnc={cnc.enabled} />
           <Logo />
           <form action={localizePath("/products", locale)} method="get" role="search" className="order-last flex w-full lg:order-none lg:flex-1">
             <label htmlFor="search-category" className="sr-only">{t("search.category")}</label>
@@ -73,7 +73,7 @@ export async function Header() {
               ["/quick-order", t("nav.quickOrder"), "hidden lg:block"],
               ["/bulk-quote", t("nav.bulkQuote")],
               ["/fault-codes", t("nav.faultCodes")],
-              ["/cnc-machines", "CNC compare", "hidden lg:block"],
+              ...(cnc.enabled ? [["/cnc-machines", "CNC compare", "hidden lg:block"]] : []),
               ["/repair-case-studies", t("nav.caseStudies"), "hidden 2xl:block"],
               ["/contact", t("nav.contact")],
             ] as [string, string, string?][]).map(([href, label, only]) => (

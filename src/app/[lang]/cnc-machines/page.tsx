@@ -3,31 +3,37 @@ import Link from "@/i18n/client";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
 import { CncFinder } from "@/components/CncFinder";
-import { getCncPhotos } from "@/lib/data";
+import { getCncPhotos, getCncSettings } from "@/lib/data";
+import { notFound } from "next/navigation";
 import { CNC_DATA_CHECKED, CNC_MAKERS, MACHINES, TYPE_LABEL, finderItems, type CncType } from "@/lib/cnc-machines";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://pcbdukaan.com";
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> {
+  if (!(await getCncSettings()).enabled) return { title: "Not found", robots: { index: false } };
+  return {
   title: "CNC machine comparison – VMC, HMC, lathe specs",
   description: `Compare ${MACHINES.length} CNC machines side by side – VMC, HMC, turning centres and VTLs from Jyoti, BFW, Makino and DMG MORI. Specs from maker data.`.slice(0, 158),
   alternates: { canonical: "/cnc-machines" },
 };
+}
 
 export default async function CncMachinesPage() {
-  const photos = await getCncPhotos();
-  const makers = Object.entries(CNC_MAKERS).map(([slug, m]) => ({ slug, name: m.name.split(" (")[0], full: m.name, country: m.country, count: MACHINES.filter((x) => x.maker === slug).length }));
-  const types = (Object.keys(TYPE_LABEL) as CncType[]).map((t) => ({ t, n: MACHINES.filter((m) => m.type === t).length })).filter((x) => x.n);
+  const [photos, cnc] = await Promise.all([getCncPhotos(), getCncSettings()]);
+  if (!cnc.enabled) notFound();
+  const shown = MACHINES.filter((m) => !cnc.hidden.includes(m.slug));
+  const makers = Object.entries(CNC_MAKERS).map(([slug, m]) => ({ slug, name: m.name.split(" (")[0], full: m.name, country: m.country, count: shown.filter((x) => x.maker === slug).length })).filter((m) => m.count > 0);
+  const types = (Object.keys(TYPE_LABEL) as CncType[]).map((t) => ({ t, n: shown.filter((m) => m.type === t).length })).filter((x) => x.n);
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 pb-28">
       <JsonLd data={{
         "@context": "https://schema.org", "@type": "ItemList", name: "CNC machines",
-        itemListElement: MACHINES.slice(0, 100).map((m, i) => ({ "@type": "ListItem", position: i + 1, url: `${SITE}/cnc-machines/${m.slug}` })),
+        itemListElement: shown.slice(0, 100).map((m, i) => ({ "@type": "ListItem", position: i + 1, url: `${SITE}/cnc-machines/${m.slug}` })),
       }} />
       <Breadcrumbs items={[{ label: "CNC machine comparison" }]} />
       <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-brand-800 px-5 py-8 text-white sm:px-10">
         <div aria-hidden="true" className="pointer-events-none absolute -right-10 -top-10 h-56 w-56 rounded-full bg-accent-500/20 blur-3xl" />
-        <p className="relative text-xs font-semibold uppercase tracking-widest text-accent-400">{MACHINES.length} machines · {makers.length} manufacturers · specs from maker data</p>
+        <p className="relative text-xs font-semibold uppercase tracking-widest text-accent-400">{shown.length} machines · {makers.length} manufacturers · specs from maker data</p>
         <h1 className="relative mt-2 text-3xl font-extrabold sm:text-4xl">CNC machine comparison</h1>
         <p className="relative mt-2 max-w-2xl text-slate-300">Search and compare VMCs, HMCs, turning centres and VTLs side by side – travels, spindle speed and power, taper, tool magazine, rapid traverse and accuracy, exactly as each manufacturer publishes them.</p>
         <div className="relative mt-5 flex flex-wrap gap-2 text-xs">
@@ -35,7 +41,7 @@ export default async function CncMachinesPage() {
         </div>
       </section>
 
-      <div className="mt-6"><CncFinder items={finderItems()} photos={photos} makers={makers.map(({ slug, name }) => ({ slug, name }))} /></div>
+      <div className="mt-6"><CncFinder items={finderItems().filter((x) => !cnc.hidden.includes(x.s))} photos={photos} makers={makers.map(({ slug, name }) => ({ slug, name }))} /></div>
 
       <section className="mt-10 grid gap-4 sm:grid-cols-2">
         {makers.map((m) => (

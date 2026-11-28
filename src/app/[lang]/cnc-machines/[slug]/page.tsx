@@ -6,7 +6,7 @@ import { lang } from "next/root-params";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
 import { MachineImage, PhotoCredit } from "@/components/MachineArt";
-import { getCncPhotos } from "@/lib/data";
+import { getCncPhotos, getCncSettings } from "@/lib/data";
 import { CNC_DATA_CHECKED, MACHINES, SPEC_ROWS, TYPE_LABEL, fullName, getMachine, isTurning, makerName, num, type CncType } from "@/lib/cnc-machines";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://pcbdukaan.com";
@@ -19,7 +19,8 @@ export async function generateStaticParams() {
 export async function generateMetadata(props: PageProps<"/[lang]/cnc-machines/[slug]">): Promise<Metadata> {
   const { slug } = await props.params;
   const m = getMachine(slug);
-  if (!m) return { title: "Not found" };
+  const cnc = await getCncSettings();
+  if (!m || !cnc.enabled || cnc.hidden.includes(m.slug)) return { title: "Not found", robots: { index: false } };
   const name = fullName(m);
   const opts = [`${name} specifications & comparison`, `${name} specifications`, `${name} specs`];
   const s = m.specs;
@@ -42,13 +43,14 @@ export default function CncMachinePage(props: PageProps<"/[lang]/cnc-machines/[s
 async function Machine({ params }: Pick<PageProps<"/[lang]/cnc-machines/[slug]">, "params">) {
   const { slug } = await params;
   const m = getMachine(slug);
-  if (!m) notFound();
+  const cnc = await getCncSettings();
+  if (!m || !cnc.enabled || cnc.hidden.includes(m.slug)) notFound();
   const turning = isTurning(m.type);
   const photo = (await getCncPhotos())[m.slug];
   const rows = SPEC_ROWS.filter((r) => m.specs[r.key]);
   // Similar machines: same type, closest size.
   const size = (x: typeof m) => num(x.specs.x_travel ?? x.specs.max_turn_dia) ?? 0;
-  const similar = MACHINES.filter((x) => x.type === m.type && x.slug !== m.slug)
+  const similar = MACHINES.filter((x) => x.type === m.type && x.slug !== m.slug && !cnc.hidden.includes(x.slug))
     .sort((a, b) => Math.abs(size(a) - size(m)) - Math.abs(size(b) - size(m))).slice(0, 6);
   const name = fullName(m);
   return (

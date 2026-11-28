@@ -1,5 +1,5 @@
 import Link from "@/i18n/client";
-import { getBusinessLinks, getCategories } from "@/lib/data";
+import { getBusinessLinks, getCategories, getCncSettings } from "@/lib/data";
 import { BUSINESS_SITES } from "@/lib/business-links";
 import { JsonLd } from "./JsonLd";
 import { STORE } from "@/lib/constants";
@@ -7,7 +7,7 @@ import { Logo } from "./Logo";
 import { getT } from "@/i18n/server";
 
 export async function Footer() {
-  const [categories, links] = await Promise.all([getCategories(), getBusinessLinks()]);
+  const [categories, links, cnc] = await Promise.all([getCategories(), getBusinessLinks(), getCncSettings()]);
   const { t } = await getT();
   const profiles = BUSINESS_SITES.filter((x) => links[x.key]).map((x) => ({ label: x.label, href: links[x.key]! }));
   const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://pcbdukaan.com";
@@ -69,7 +69,7 @@ export async function Footer() {
             <li><Link href="/replacement-finder" className="hover:text-white">{t("nav.finder")}</Link></li>
             <li><Link href="/fault-codes" className="hover:text-white">{t("nav.faultCodes")}</Link></li>
             <li><Link href="/electrical-faults" className="hover:text-white">Electrical faults</Link></li>
-            <li><Link href="/cnc-machines" className="hover:text-white">CNC machine comparison</Link></li>
+            {cnc.enabled && <li><Link href="/cnc-machines" className="hover:text-white">CNC machine comparison</Link></li>}
             <li><Link href="/repair-guides" className="hover:text-white">{t("nav.repairGuides")}</Link></li>
             <li><Link href="/pcb-repair-course" className="hover:text-white">{t("nav.repairCourse")}</Link></li>
             <li><Link href="/pcb-design" className="hover:text-white">{t("nav.pcbDesign")}</Link></li>

@@ -229,6 +229,18 @@ export async function getWorkshopNote(path: string): Promise<import("./expert").
   return cleanNote(data?.value ?? null);
 }
 
+// CNC comparison switches from Admin → CNC comparison: whole section on/off, hidden machines, hidden photos.
+export type CncSettings = { enabled: boolean; hidden: string[]; hiddenPhotos: string[] };
+export async function getCncSettings(): Promise<CncSettings> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("catalog");
+  const { data } = await supabase.from("site_content").select("value").eq("key", "cnc_settings").maybeSingle();
+  const v = (data?.value ?? {}) as Partial<CncSettings>;
+  const list = (x: unknown) => (Array.isArray(x) ? x.filter((s): s is string => typeof s === "string").slice(0, 1000) : []);
+  return { enabled: v.enabled !== false, hidden: list(v.hidden), hiddenPhotos: list(v.hiddenPhotos) };
+}
+
 // Machine photos: free-licence photos (cnc-photos-free.ts) + uploads in Admin → CNC photos (uploads win).
 export async function getCncPhotos(): Promise<Record<string, import("@/components/MachineArt").MachinePhoto>> {
   "use cache";
@@ -236,11 +248,12 @@ export async function getCncPhotos(): Promise<Record<string, import("@/component
   cacheTag("catalog");
   const { data } = await supabase.from("site_content").select("value").eq("key", "cnc_photos").maybeSingle();
   const v = (data?.value ?? {}) as Record<string, { url?: unknown; credit?: unknown }>;
-  const { FREE_CNC_PHOTOS } = await import("./cnc-photos-free");
+  const [{ FREE_CNC_PHOTOS }, settings] = await Promise.all([import("./cnc-photos-free"), getCncSettings()]);
   const out: Record<string, import("@/components/MachineArt").MachinePhoto> = { ...FREE_CNC_PHOTOS };
   for (const [k, x] of Object.entries(v)) {
     if (x && typeof x.url === "string" && /^https:\/\//.test(x.url)) out[k] = { url: x.url, credit: typeof x.credit === "string" ? x.credit.slice(0, 80) : undefined };
   }
+  for (const slug of settings.hiddenPhotos) delete out[slug];
   return out;
 }
 

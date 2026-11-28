@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getAllProductLinks, getCategories, getOpenJobs, getCaseStudies } from "@/lib/data";
+import { getAllProductLinks, getCategories, getOpenJobs, getCaseStudies, getCncSettings } from "@/lib/data";
 import { AREAS, STATES, isFeaturedArea } from "@/lib/locations";
 import { REPAIR_GUIDES } from "@/lib/repair-guides";
 import { DRIVE_BRANDS, codeSlug } from "@/lib/fault-codes";
@@ -20,7 +20,7 @@ function langs(path: string) {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [categories, products, jobs, cases] = await Promise.all([getCategories(), getAllProductLinks(), getOpenJobs(), getCaseStudies()]);
+  const [categories, products, jobs, cases, cnc] = await Promise.all([getCategories(), getAllProductLinks(), getOpenJobs(), getCaseStudies(), getCncSettings()]);
   const pages = ["", "/products", "/pcb-repair", "/careers", "/about", "/contact", "/shipping-returns", "/privacy", "/track", "/site-map", "/locations", "/bulk-quote", "/quick-order", "/replacement-finder", "/fault-codes", "/repair-partners", "/repair-case-studies", "/repair-guides", "/pcb-repair-course"].map((p) => ({
     url: `${SITE}${p}`,
     changeFrequency: "weekly" as const,
@@ -39,8 +39,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...DRIVE_BRANDS.flatMap((b) => b.codes.map((c) => ({ url: `${SITE}/fault-codes/${b.slug}/${codeSlug(c)}`, changeFrequency: "monthly" as const, priority: 0.5 }))),
     ...REPAIR_BRANDS.map((b) => ({ url: `${SITE}/pcb-repair/${b.service}/${b.slug}`, changeFrequency: "monthly" as const, priority: 0.7 })),
     { url: `${SITE}/electrical-faults`, changeFrequency: "monthly" as const, priority: 0.7 },
-    { url: `${SITE}/cnc-machines`, changeFrequency: "weekly" as const, priority: 0.8 },
-    ...CNC.map((m) => ({ url: `${SITE}/cnc-machines/${m.slug}`, changeFrequency: "monthly" as const, priority: 0.6 })),
+    ...(cnc.enabled ? [{ url: `${SITE}/cnc-machines`, changeFrequency: "weekly" as const, priority: 0.8 }] : []),
+    ...(cnc.enabled ? CNC.filter((m) => !cnc.hidden.includes(m.slug)) : []).map((m) => ({ url: `${SITE}/cnc-machines/${m.slug}`, changeFrequency: "monthly" as const, priority: 0.6 })),
     ...ELECTRICAL_FAULTS.map((f) => ({ url: `${SITE}/electrical-faults/${f.slug}`, changeFrequency: "monthly" as const, priority: 0.6 })),
     { url: `${SITE}/pcb-design`, changeFrequency: "monthly" as const, priority: 0.7 },
     ...PCB_LESSONS.map((l) => ({ url: `${SITE}/pcb-design/${l.slug}`, changeFrequency: "monthly" as const, priority: 0.6 })),
