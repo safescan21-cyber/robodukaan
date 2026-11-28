@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { lang } from "next/root-params";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
-import { MachineImage } from "@/components/MachineArt";
+import { MachineImage, PhotoCredit } from "@/components/MachineArt";
 import { getCncPhotos } from "@/lib/data";
 import { CNC_DATA_CHECKED, MACHINES, SPEC_ROWS, TYPE_LABEL, fullName, getMachine, isTurning, makerName, num, type CncType } from "@/lib/cnc-machines";
 
@@ -73,6 +73,7 @@ async function Machine({ params }: Pick<PageProps<"/[lang]/cnc-machines/[slug]">
         <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center">
           <div className="shrink-0">
             <MachineImage type={m.type} photo={photo} alt={name} className="h-40 w-full rounded-xl bg-white sm:h-36 sm:w-52" />
+            <PhotoCredit photo={photo} className="mt-1.5 max-w-52 text-slate-300" />
             {!photo && (
               <a href={m.source} target="_blank" rel="noopener" className="mt-2 flex items-center justify-center gap-1 rounded-lg bg-white/10 px-3 py-1.5 text-xs font-semibold text-white ring-1 ring-white/20 hover:bg-white/20">
                 📷 See photos on {makerName(m).split(" (")[0]} website ↗

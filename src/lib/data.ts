@@ -229,14 +229,15 @@ export async function getWorkshopNote(path: string): Promise<import("./expert").
   return cleanNote(data?.value ?? null);
 }
 
-// Machine photos uploaded in Admin → CNC photos: { slug: { url, credit } }.
-export async function getCncPhotos(): Promise<Record<string, { url: string; credit?: string }>> {
+// Machine photos: free-licence photos (cnc-photos-free.ts) + uploads in Admin → CNC photos (uploads win).
+export async function getCncPhotos(): Promise<Record<string, import("@/components/MachineArt").MachinePhoto>> {
   "use cache";
   cacheLife("minutes");
   cacheTag("catalog");
   const { data } = await supabase.from("site_content").select("value").eq("key", "cnc_photos").maybeSingle();
   const v = (data?.value ?? {}) as Record<string, { url?: unknown; credit?: unknown }>;
-  const out: Record<string, { url: string; credit?: string }> = {};
+  const { FREE_CNC_PHOTOS } = await import("./cnc-photos-free");
+  const out: Record<string, import("@/components/MachineArt").MachinePhoto> = { ...FREE_CNC_PHOTOS };
   for (const [k, x] of Object.entries(v)) {
     if (x && typeof x.url === "string" && /^https:\/\//.test(x.url)) out[k] = { url: x.url, credit: typeof x.credit === "string" ? x.credit.slice(0, 80) : undefined };
   }

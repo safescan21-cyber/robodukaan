@@ -3,12 +3,12 @@
 import { useMemo, useState } from "react";
 import Link, { useRouter } from "@/i18n/client";
 import type { FinderItem } from "@/lib/cnc-machines";
-import { MachineImage } from "./MachineArt";
+import { MachineImage, type MachinePhoto } from "./MachineArt";
 
 const TYPES: [string, string][] = [["", "All types"], ["vmc", "VMC"], ["hmc", "HMC"], ["5axis", "5-axis"], ["drill-tap", "Drill-tap"], ["turning", "Turning / lathe"], ["vtl", "VTL"]];
 
 // Search, filter and pick up to 4 machines to compare.
-export function CncFinder({ items, makers, photos = {} }: { items: FinderItem[]; makers: { slug: string; name: string }[]; photos?: Record<string, { url: string; credit?: string }> }) {
+export function CncFinder({ items, makers, photos = {} }: { items: FinderItem[]; makers: { slug: string; name: string }[]; photos?: Record<string, MachinePhoto> }) {
   const router = useRouter();
   const [q, setQ] = useState("");
   const [type, setType] = useState("");

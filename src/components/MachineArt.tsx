@@ -77,8 +77,10 @@ export function MachineArt({ type, className = "" }: { type: string; className?:
   );
 }
 
-// Real photo when one is uploaded, else the drawing.
-export function MachineImage({ type, photo, alt, className = "" }: { type: string; photo?: { url: string; credit?: string } | null; alt: string; className?: string }) {
+export type MachinePhoto = { url: string; credit?: string; license?: string; licenseUrl?: string; sourceUrl?: string };
+
+// Real photo when there is one, else the drawing. Free-licence photos carry their required credit.
+export function MachineImage({ type, photo, alt, className = "" }: { type: string; photo?: MachinePhoto | null; alt: string; className?: string }) {
   return (
     <div className={`relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 to-sky-50 ${className}`}>
       {photo?.url ? (
@@ -87,7 +89,19 @@ export function MachineImage({ type, photo, alt, className = "" }: { type: strin
       ) : (
         <MachineArt type={type} className="h-3/4 w-3/4" />
       )}
-      {photo?.credit && <span className="absolute bottom-1 end-1 rounded bg-black/50 px-1.5 text-[10px] text-white">{photo.credit}</span>}
+      {photo?.credit && !photo.license && <span className="absolute bottom-1 end-1 rounded bg-black/50 px-1.5 text-[10px] text-white">{photo.credit}</span>}
     </div>
+  );
+}
+
+// Licence credit line for free-licence photos (e.g. "Photo: A. Walbert, CC BY-SA 3.0, via Wikimedia Commons").
+export function PhotoCredit({ photo, className = "" }: { photo?: MachinePhoto | null; className?: string }) {
+  if (!photo?.license) return null;
+  return (
+    <p className={`text-[11px] leading-snug ${className}`}>
+      Photo: {photo.sourceUrl ? <a href={photo.sourceUrl} target="_blank" rel="noopener" className="underline">{photo.credit || "see source"}</a> : photo.credit},{" "}
+      {photo.licenseUrl ? <a href={photo.licenseUrl} target="_blank" rel="noopener license" className="underline">{photo.license}</a> : photo.license}
+      {photo.sourceUrl?.includes("wikimedia") ? ", via Wikimedia Commons" : ""}
+    </p>
   );
 }

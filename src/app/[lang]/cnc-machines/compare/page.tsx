@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "@/i18n/client";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { MachineImage } from "@/components/MachineArt";
+import { MachineImage, PhotoCredit } from "@/components/MachineArt";
 import { getCncPhotos } from "@/lib/data";
 import { MACHINES, SPEC_ROWS, TYPE_SHORT, bestIndexes, fullName, getMachine, isTurning, type CncType } from "@/lib/cnc-machines";
 
@@ -55,6 +55,7 @@ async function Compare({ searchParams }: Pick<PageProps<"/[lang]/cnc-machines/co
               {list.map((m) => (
                 <th key={m.slug} className="px-4 py-3 align-top">
                   <MachineImage type={m.type} photo={photos[m.slug]} alt={fullName(m)} className="mb-2 h-28 w-full max-w-[220px] rounded-lg bg-white" />
+                  <PhotoCredit photo={photos[m.slug]} className="mb-2 max-w-[220px] font-normal text-slate-300" />
                   {!photos[m.slug] && <a href={m.source} target="_blank" rel="noopener" className="mb-2 inline-block text-xs font-normal text-slate-300 underline hover:text-white">📷 Photos on maker website ↗</a>}
                   <Link href={`/cnc-machines/${m.slug}`} className="font-bold hover:underline">{fullName(m)}</Link>
                   <span className="block text-xs font-normal text-slate-300">{TYPE_SHORT[m.type as CncType]} · {m.series}</span>
