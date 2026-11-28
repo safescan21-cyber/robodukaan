@@ -73,7 +73,8 @@ export async function Header() {
               ["/quick-order", t("nav.quickOrder"), "hidden lg:block"],
               ["/bulk-quote", t("nav.bulkQuote")],
               ["/fault-codes", t("nav.faultCodes")],
-              ["/repair-case-studies", t("nav.caseStudies"), "hidden xl:block"],
+              ["/cnc-machines", "CNC compare", "hidden lg:block"],
+              ["/repair-case-studies", t("nav.caseStudies"), "hidden 2xl:block"],
               ["/contact", t("nav.contact")],
             ] as [string, string, string?][]).map(([href, label, only]) => (
               <li key={href} className={only}><Link href={href} className="block whitespace-nowrap px-3 py-3 hover:bg-white/10 xl:px-4">{label}</Link></li>
