@@ -71,7 +71,14 @@ async function Machine({ params }: Pick<PageProps<"/[lang]/cnc-machines/[slug]">
       <header className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-brand-800 p-6 text-white sm:p-8">
         <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-accent-500/20 blur-3xl" />
         <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center">
-          <MachineImage type={m.type} photo={photo} alt={name} className="h-40 w-full shrink-0 rounded-xl bg-white sm:h-36 sm:w-52" />
+          <div className="shrink-0">
+            <MachineImage type={m.type} photo={photo} alt={name} className="h-40 w-full rounded-xl bg-white sm:h-36 sm:w-52" />
+            {!photo && (
+              <a href={m.source} target="_blank" rel="noopener" className="mt-2 flex items-center justify-center gap-1 rounded-lg bg-white/10 px-3 py-1.5 text-xs font-semibold text-white ring-1 ring-white/20 hover:bg-white/20">
+                📷 See photos on {makerName(m).split(" (")[0]} website ↗
+              </a>
+            )}
+          </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-accent-400">{TYPE_LABEL[m.type as CncType]}</p>
             <h1 className="mt-2 text-3xl font-extrabold">{name}</h1>

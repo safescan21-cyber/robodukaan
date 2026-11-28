@@ -55,6 +55,7 @@ async function Compare({ searchParams }: Pick<PageProps<"/[lang]/cnc-machines/co
               {list.map((m) => (
                 <th key={m.slug} className="px-4 py-3 align-top">
                   <MachineImage type={m.type} photo={photos[m.slug]} alt={fullName(m)} className="mb-2 h-28 w-full max-w-[220px] rounded-lg bg-white" />
+                  {!photos[m.slug] && <a href={m.source} target="_blank" rel="noopener" className="mb-2 inline-block text-xs font-normal text-slate-300 underline hover:text-white">📷 Photos on maker website ↗</a>}
                   <Link href={`/cnc-machines/${m.slug}`} className="font-bold hover:underline">{fullName(m)}</Link>
                   <span className="block text-xs font-normal text-slate-300">{TYPE_SHORT[m.type as CncType]} · {m.series}</span>
                   <Link href={`/cnc-machines/compare?m=${list.filter((x) => x !== m).map((x) => x.slug).join(",")}`} className="mt-1 inline-block text-xs font-normal text-slate-400 hover:text-white">✕ remove</Link>
