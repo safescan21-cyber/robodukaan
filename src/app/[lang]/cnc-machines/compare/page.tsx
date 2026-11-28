@@ -65,7 +65,7 @@ async function Compare({ searchParams }: Pick<PageProps<"/[lang]/cnc-machines/co
           <tbody className="divide-y divide-slate-100">
             {rows.map((r) => {
               const vals = list.map((m) => m.specs[r.key]);
-              const best = bestIndexes(vals, r.better);
+              const best = bestIndexes(vals, r.better, r.key);
               return (
                 <tr key={r.key}>
                   <th scope="row" className="bg-slate-50 px-4 py-2.5 text-left font-medium text-slate-600">{r.label}</th>
@@ -88,6 +88,7 @@ async function Compare({ searchParams }: Pick<PageProps<"/[lang]/cnc-machines/co
           </p>
         </section>
       )}
+      {list.some((m) => m.partial) && <p className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">Some makers (e.g. DMG MORI) publish only key data openly – the full sheet needs an account on their site, so some rows show “–”. Open the maker&apos;s spec page for the rest.</p>}
       <p className="mt-6 text-xs text-slate-500">Values as published by each manufacturer; standards for accuracy and power ratings differ between makers. Confirm with the manufacturer before buying.</p>
     </>
   );

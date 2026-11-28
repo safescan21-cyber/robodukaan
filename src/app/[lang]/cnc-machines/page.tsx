@@ -10,7 +10,7 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://pcbdukaan.com";
 
 export const metadata: Metadata = {
   title: "CNC machine comparison – VMC, HMC, lathe specs",
-  description: `Compare ${MACHINES.length} CNC machines side by side – VMC, HMC, turning centres and VTLs from Jyoti CNC and BFW. Travels, spindle, taper, tools and accuracy from maker spec sheets.`.slice(0, 158),
+  description: `Compare ${MACHINES.length} CNC machines side by side – VMC, HMC, turning centres and VTLs from Jyoti, BFW, Makino and DMG MORI. Specs from maker data.`.slice(0, 158),
   alternates: { canonical: "/cnc-machines" },
 };
 

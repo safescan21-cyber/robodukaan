@@ -12,6 +12,16 @@ export const CNC_MAKERS: Record<string, CncMaker> = {
     "name": "BFW (Bharat Fritz Werner)",
     "country": "India",
     "site": "https://bfwindia.com"
+  },
+  "makino": {
+    "name": "Makino",
+    "country": "Japan",
+    "site": "https://www.makino.com"
+  },
+  "dmgmori": {
+    "name": "DMG MORI",
+    "country": "Germany / Japan",
+    "site": "https://en.dmgmori.com"
   }
 };
 
@@ -2018,5 +2028,685 @@ export const CNC_MACHINES: CncMachine[] = [
    "z_travel": "530 mm",
    "weight": "5000 kg"
   }
+ },
+ {
+  "slug": "makino-ps65",
+  "maker": "makino",
+  "model": "PS65",
+  "series": "PS series",
+  "type": "vmc",
+  "source": "https://www.makino.com/en-us/machine-technology/machines/vertical-machining-centers-3-axis/ps65-vertical-machining-center",
+  "specs": {
+   "table_size": "920 x 510 mm",
+   "x_travel": "660 mm",
+   "y_travel": "510 mm",
+   "z_travel": "460 mm",
+   "max_rpm": "14,000 rpm",
+   "spindle_taper": "CAT40 (HSK-A63 opt)",
+   "rapid": "X-axis - 48,000 mm/min, Y / Z Axes - 36,000 mm/min",
+   "feed": "30,000 mm/min",
+   "table_load": "600 kg",
+   "tools": "30 tools (60 opt)"
+  }
+ },
+ {
+  "slug": "makino-ps105",
+  "maker": "makino",
+  "model": "PS105",
+  "series": "PS series",
+  "type": "vmc",
+  "source": "https://www.makino.com/en-us/machine-technology/machines/vertical-machining-centers-3-axis/ps105-vertical-machining-center",
+  "specs": {
+   "table_size": "1,300 x 510 mm",
+   "x_travel": "1050 mm",
+   "y_travel": "510 mm",
+   "z_travel": "460 mm",
+   "max_rpm": "14,000 rpm",
+   "spindle_taper": "CAT40 (HSK-A63 opt)",
+   "rapid": "X-axis - 48,000 mm/min, Y / Z Axes - 36,000 mm/min",
+   "feed": "30,000 mm/min",
+   "table_load": "800 kg",
+   "tools": "30 tools (60 opt)"
+  }
+ },
+ {
+  "slug": "makino-slim3n",
+  "maker": "makino",
+  "model": "Slim3n",
+  "series": "Slim series",
+  "type": "vmc",
+  "source": "https://www.makino.com/en-us/machine-technology/machines/vertical-machining-centers-3-axis/slim3n",
+  "specs": {
+   "table_size": "600 mm x 400 mm",
+   "x_travel": "500 mm",
+   "y_travel": "400 mm",
+   "z_travel": "400 mm",
+   "max_rpm": "16,000 (optional 8,000)",
+   "spindle_taper": "HSK-A50",
+   "rapid": "50,000 mm/min",
+   "feed": "1 - 20,000 mm/min",
+   "workpiece": "975 x 500 x 580 mm",
+   "table_load": "400 kg",
+   "tools": "26"
+  }
+ },
+ {
+  "slug": "makino-slim5n",
+  "maker": "makino",
+  "model": "Slim5n",
+  "series": "Slim series",
+  "type": "vmc",
+  "source": "https://www.makino.com/en-us/machine-technology/machines/vertical-machining-centers-3-axis/slim5n-table",
+  "specs": {
+   "table_size": "800 mm x 400 mm",
+   "x_travel": "710 mm",
+   "y_travel": "400 mm",
+   "z_travel": "410 mm",
+   "max_rpm": "16,000 (optional 8,000)",
+   "spindle_taper": "HSK-A50"
+  }
+ },
+ {
+  "slug": "makino-f5",
+  "maker": "makino",
+  "model": "F5",
+  "series": "F series",
+  "type": "vmc",
+  "source": "https://www.makino.com/en-us/machine-technology/machines/vertical-machining-centers-3-axis/f5-pro-6-vertical-machining-center",
+  "specs": {
+   "table_size": "1,000 x 500 mm",
+   "x_travel": "900 mm",
+   "y_travel": "500 mm",
+   "z_travel": "450 mm",
+   "max_rpm": "20,000 RPM (Optional: 30,000 RPM)",
+   "spindle_taper": "HSK-A63 (Optional HSK-F63)",
+   "rapid": "20,000 mm/min",
+   "feed": "20,000 mm/min",
+   "workpiece": "1,000 x 500 x 450 mm",
+   "table_load": "1,000 kg",
+   "tools": "30"
+  }
+ },
+ {
+  "slug": "makino-f8",
+  "maker": "makino",
+  "model": "F8",
+  "series": "F series",
+  "type": "vmc",
+  "source": "https://www.makino.com/en-us/machine-technology/machines/vertical-machining-centers-3-axis/f8-vertical-machining-center",
+  "specs": {
+   "table_size": "1,550 x 800 mm",
+   "x_travel": "1300 mm",
+   "y_travel": "800 mm",
+   "z_travel": "650 mm",
+   "max_rpm": "10,000 rpm",
+   "spindle_taper": "CAT50 (HSK-A100 OPT)",
+   "rapid": "24,000 mm/min",
+   "feed": "24,000 mm/min",
+   "workpiece": "1,550 x 800 x 550 mm",
+   "table_load": "2,500 kg",
+   "tools": "30 tools"
+  }
+ },
+ {
+  "slug": "makino-f9",
+  "maker": "makino",
+  "model": "F9",
+  "series": "F series",
+  "type": "vmc",
+  "source": "https://www.makino.com/en-us/machine-technology/machines/vertical-machining-centers-3-axis/f9-vertical-machining-center",
+  "specs": {
+   "table_size": "1,850 x 800 mm",
+   "x_travel": "1600 mm",
+   "y_travel": "800 mm",
+   "z_travel": "650 mm",
+   "max_rpm": "10,000 rpm",
+   "spindle_taper": "CAT50 (HSK-A100 opt)",
+   "rapid": "24,000 mm/min",
+   "feed": "24,000 mm/min",
+   "workpiece": "1,850 x 800 x 550 mm",
+   "table_load": "2,500 kg",
+   "tools": "30"
+  }
+ },
+ {
+  "slug": "makino-l2",
+  "maker": "makino",
+  "model": "L2",
+  "series": "L series",
+  "type": "vmc",
+  "source": "https://www.makino.com/en-us/machine-technology/machines/vertical-machining-centers-3-axis/l2-table-vertical-machining-center",
+  "specs": {
+   "table_size": "600 x 400 mm",
+   "x_travel": "400 mm",
+   "y_travel": "300 mm",
+   "z_travel": "300 mm",
+   "a_axis": "0.001°",
+   "max_rpm": "16,000 (HSK-A50), Optional - 8,000 (HSK-A50)",
+   "rapid": "48 m/min",
+   "feed": "48 m/min",
+   "workpiece": "413 x 267 x 215 mm",
+   "table_load": "60 kg",
+   "tools": "30 (HSK-A50) - Standard",
+   "tool_change": "3.5 to 4.5 sec"
+  }
+ },
+ {
+  "slug": "makino-iq300",
+  "maker": "makino",
+  "model": "iQ300",
+  "series": "iQ series (micro milling)",
+  "type": "vmc",
+  "source": "https://www.makino.com/en-us/machine-technology/machines/vertical-machining-centers-3-axis/iq300-vertical-machining-center",
+  "specs": {
+   "table_size": "600 x 400 mm",
+   "x_travel": "400 mm",
+   "y_travel": "350 mm",
+   "z_travel": "200 mm",
+   "max_rpm": "45,000 rpm",
+   "spindle_taper": "HSK-E32",
+   "rapid": "16,000 mm/min (X / Y), 8,000 mm/min (Z)",
+   "feed": "16,000 mm/min (X / Y), 8,000 mm/min (Z)",
+   "workpiece": "600 x 580 x 190 mm",
+   "table_load": "100 kg",
+   "tools": "40"
+  }
+ },
+ {
+  "slug": "makino-iq500",
+  "maker": "makino",
+  "model": "iQ500",
+  "series": "iQ series (micro milling)",
+  "type": "vmc",
+  "source": "https://www.makino.com/en-us/machine-technology/machines/vertical-machining-centers-3-axis/iq500-vertical-machining-center",
+  "specs": {
+   "table_size": "800 mm x 500 mm",
+   "x_travel": "600 mm",
+   "y_travel": "500 mm",
+   "z_travel": "300 mm",
+   "max_rpm": "45,000 rpm",
+   "spindle_taper": "HSK-E32",
+   "rapid": "16,000 mm/min (X / Y) / 8,000 mm/min (Z)",
+   "feed": "16,000 mm/min (X / Y) / 8,000 mm/min (Z)",
+   "workpiece": "755 mm x 500 mm x 300 mm",
+   "table_load": "300 kg",
+   "tools": "40",
+   "tool_change": "8 sec"
+  }
+ },
+ {
+  "slug": "makino-a71nx",
+  "maker": "makino",
+  "model": "a71nx",
+  "series": "a-nx series",
+  "type": "hmc",
+  "source": "https://www.makino.com/en-us/machine-technology/machines/horizontal-4-axis/a71nx",
+  "specs": {
+   "table_size": "Pallet 500 x 500 mm",
+   "x_travel": "800 mm",
+   "y_travel": "750 mm",
+   "z_travel": "830 mm",
+   "b_axis": "360° DD NCRT",
+   "max_rpm": "10,000 rpm",
+   "spindle_taper": "CAT50 (HSK-A100 opt)",
+   "rapid": "(X / Y) 50,000 mm/min / (Z) 60,000 mm/min",
+   "feed": "50,000 mm/min",
+   "workpiece": "ø900 mm x 1,000 mm",
+   "table_load": "1,000 kg",
+   "tools": "60 (136, 187 & 299)",
+   "tool_change": "3.6 sec (≤ 20kg)"
+  }
+ },
+ {
+  "slug": "makino-a81nx",
+  "maker": "makino",
+  "model": "a81nx",
+  "series": "a-nx series",
+  "type": "hmc",
+  "source": "https://www.makino.com/en-us/machine-technology/machines/horizontal-4-axis/a81nx",
+  "specs": {
+   "table_size": "Pallet 630 mm x 630 mm",
+   "x_travel": "900 mm",
+   "y_travel": "900 mm",
+   "z_travel": "1020 mm",
+   "b_axis": "360°",
+   "max_rpm": "10,000 (8,000 High Torque opt)",
+   "spindle_taper": "CAT50 (HSK-A100 opt)",
+   "rapid": "50,000 mm/min (Std) / 36,000 mm/min (High Torque)",
+   "feed": "50,000 mm/min (Std), 36,000 mm/min (High Torque)",
+   "workpiece": "ø1,000 mm x 1,300 mm",
+   "table_load": "1,200 kg (1,500 kg opt)",
+   "tools": "60 (80, 136, 187, 299 opt)",
+   "tool_change": "3.7 sec / Maximum Tool Length (Cat) / 690 mm / Maximum Tool Length HSK / 690 mm"
+  }
+ },
+ {
+  "slug": "makino-a120nx",
+  "maker": "makino",
+  "model": "a120nx",
+  "series": "a-nx series",
+  "type": "hmc",
+  "source": "https://www.makino.com/en-us/machine-technology/machines/horizontal-4-axis/a120nx",
+  "specs": {
+   "x_travel": "1900 mm",
+   "y_travel": "1600 mm",
+   "z_travel": "1700 mm",
+   "max_rpm": "8,000 (Optional 20,000)",
+   "spindle_taper": "CAT50 (HSK-A100 opt)",
+   "rapid": "54,000 mm/min",
+   "feed": "54,000 mm/min",
+   "workpiece": "ø2,100mm x 1,800mm",
+   "table_load": "3,000 kg (Optional 5,000 kg)",
+   "tools": "204",
+   "tool_change": "2.2 sec (12kg) / 3.3 sec (35kg)"
+  }
+ },
+ {
+  "slug": "makino-j5",
+  "maker": "makino",
+  "model": "J5",
+  "series": "J series",
+  "type": "hmc",
+  "source": "https://www.makino.com/en-us/machine-technology/machines/horizontal-4-axis/j5",
+  "specs": {
+   "table_size": "Pallet 500 x 500 mm std. (400 x 400 mm opt.)",
+   "x_travel": "1500 mm",
+   "y_travel": "650 mm",
+   "z_travel": "650 mm",
+   "a_axis": "Unlimited (A-axis type) +90° / -180° (A/B-axes type)",
+   "b_axis": "Unlimited (A-axis, A/B-axes types)",
+   "max_rpm": "14,000 with HSK-A63 (std.) / 10,000 with HSK-A100 (opt.)"
+  }
+ },
+ {
+  "slug": "makino-j6",
+  "maker": "makino",
+  "model": "J6",
+  "series": "J series",
+  "type": "hmc",
+  "source": "https://www.makino.com/en-us/machine-technology/machines/horizontal-4-axis/j6",
+  "specs": {
+   "table_size": "Pallet Differs by kinematic variant (consult us for details)",
+   "x_travel": "750 mm",
+   "y_travel": "560 mm",
+   "z_travel": "500 mm",
+   "a_axis": "Unlimited (A-axis type) +90° / -180° (A/B-axes type)",
+   "b_axis": "Unlimited (A-axis, A/B-axes types)",
+   "max_rpm": "16000 (12000 Opt.)",
+   "spindle_taper": "HSK-A63",
+   "rapid": "75,000 mm/min",
+   "feed": "50,000 mm/min",
+   "workpiece": "Differs by kinematic variant (consult factory for details)",
+   "table_load": "500 kg (B-axis type) 400 kg (A-axis, A/B-axes types)",
+   "tools": "30 (40 Opt.)",
+   "tool_change": "2.0 sec +/- 10%"
+  }
+ },
+ {
+  "slug": "makino-d200z",
+  "maker": "makino",
+  "model": "D200Z",
+  "series": "D series",
+  "type": "5axis",
+  "source": "https://www.makino.com/en-us/machine-technology/machines/vertical-5-axis/d200z",
+  "specs": {
+   "table_size": "300 mm diameter",
+   "x_travel": "350 mm",
+   "y_travel": "300 mm",
+   "z_travel": "250 mm",
+   "b_axis": "Tilt - 180° (0 to +180)",
+   "c_axis": "Rotary - 360°",
+   "max_rpm": "30,000 - HSK-E50 (Standard)",
+   "rapid": "60 m / min",
+   "feed": "60 m / min",
+   "workpiece": "300 mm diameter x 210 mm high (conditional)",
+   "table_load": "75 kg",
+   "tools": "20 + 1",
+   "tool_change": "3.9 sec"
+  }
+ },
+ {
+  "slug": "makino-d300",
+  "maker": "makino",
+  "model": "D300",
+  "series": "D series",
+  "type": "5axis",
+  "source": "https://www.makino.com/en-us/machine-technology/machines/vertical-5-axis/d300",
+  "specs": {
+   "table_size": "300 mm diameter",
+   "x_travel": "300 mm",
+   "y_travel": "500 mm",
+   "z_travel": "350 mm",
+   "a_axis": "+120/-120",
+   "c_axis": "360",
+   "max_rpm": "15K (20K, 30K opt)",
+   "rapid": "60,000 mm/min",
+   "feed": "60,000 mm/min",
+   "workpiece": "450 diameter x 240 mm (conditional)"
+  }
+ },
+ {
+  "slug": "makino-da300",
+  "maker": "makino",
+  "model": "DA300",
+  "series": "DA series",
+  "type": "5axis",
+  "source": "https://www.makino.com/en-us/machine-technology/machines/vertical-5-axis/da300",
+  "specs": {
+   "table_size": "300 mm x 340 mm",
+   "x_travel": "450 mm",
+   "y_travel": "620 mm",
+   "z_travel": "500 mm",
+   "a_axis": "150° (+30 to -120)",
+   "c_axis": "360°",
+   "max_rpm": "20,000 (HSK - A63)",
+   "rapid": "60,000 mm/min",
+   "feed": "60,000 mm/min",
+   "workpiece": "450 mm diameter x 400 mm (conditional)",
+   "table_load": "250 kg",
+   "tools": "60 std, (118 & 311 opt)",
+   "tool_change": "3.5 sec"
+  }
+ },
+ {
+  "slug": "makino-d500",
+  "maker": "makino",
+  "model": "D500",
+  "series": "D series",
+  "type": "5axis",
+  "source": "https://www.makino.com/en-us/machine-technology/machines/vertical-5-axis/d500",
+  "specs": {
+   "table_size": "500 mm diameter",
+   "x_travel": "550 mm",
+   "y_travel": "1000 mm",
+   "z_travel": "500 mm",
+   "a_axis": "+30/-120",
+   "c_axis": "360",
+   "max_rpm": "14 K (12K, 20K, 30K opt)",
+   "rapid": "48,000 mm/min (X) 50,000 m/min (Y / Z)",
+   "feed": "32,000 mm/min (X) 40,000 m/min (Y / Z)",
+   "workpiece": "650 mm x 500 mm height (conditional)"
+  }
+ },
+ {
+  "slug": "makino-v80s",
+  "maker": "makino",
+  "model": "V80S",
+  "series": "VS series",
+  "type": "5axis",
+  "source": "https://www.makino.com/en-us/machine-technology/machines/vertical-5-axis/v80s",
+  "specs": {
+   "table_size": "1,300 mm x 1,000 mm",
+   "x_travel": "1300 mm",
+   "y_travel": "1000 mm",
+   "z_travel": "600 mm",
+   "a_axis": "60° (-30° to +30°)",
+   "c_axis": "120° (-60° to +60°)",
+   "max_rpm": "20,000 (HSK - A63)",
+   "rapid": "58,000 mm/min",
+   "feed": "40,000 mm/min",
+   "workpiece": "1,500 mm x 1,200 mm x 550 mm",
+   "table_load": "2,500 kg",
+   "tools": "40 (120 opt)",
+   "tool_change": "8 sec"
+  }
+ },
+ {
+  "slug": "dmg-mori-cmx-600-v",
+  "maker": "dmgmori",
+  "model": "CMX 600 V",
+  "series": "CMX V series",
+  "type": "vmc",
+  "source": "https://en.dmgmori.com/products/machines/milling/vertical-milling/cmx-v/cmx-600-v#15762",
+  "specs": {
+   "x_travel": "600 mm",
+   "y_travel": "560 mm",
+   "z_travel": "510 mm",
+   "table_load": "600 kg",
+   "workpiece": "900 x 560 x 630 mm",
+   "controls": "SIEMENS, HEIDENHAIN, MAPPS Fanuc"
+  },
+  "partial": true
+ },
+ {
+  "slug": "dmg-mori-cmx-800-v",
+  "maker": "dmgmori",
+  "model": "CMX 800 V",
+  "series": "CMX V series",
+  "type": "vmc",
+  "source": "https://en.dmgmori.com/products/machines/milling/vertical-milling/cmx-v/cmx-800-v",
+  "specs": {
+   "x_travel": "800 mm",
+   "y_travel": "560 mm",
+   "z_travel": "510 mm",
+   "table_load": "800 kg",
+   "workpiece": "1100 x 560 x 630 mm",
+   "controls": "SIEMENS, HEIDENHAIN, MAPPS Fanuc"
+  },
+  "partial": true
+ },
+ {
+  "slug": "dmg-mori-cmx-1100-v",
+  "maker": "dmgmori",
+  "model": "CMX 1100 V",
+  "series": "CMX V series",
+  "type": "vmc",
+  "source": "https://en.dmgmori.com/products/machines/milling/vertical-milling/cmx-v/cmx-1100-v",
+  "specs": {
+   "x_travel": "1100 mm",
+   "y_travel": "560 mm",
+   "z_travel": "510 mm",
+   "table_load": "1000 kg",
+   "workpiece": "1400 x 560 x 630 mm"
+  },
+  "partial": true
+ },
+ {
+  "slug": "dmg-mori-nvx-5060-2nd-gen",
+  "maker": "dmgmori",
+  "model": "NVX 5060 2nd Gen.",
+  "series": "NVX series",
+  "type": "vmc",
+  "source": "https://en.dmgmori.com/products/machines/milling/vertical-milling/nvx/nvx-5060",
+  "specs": {
+   "x_travel": "600 mm",
+   "y_travel": "530 mm",
+   "z_travel": "510 mm",
+   "table_load": "800 kg",
+   "workpiece": "900 x 600 x 510 mm",
+   "controls": "MAPPS Fanuc"
+  },
+  "partial": true
+ },
+ {
+  "slug": "dmg-mori-nvx-5080-2nd-gen",
+  "maker": "dmgmori",
+  "model": "NVX 5080 2nd Gen.",
+  "series": "NVX series",
+  "type": "vmc",
+  "source": "https://en.dmgmori.com/products/machines/milling/vertical-milling/nvx/nvx-5080",
+  "specs": {
+   "x_travel": "800 mm",
+   "y_travel": "530 mm",
+   "z_travel": "510 mm",
+   "table_load": "1000 kg",
+   "workpiece": "1100 x 600 x 510 mm",
+   "controls": "MAPPS Fanuc"
+  },
+  "partial": true
+ },
+ {
+  "slug": "dmg-mori-nvx-5100-2nd-gen",
+  "maker": "dmgmori",
+  "model": "NVX 5100 2nd Gen.",
+  "series": "NVX series",
+  "type": "vmc",
+  "source": "https://en.dmgmori.com/products/machines/milling/vertical-milling/nvx/nvx-5100",
+  "specs": {
+   "x_travel": "1050 mm",
+   "y_travel": "530 mm",
+   "z_travel": "510 mm",
+   "table_load": "1200 kg",
+   "workpiece": "1350 x 600 x 510 mm",
+   "controls": "MAPPS Fanuc"
+  },
+  "partial": true
+ },
+ {
+  "slug": "dmg-mori-dmu-50-3rd-gen",
+  "maker": "dmgmori",
+  "model": "DMU 50 3rd Gen.",
+  "series": "DMU series",
+  "type": "5axis",
+  "source": "https://en.dmgmori.com/products/machines/milling/5-axis-milling/dmu/dmu-50",
+  "specs": {
+   "x_travel": "650 mm",
+   "y_travel": "520 mm",
+   "z_travel": "475 mm",
+   "table_load": "300 kg",
+   "workpiece": "Ø 630 mm",
+   "controls": "SIEMENS, HEIDENHAIN, MAPPS Fanuc"
+  },
+  "partial": true
+ },
+ {
+  "slug": "dmg-mori-dmu-75-monoblock-2nd-gen",
+  "maker": "dmgmori",
+  "model": "DMU 75 monoBLOCK 2nd Gen.",
+  "series": "monoBLOCK",
+  "type": "5axis",
+  "source": "https://en.dmgmori.com/products/machines/milling/5-axis-milling/monoblock/dmu-75-monoblock-2nd",
+  "specs": {
+   "x_travel": "750 mm",
+   "y_travel": "650 mm",
+   "z_travel": "560 mm",
+   "table_load": "600 kg",
+   "workpiece": "Ø 840 mm",
+   "controls": "SIEMENS, HEIDENHAIN"
+  },
+  "partial": true
+ },
+ {
+  "slug": "dmg-mori-nhx-5000-4th-gen",
+  "maker": "dmgmori",
+  "model": "NHX 5000 4th Gen.",
+  "series": "NHX series",
+  "type": "hmc",
+  "source": "https://en.dmgmori.com/products/machines/milling/horizontal-milling/nhx/nhx-5000",
+  "specs": {
+   "x_travel": "730 mm",
+   "y_travel": "730 mm",
+   "z_travel": "880 mm",
+   "table_load": "500 kg",
+   "workpiece": "Ø 800 mm",
+   "controls": "SIEMENS, MAPPS Fanuc"
+  },
+  "partial": true
+ },
+ {
+  "slug": "dmg-mori-clx-350",
+  "maker": "dmgmori",
+  "model": "CLX 350",
+  "series": "CLX series",
+  "type": "turning",
+  "source": "https://en.dmgmori.com/products/machines/turning/universal-turning/clx/clx-350",
+  "specs": {
+   "max_turn_dia": "320 mm",
+   "bar_capacity": "65 mm",
+   "x_travel": "242 mm",
+   "y_travel": "80 mm",
+   "z_travel": "540 mm",
+   "max_turn_len": "530 mm",
+   "controls": "SIEMENS"
+  },
+  "partial": true
+ },
+ {
+  "slug": "dmg-mori-clx-450",
+  "maker": "dmgmori",
+  "model": "CLX 450",
+  "series": "CLX series",
+  "type": "turning",
+  "source": "https://en.dmgmori.com/products/machines/turning/universal-turning/clx/clx-450",
+  "specs": {
+   "max_turn_dia": "400 mm",
+   "bar_capacity": "80 mm",
+   "x_travel": "276 mm",
+   "y_travel": "120 mm",
+   "z_travel": "830 mm",
+   "max_turn_len": "800 mm",
+   "controls": "SIEMENS"
+  },
+  "partial": true
+ },
+ {
+  "slug": "dmg-mori-nlx-2000",
+  "maker": "dmgmori",
+  "model": "NLX 2000",
+  "series": "NLX series",
+  "type": "turning",
+  "source": "https://en.dmgmori.com/products/machines/turning/universal-turning/nlx/nlx-2000#16450",
+  "specs": {
+   "max_turn_dia": "366 mm",
+   "bar_capacity": "65 mm",
+   "x_travel": "260 mm",
+   "y_travel": "100 mm",
+   "z_travel": "590 mm",
+   "max_turn_len": "510 mm"
+  },
+  "partial": true
+ },
+ {
+  "slug": "dmg-mori-nlx-2500-2nd-gen",
+  "maker": "dmgmori",
+  "model": "NLX 2500 2nd Gen.",
+  "series": "NLX series",
+  "type": "turning",
+  "source": "https://en.dmgmori.com/products/machines/turning/universal-turning/nlx/nlx-2500-2nd#826436",
+  "specs": {
+   "max_turn_dia": "366 mm",
+   "bar_capacity": "105 mm",
+   "x_travel": "260 mm",
+   "y_travel": "120 mm",
+   "z_travel": "1345 mm",
+   "max_turn_len": "1258 mm",
+   "controls": "SIEMENS"
+  },
+  "partial": true
+ },
+ {
+  "slug": "dmg-mori-nlx-3000",
+  "maker": "dmgmori",
+  "model": "NLX 3000",
+  "series": "NLX series",
+  "type": "turning",
+  "source": "https://en.dmgmori.com/products/machines/turning/universal-turning/nlx/nlx-3000",
+  "specs": {
+   "max_turn_dia": "430 mm",
+   "bar_capacity": "102 mm",
+   "x_travel": "280 mm",
+   "y_travel": "120 mm",
+   "z_travel": "3170 mm",
+   "max_turn_len": "3123 mm"
+  },
+  "partial": true
+ },
+ {
+  "slug": "dmg-mori-ctx-450",
+  "maker": "dmgmori",
+  "model": "CTX 450",
+  "series": "CTX series",
+  "type": "turning",
+  "source": "https://en.dmgmori.com/products/machines/turning/universal-turning/ctx/ctx-450",
+  "specs": {
+   "max_turn_dia": "480 mm",
+   "bar_capacity": "102 mm",
+   "x_travel": "310 mm",
+   "y_travel": "130 mm",
+   "z_travel": "825 mm",
+   "max_turn_len": "800 mm",
+   "controls": "SIEMENS"
+  },
+  "partial": true
  }
 ];

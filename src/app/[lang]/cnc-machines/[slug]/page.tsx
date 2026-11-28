@@ -96,7 +96,7 @@ async function Machine({ params }: Pick<PageProps<"/[lang]/cnc-machines/[slug]">
           </tbody>
         </table>
         <p className="border-t border-slate-100 bg-slate-50 px-5 py-3 text-xs text-slate-500">
-          Source: <a href={m.source} target="_blank" rel="noopener" className="text-brand-700 underline">{makerName(m).split(" (")[0]} – official specifications</a>, checked {new Date(CNC_DATA_CHECKED).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}. Power ratings are shown as published (continuous / short-time, by controller). Confirm options and current specs with the manufacturer.
+          Source: <a href={m.source} target="_blank" rel="noopener" className="text-brand-700 underline">{makerName(m).split(" (")[0]} – official specifications</a>, checked {new Date(CNC_DATA_CHECKED).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}. Power ratings are shown as published (continuous / short-time, by controller). Confirm options and current specs with the manufacturer.{m.partial ? " This maker publishes only key data openly – see their page for spindle, tool magazine and accuracy details." : ""}
         </p>
       </section>
 

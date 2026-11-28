@@ -4,7 +4,8 @@ import { CNC_DATA_CHECKED, CNC_MACHINES, CNC_MAKERS } from "./cnc-machines-data"
 
 export type CncType = "vmc" | "hmc" | "5axis" | "drill-tap" | "turning" | "vtl";
 export type CncSpecs = Partial<Record<SpecKey, string>>;
-export type CncMachine = { slug: string; maker: string; model: string; series: string; type: string; source: string; specs: CncSpecs };
+// partial = the maker publishes only key data openly (e.g. DMG MORI shows the full sheet only after login).
+export type CncMachine = { slug: string; maker: string; model: string; series: string; type: string; source: string; specs: CncSpecs; partial?: boolean };
 export type CncMaker = { name: string; country: string; site: string };
 
 export const TYPE_LABEL: Record<CncType, string> = {
@@ -20,7 +21,8 @@ export const TYPE_SHORT: Record<CncType, string> = { vmc: "VMC", hmc: "HMC", "5a
 export type SpecKey =
   | "x_travel" | "y_travel" | "z_travel" | "table_size" | "table_load" | "spindle_taper" | "max_rpm" | "spindle_power"
   | "rapid" | "feed" | "tools" | "tool_change" | "tool_shank" | "positioning" | "repeatability" | "weight"
-  | "swing" | "max_turn_dia" | "max_turn_len" | "chuck" | "bar_capacity" | "guideways";
+  | "swing" | "max_turn_dia" | "max_turn_len" | "chuck" | "bar_capacity" | "guideways"
+  | "workpiece" | "a_axis" | "b_axis" | "c_axis" | "controls";
 
 // Rows of the comparison table, in order. `better` marks which way is better for highlighting.
 export const SPEC_ROWS: { key: SpecKey; label: string; better?: "high" | "low"; turning?: boolean; milling?: boolean }[] = [
@@ -32,7 +34,11 @@ export const SPEC_ROWS: { key: SpecKey; label: string; better?: "high" | "low"; 
   { key: "x_travel", label: "X travel", better: "high" },
   { key: "y_travel", label: "Y travel", better: "high", milling: true },
   { key: "z_travel", label: "Z travel", better: "high" },
-  { key: "table_size", label: "Table size", milling: true },
+  { key: "a_axis", label: "A axis (tilt / rotary)", milling: true },
+  { key: "b_axis", label: "B axis", milling: true },
+  { key: "c_axis", label: "C axis", milling: true },
+  { key: "table_size", label: "Table / pallet size", milling: true },
+  { key: "workpiece", label: "Max. workpiece size", milling: true },
   { key: "table_load", label: "Max. table load", better: "high", milling: true },
   { key: "spindle_taper", label: "Spindle taper / nose" },
   { key: "max_rpm", label: "Max. spindle speed", better: "high" },
@@ -45,6 +51,7 @@ export const SPEC_ROWS: { key: SpecKey; label: string; better?: "high" | "low"; 
   { key: "positioning", label: "Positioning accuracy", better: "low" },
   { key: "repeatability", label: "Repeatability", better: "low" },
   { key: "weight", label: "Machine weight (approx.)" },
+  { key: "controls", label: "CNC controls offered" },
 ];
 
 export { CNC_DATA_CHECKED, CNC_MAKERS };
@@ -62,20 +69,33 @@ export function num(v?: string): number | null {
   return m ? Number(m[0]) : null;
 }
 
+// Number for comparing one spec across makers: rapid/feed in m/min (Makino publishes mm/min), "15K" rpm = 15,000.
+export function specNum(key: SpecKey, v?: string): number | null {
+  if (!v) return null;
+  const clean = v.replace(/^0-/, "");
+  if (key === "max_rpm") {
+    const k = clean.match(/(\d+(?:\.\d+)?)\s*K\b/i);
+    if (k) return Number(k[1]) * 1000;
+  }
+  const n = num(clean);
+  if (n !== null && (key === "rapid" || key === "feed") && /mm\s*\/\s*min/i.test(clean) && n >= 1000) return n / 1000;
+  return n;
+}
+
 // Compact list for the finder page (client side).
 export function finderItems() {
   return MACHINES.map((m) => ({
     s: m.slug, mk: m.maker, mn: makerName(m).split(" (")[0], md: m.model, sr: m.series, t: m.type,
     x: num(m.specs.x_travel ?? m.specs.max_turn_dia), y: num(m.specs.y_travel), z: num(m.specs.z_travel ?? m.specs.max_turn_len),
-    rpm: num(m.specs.max_rpm?.replace(/^0-/, "")), tools: num(m.specs.tools), taper: m.specs.spindle_taper ?? "",
+    rpm: specNum("max_rpm", m.specs.max_rpm), tools: num(m.specs.tools), taper: m.specs.spindle_taper ?? "",
   }));
 }
 export type FinderItem = ReturnType<typeof finderItems>[number];
 
 // For a comparison row: indexes of the best value(s), when the values are comparable numbers.
-export function bestIndexes(values: (string | undefined)[], better?: "high" | "low") {
+export function bestIndexes(values: (string | undefined)[], better?: "high" | "low", key?: SpecKey) {
   if (!better) return [];
-  const nums = values.map((v) => num(v?.replace(/^0-/, "")));
+  const nums = values.map((v) => (key ? specNum(key, v) : num(v?.replace(/^0-/, ""))));
   const valid = nums.filter((n): n is number => n !== null);
   if (valid.length < 2 || new Set(valid).size < 2) return [];
   const target = better === "high" ? Math.max(...valid) : Math.min(...valid);
