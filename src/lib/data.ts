@@ -229,6 +229,20 @@ export async function getWorkshopNote(path: string): Promise<import("./expert").
   return cleanNote(data?.value ?? null);
 }
 
+// Machine photos uploaded in Admin → CNC photos: { slug: { url, credit } }.
+export async function getCncPhotos(): Promise<Record<string, { url: string; credit?: string }>> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("catalog");
+  const { data } = await supabase.from("site_content").select("value").eq("key", "cnc_photos").maybeSingle();
+  const v = (data?.value ?? {}) as Record<string, { url?: unknown; credit?: unknown }>;
+  const out: Record<string, { url: string; credit?: string }> = {};
+  for (const [k, x] of Object.entries(v)) {
+    if (x && typeof x.url === "string" && /^https:\/\//.test(x.url)) out[k] = { url: x.url, credit: typeof x.credit === "string" ? x.credit.slice(0, 80) : undefined };
+  }
+  return out;
+}
+
 export async function getOpenJobs(): Promise<import("./types").Job[]> {
   "use cache";
   cacheLife("minutes");

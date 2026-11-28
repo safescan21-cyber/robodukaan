@@ -17,6 +17,7 @@ const ITEMS = [
   { href: "/admin/repair-terms", label: "Repair promises", icon: "🤝" },
   { href: "/admin/business-links", label: "Business links", icon: "🔗" },
   { href: "/admin/workshop-notes", label: "Workshop notes", icon: "✍️" },
+  { href: "/admin/cnc-photos", label: "CNC photos", icon: "🏭" },
   { href: "/admin/vendors", label: "Vendors", icon: "🏭" },
   { href: "/admin/case-studies", label: "Case studies", icon: "📝" },
   { href: "/admin/visitors", label: "Visitors", icon: "👥" },

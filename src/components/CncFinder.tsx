@@ -3,11 +3,12 @@
 import { useMemo, useState } from "react";
 import Link, { useRouter } from "@/i18n/client";
 import type { FinderItem } from "@/lib/cnc-machines";
+import { MachineImage } from "./MachineArt";
 
 const TYPES: [string, string][] = [["", "All types"], ["vmc", "VMC"], ["hmc", "HMC"], ["5axis", "5-axis"], ["drill-tap", "Drill-tap"], ["turning", "Turning / lathe"], ["vtl", "VTL"]];
 
 // Search, filter and pick up to 4 machines to compare.
-export function CncFinder({ items, makers }: { items: FinderItem[]; makers: { slug: string; name: string }[] }) {
+export function CncFinder({ items, makers, photos = {} }: { items: FinderItem[]; makers: { slug: string; name: string }[]; photos?: Record<string, { url: string; credit?: string }> }) {
   const router = useRouter();
   const [q, setQ] = useState("");
   const [type, setType] = useState("");
@@ -65,7 +66,12 @@ export function CncFinder({ items, makers }: { items: FinderItem[]; makers: { sl
               return (
                 <tr key={m.s} className={on ? "bg-brand-50" : "hover:bg-slate-50"}>
                   <td className="px-3 py-2.5"><input type="checkbox" aria-label={`Compare ${m.mn} ${m.md}`} checked={on} disabled={!on && picked.length >= 4} onChange={() => toggle(m.s)} className="h-4 w-4 accent-brand-600" /></td>
-                  <td className="px-3 py-2.5"><Link href={`/cnc-machines/${m.s}`} className="font-semibold text-slate-900 hover:text-brand-700">{m.mn} {m.md}</Link><span className="block text-xs text-slate-500">{m.sr}</span></td>
+                  <td className="px-3 py-2.5">
+                    <Link href={`/cnc-machines/${m.s}`} className="flex items-center gap-3 hover:text-brand-700">
+                      <MachineImage type={m.t} photo={photos[m.s]} alt={`${m.mn} ${m.md}`} className="h-12 w-16 shrink-0 rounded-md ring-1 ring-slate-200" />
+                      <span><span className="block font-semibold text-slate-900">{m.mn} {m.md}</span><span className="block text-xs text-slate-500">{m.sr}</span></span>
+                    </Link>
+                  </td>
                   <td className="px-3 py-2.5"><span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-700">{TYPES.find(([v]) => v === m.t)?.[1] ?? m.t}</span></td>
                   <td className="px-3 py-2.5 text-end tabular-nums">{m.x ?? "–"}</td>
                   <td className="px-3 py-2.5 text-end tabular-nums">{m.y ?? "–"}</td>
@@ -86,7 +92,9 @@ export function CncFinder({ items, makers }: { items: FinderItem[]; makers: { sl
           <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2">
             <span className="text-sm font-semibold">Compare ({picked.length}/4):</span>
             {picked.map((s) => { const m = items.find((x) => x.s === s)!; return (
-              <button key={s} onClick={() => toggle(s)} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold hover:bg-red-50 hover:text-red-700">{m.mn} {m.md} ✕</button>
+              <button key={s} onClick={() => toggle(s)} className="flex items-center gap-1.5 rounded-full bg-slate-100 py-0.5 pe-3 ps-0.5 text-xs font-semibold hover:bg-red-50 hover:text-red-700">
+                <MachineImage type={m.t} photo={photos[s]} alt="" className="h-7 w-9 rounded-full" />{m.mn} {m.md} ✕
+              </button>
             ); })}
             <button disabled={picked.length < 2} onClick={() => router.push(`/cnc-machines/compare?m=${picked.join(",")}`)}
               className="ms-auto rounded-lg bg-accent-500 px-5 py-2 text-sm font-bold text-white hover:bg-accent-600 disabled:opacity-50">

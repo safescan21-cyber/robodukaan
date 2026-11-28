@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "@/i18n/client";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { MachineImage } from "@/components/MachineArt";
+import { getCncPhotos } from "@/lib/data";
 import { MACHINES, SPEC_ROWS, TYPE_SHORT, bestIndexes, fullName, getMachine, isTurning, type CncType } from "@/lib/cnc-machines";
 
 export const metadata: Metadata = {
@@ -32,6 +34,7 @@ async function Compare({ searchParams }: Pick<PageProps<"/[lang]/cnc-machines/co
       </div>
     );
   }
+  const photos = await getCncPhotos();
   const anyTurning = list.some((m) => isTurning(m.type));
   const anyMilling = list.some((m) => !isTurning(m.type));
   const rows = SPEC_ROWS.filter((r) => (!r.turning || anyTurning) && (!r.milling || anyMilling) && list.some((m) => m.specs[r.key]));
@@ -51,6 +54,7 @@ async function Compare({ searchParams }: Pick<PageProps<"/[lang]/cnc-machines/co
               <th className="w-48 px-4 py-3 font-semibold">Specification</th>
               {list.map((m) => (
                 <th key={m.slug} className="px-4 py-3 align-top">
+                  <MachineImage type={m.type} photo={photos[m.slug]} alt={fullName(m)} className="mb-2 h-28 w-full max-w-[220px] rounded-lg bg-white" />
                   <Link href={`/cnc-machines/${m.slug}`} className="font-bold hover:underline">{fullName(m)}</Link>
                   <span className="block text-xs font-normal text-slate-300">{TYPE_SHORT[m.type as CncType]} · {m.series}</span>
                   <Link href={`/cnc-machines/compare?m=${list.filter((x) => x !== m).map((x) => x.slug).join(",")}`} className="mt-1 inline-block text-xs font-normal text-slate-400 hover:text-white">✕ remove</Link>

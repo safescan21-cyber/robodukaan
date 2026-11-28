@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import { lang } from "next/root-params";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
+import { MachineImage } from "@/components/MachineArt";
+import { getCncPhotos } from "@/lib/data";
 import { CNC_DATA_CHECKED, MACHINES, SPEC_ROWS, TYPE_LABEL, fullName, getMachine, isTurning, makerName, num, type CncType } from "@/lib/cnc-machines";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://pcbdukaan.com";
@@ -42,6 +44,7 @@ async function Machine({ params }: Pick<PageProps<"/[lang]/cnc-machines/[slug]">
   const m = getMachine(slug);
   if (!m) notFound();
   const turning = isTurning(m.type);
+  const photo = (await getCncPhotos())[m.slug];
   const rows = SPEC_ROWS.filter((r) => m.specs[r.key]);
   // Similar machines: same type, closest size.
   const size = (x: typeof m) => num(x.specs.x_travel ?? x.specs.max_turn_dia) ?? 0;
@@ -53,7 +56,7 @@ async function Machine({ params }: Pick<PageProps<"/[lang]/cnc-machines/[slug]">
       <JsonLd data={[
         {
           "@context": "https://schema.org", "@type": "Product", name, brand: { "@type": "Brand", name: makerName(m).split(" (")[0] },
-          category: TYPE_LABEL[m.type as CncType], url: `${SITE}/cnc-machines/${m.slug}`,
+          category: TYPE_LABEL[m.type as CncType], url: `${SITE}/cnc-machines/${m.slug}`, ...(photo ? { image: photo.url } : {}),
           additionalProperty: rows.map((r) => ({ "@type": "PropertyValue", name: r.label, value: m.specs[r.key] })),
         },
         {
@@ -67,9 +70,14 @@ async function Machine({ params }: Pick<PageProps<"/[lang]/cnc-machines/[slug]">
       <Breadcrumbs schema={false} items={[{ label: "CNC machine comparison", href: "/cnc-machines" }, { label: name }]} />
       <header className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-brand-800 p-6 text-white sm:p-8">
         <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-accent-500/20 blur-3xl" />
-        <p className="relative text-xs font-semibold uppercase tracking-widest text-accent-400">{TYPE_LABEL[m.type as CncType]}</p>
-        <h1 className="relative mt-2 text-3xl font-extrabold">{name}</h1>
-        <p className="relative mt-1 text-slate-300">{makerName(m)} · {m.series}</p>
+        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center">
+          <MachineImage type={m.type} photo={photo} alt={name} className="h-40 w-full shrink-0 rounded-xl bg-white sm:h-36 sm:w-52" />
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-accent-400">{TYPE_LABEL[m.type as CncType]}</p>
+            <h1 className="mt-2 text-3xl font-extrabold">{name}</h1>
+            <p className="mt-1 text-slate-300">{makerName(m)} · {m.series}</p>
+          </div>
+        </div>
         <div className="relative mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {(turning
             ? [["Turning Ø", m.specs.max_turn_dia], ["Turning length", m.specs.max_turn_len], ["Max. speed", m.specs.max_rpm], ["Tools", m.specs.tools]]

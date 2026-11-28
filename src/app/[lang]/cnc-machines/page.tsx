@@ -3,6 +3,7 @@ import Link from "@/i18n/client";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
 import { CncFinder } from "@/components/CncFinder";
+import { getCncPhotos } from "@/lib/data";
 import { CNC_DATA_CHECKED, CNC_MAKERS, MACHINES, TYPE_LABEL, finderItems, type CncType } from "@/lib/cnc-machines";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://pcbdukaan.com";
@@ -13,7 +14,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/cnc-machines" },
 };
 
-export default function CncMachinesPage() {
+export default async function CncMachinesPage() {
+  const photos = await getCncPhotos();
   const makers = Object.entries(CNC_MAKERS).map(([slug, m]) => ({ slug, name: m.name.split(" (")[0], full: m.name, country: m.country, count: MACHINES.filter((x) => x.maker === slug).length }));
   const types = (Object.keys(TYPE_LABEL) as CncType[]).map((t) => ({ t, n: MACHINES.filter((m) => m.type === t).length })).filter((x) => x.n);
   return (
@@ -33,7 +35,7 @@ export default function CncMachinesPage() {
         </div>
       </section>
 
-      <div className="mt-6"><CncFinder items={finderItems()} makers={makers.map(({ slug, name }) => ({ slug, name }))} /></div>
+      <div className="mt-6"><CncFinder items={finderItems()} photos={photos} makers={makers.map(({ slug, name }) => ({ slug, name }))} /></div>
 
       <section className="mt-10 grid gap-4 sm:grid-cols-2">
         {makers.map((m) => (
