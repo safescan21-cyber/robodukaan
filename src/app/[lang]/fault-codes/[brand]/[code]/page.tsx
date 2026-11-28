@@ -97,16 +97,23 @@ async function FaultCode({ params }: Pick<PageProps<"/[lang]/fault-codes/[brand]
         ],
       }} />
       <Breadcrumbs schema={false} items={[{ label: t("nav.faultCodes"), href: "/fault-codes" }, { label: b.brand, href: `/fault-codes/${b.slug}` }, { label: c.code }]} />
-      <h1 className="text-3xl font-extrabold">
-        <span className="me-2 rounded bg-slate-900 px-2 py-0.5 font-mono text-2xl text-white">{c.code}</span>
-        {c.name}
-      </h1>
-      <p className="mt-2 text-slate-700">
-        {b.brand} {kindLabel(b)} {word} · {b.series}
-        {c.aliases?.length ? <> · <span className="text-slate-500">also shown or searched as {c.aliases.join(", ")}</span></> : null}
-      </p>
+      <header className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-brand-800 p-6 text-white sm:p-8">
+        <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-accent-500/20 blur-3xl" />
+        <p className="relative text-xs font-semibold uppercase tracking-widest text-accent-400">{b.brand} · {kindLabel(b)} {word}</p>
+        <h1 className="relative mt-3 flex flex-wrap items-center gap-3 text-2xl font-extrabold sm:text-3xl">
+          <span className="rounded-lg bg-white px-3 py-1 font-mono text-slate-900 shadow">{c.code}</span>
+          <span>{c.name}</span>
+        </h1>
+        <p className="relative mt-3 text-sm text-slate-300">{b.series}</p>
+        <div className="relative mt-4 flex flex-wrap gap-2 text-xs">
+          {c.board
+            ? <span className="rounded-full bg-amber-400/20 px-3 py-1 font-semibold text-amber-200 ring-1 ring-amber-300/40">🔧 Often needs board repair</span>
+            : <span className="rounded-full bg-emerald-400/20 px-3 py-1 font-semibold text-emerald-200 ring-1 ring-emerald-300/40">✓ Usually fixed by checks &amp; settings</span>}
+          {c.aliases?.slice(0, 4).map((a) => <span key={a} className="rounded-full bg-white/10 px-3 py-1 font-mono ring-1 ring-white/20">{a}</span>)}
+        </div>
+      </header>
 
-      <section className="mt-6 rounded-md bg-white p-5 ring-1 ring-slate-200">
+      <section className="mt-6 rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
         <h2 className="text-lg font-bold">What {c.code} means</h2>
         <p className="mt-2 text-slate-700">
           {b.kind === "plc" ? (
@@ -119,19 +126,21 @@ async function FaultCode({ params }: Pick<PageProps<"/[lang]/fault-codes/[brand]
         </p>
       </section>
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <section className="rounded-md bg-white p-5 ring-1 ring-slate-200">
-          <h2 className="text-lg font-bold">{t("fault.causes")}</h2>
-          <ul className="mt-2 list-disc space-y-1 ps-5 text-slate-700">{c.causes.map((x) => <li key={x}>{x}</li>)}</ul>
+      <div className="mt-4 grid gap-4 md:grid-cols-5">
+        <section className="rounded-xl border-t-4 border-red-500 bg-white p-5 shadow-sm ring-1 ring-slate-200 md:col-span-2">
+          <h2 className="flex items-center gap-2 text-lg font-bold"><span aria-hidden="true" className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-600">!</span>{t("fault.causes")}</h2>
+          <ul className="mt-3 space-y-2 text-slate-700">{c.causes.map((x) => <li key={x} className="flex gap-2"><span aria-hidden="true" className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-red-400" />{x}</li>)}</ul>
         </section>
-        <section className="rounded-md bg-white p-5 ring-1 ring-slate-200">
-          <h2 className="text-lg font-bold">{t("fault.check")}</h2>
-          <ol className="mt-2 list-decimal space-y-1 ps-5 text-slate-700">{c.check.map((x) => <li key={x}>{x}</li>)}</ol>
+        <section className="rounded-xl border-t-4 border-emerald-500 bg-white p-5 shadow-sm ring-1 ring-slate-200 md:col-span-3">
+          <h2 className="flex items-center gap-2 text-lg font-bold"><span aria-hidden="true" className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">✓</span>{t("fault.check")}</h2>
+          <ol className="mt-3 space-y-3 text-slate-700">{c.check.map((x, i) => (
+            <li key={x} className="flex gap-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">{i + 1}</span><span>{x}</span></li>
+          ))}</ol>
         </section>
       </div>
 
       {c.board ? (
-        <p className="mt-4 rounded bg-brand-50 px-4 py-3 text-brand-900">
+        <p className="mt-4 rounded-xl bg-brand-50 px-5 py-4 text-brand-900 ring-1 ring-brand-100">
           🔧 If {c.code} comes back after these checks, the fault is usually on the drive&apos;s power or control board. {t("fault.repairCta")}{" "}
           <Link href="/pcb-repair" className="font-semibold underline">{t("loc.getQuote")}</Link>
           {(() => { const rb = repairBrandForFaultBrand(b.slug); return rb ? <> · <Link href={`/pcb-repair/${rb.service}/${rb.slug}`} className="underline">{rb.brand} {rb.noun} repair</Link></> : null; })()}

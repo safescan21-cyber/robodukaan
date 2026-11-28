@@ -674,3 +674,11 @@ export function getFaultCode(brandSlug: string, slug: string) {
 }
 
 export const kindLabel = (b: Pick<DriveBrand, "kind">) => (b.kind === "servo" ? "servo drive" : b.kind === "plc" ? "PLC" : "VFD / inverter");
+
+
+// Compact list for the error-code search box (client side).
+export function faultSearchItems() {
+  return DRIVE_BRANDS.flatMap((b) => b.codes.map((c) => ({
+    b: b.short && b.brand.length > 22 ? b.short : b.brand, bs: b.slug, c: c.code, s: codeSlug(c), n: c.name, a: (c.aliases ?? []).join("|"), k: b.kind ?? "vfd",
+  })));
+}
